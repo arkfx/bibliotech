@@ -206,6 +206,8 @@ Assim, consigo localizar com facilidade os **livros que ainda não li** ou que f
 **Eu, como usuário, desejo ler meus livros digitais diretamente na plataforma.**
 Para isso, o sistema deve disponibilizar um **leitor de ebooks** integrado, acessível a partir da biblioteca.
 
+![alt text](images/leitor.png)
+
 ---
 
 #### RF11: Gerenciamento de Catálogo (Administrador)
@@ -223,7 +225,7 @@ Assim, consigo **excluir** conteúdos desatualizados ou que não devem mais ser 
 
 ---
 
-### Iteração 1 - Cadastro de livro
+### Iteração 1 - Cadastro e Visualização de livros
 
 _Valor_: Permitir que o administrador gerencie os livros disponíveis na livraria digital, incluindo cadastro, edição e remoção de títulos, enquanto o usuário pode visualizar o catálogo de livros, com opções de busca e filtragem
 
@@ -242,18 +244,40 @@ _Requisitos_:
 
 - RF04 – Busca e Filtragem
 
-### Iteração 1 - Cadastro e Visualização
+### Iteração 1 - Cadastro e Visualização de livros
 
 | Feature                                                                        | Autor     |
 | ------------------------------------------------------------------------------ | --------- |
-| Tela Home                                                                      | Marcos    |
+| Tela Home                                                                      | Guilherme |
 | Permitir ao administrador fazer login na plataforma                            | Ítalo     |
-| Tela de Listagem de livros                                                     | Jhennifer |
-| Permitir ao administrador adicionar livros                                     | Guilherme |
+| Permitir ao administrador adicionar livros                                     | Marcos    |
 | Permitir ao administrador remover livros                                       | Luiz      |
-| Permitir ao administrador editar livros                                        | Marcos    |
-| Tela de livros geral                                                           | Ítalo     |
-| Permitir ao usuário visualizar o catálogo sem o login com pesquisa e filtragem | Jhennifer |
+| Permitir ao administrador editar livros                                        | Jhennifer |
+| Permitir ao usuário visualizar o catálogo sem o login com pesquisa e filtragem | Ítalo     |
 | Listagem de livros para o administrador                                        | Guilherme |
+
+---
+
+### Iteração 2 - Autenticação do usuário.
+
+_Valor_: Garantir que os usuários possam se cadastrar, fazer login, visualizar detalhes dos livros, adicionar ao carrinho, e salvar o carrinho após o logout.
+
+_Objetivo_: Permitir que o usuário se cadastre e faça login na plataforma, visualize os detalhes dos livros, adicione livros ao carrinho e, ao dar logout, o carrinho seja salvo para que possa continuar a compra posteriormente.
+
+_Requisitos_:
+
+- RF01 - Cadastro do Usuário
+- RF05 - Visualização de Detalhes do Livro
+- RF06 - Carrinho de Compras
+
+### Iteração 2 - Autenticação do usuário e Carrinho de Compras.
+
+| Feature                                            | Autor     |
+| -------------------------------------------------- | --------- |
+| Permitir ao usuário se cadastrar na plataforma     | Guilherme |
+| Visualizar detalhes do livro                       | Marcos    |
+| Permitir ao usuário adicionar livros ao carrinho   | Luiz      |
+| Permitir ao usuário dar logout e salvar o carrinho | Jhennifer |
+| Tela de carrinho com os livros adicionados         | ítalo     |
 
 ---
