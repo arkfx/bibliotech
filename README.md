@@ -258,7 +258,7 @@ _Requisitos_:
 
 ---
 
-### Iteração 2 - Autenticação do usuário.
+### Iteração 2 - Autenticação do usuário e Carrinho de Compras.
 
 _Valor_: Garantir que os usuários possam se cadastrar, fazer login, visualizar detalhes dos livros, adicionar ao carrinho, e salvar o carrinho após o logout.
 
