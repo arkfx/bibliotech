@@ -26,7 +26,7 @@
 
 O **BiblioTech** é uma livraria digital que permite a venda de livros digitais (ebooks) de forma acessível e organizada. Os usuários poderão explorar um catálogo de livros, realizar compras e acessar sua biblioteca digital para leitura dos ebooks adquiridos.
 
-## 📚 Requisitos Funcionais
+## Requisitos Funcionais 
 
 ### RF01: Cadastro do Usuário
 
@@ -94,7 +94,7 @@ O **BiblioTech** é uma livraria digital que permite a venda de livros digitais 
 - O sistema deve permitir que administradores removam livros do catálogo.
 - O sistema deve permitir que administradores categorizem livros em gêneros e coleções.
 
-## 🎭 User Stories
+## User Stories
 
 #### **RF01: Cadastro do Usuário**
 
@@ -230,7 +230,7 @@ Assim, consigo **excluir** conteúdos desatualizados ou que não devem mais ser 
 
 ![alt text](prototipos/administrador.png)
 
-## 🔁 Iterações
+## Iterações
 ---
 
 ### Iteração 1 - Cadastro e Visualização de livros
