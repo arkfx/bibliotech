@@ -94,7 +94,7 @@ O **BiblioTech** é uma livraria digital que permite a venda de livros digitais 
 **Eu, como usuário, desejo me cadastrar na plataforma BiblioTech.**  
 Para isso, eu devo acessar a página inicial e clicar na opção de **Cadastrar**. Para completar o cadastro, preciso inserir informações como **nome , e-mail, senha e confirmação da senha**. Caso eu já tenha uma conta, posso clicar na opção **"Faça login"** e ser direcionado para a tela de login.
 
-![imagem de cadastro](images/cadastro.png)
+![imagem de cadastro](prototipos/cadastro.png)
 
 ---
 
@@ -103,7 +103,7 @@ Para isso, eu devo acessar a página inicial e clicar na opção de **Cadastrar*
 **Eu, como usuário, desejo acessar minha conta na BiblioTech.**  
 Para isso, preciso estar previamente cadastrado. Na tela de login, devo inserir meu **e-mail e senha cadastrados**. Caso eu não tenha uma conta, posso clicar na opção **"Cadastre-se"** e ser direcionado para a tela de cadastro.
 
-![alt text](images/login.png)
+![alt text](prototipos/login.png)
 
 ---
 
@@ -122,7 +122,7 @@ Para isso, devo poder utilizar a **barra de pesquisa**, onde poderei inserir o *
 **Eu, como usuário, desejo filtrar os livros exibidos.**  
 Para isso, a plataforma deve disponibilizar filtros por **gênero literário, preço**, facilitando a busca pelos livros do meu interesse.
 
-![alt text](images/home.png)
+![alt text](prototipos/home.png)
 
 ---
 
@@ -131,7 +131,7 @@ Para isso, a plataforma deve disponibilizar filtros por **gênero literário, pr
 **Eu, como usuário, desejo visualizar detalhes de um livro antes de comprá-lo.**  
 Ao clicar em um livro no catálogo, devo ser direcionado para uma página que contém **a capa do livro, título, autor, sinopse, editora e preço**.
 
-![alt text](images/detalhes.png)
+![alt text](prototipos/detalhes.png)
 
 ---
 
@@ -152,7 +152,7 @@ Assim, ao retornar para o sistema, poderei **continuar minhas compras** de onde 
 **Eu, como usuário, desejo visualizar o valor total da compra no carrinho.**
 Para isso, o sistema deve calcular e exibir o **valor atualizado** conforme modifico o conteúdo do carrinho.
 
-![alt text](images/carrinho.png)
+![alt text](prototipos/carrinho.png)
 
 ---
 
@@ -167,7 +167,7 @@ Assim, posso confirmar que os dados estão corretos. O sistema deve exibir o end
 **Eu, como usuário, desejo acompanhar o status da entrega dos meus livros físicos (quando aplicável).**
 Para isso, a tela de finalização deve mostrar um indicador visual de rastreio.
 
-![alt text](images/finalizada.png)
+![alt text](prototipos/finalizada.png)
 
 ---
 
@@ -182,7 +182,7 @@ Para isso, devo conseguir atualizar dados como nome, e-mail ou outras preferênc
 **Eu, como usuário, desejo alterar minha senha.**
 Para isso, a plataforma deve disponibilizar uma opção segura para redefinir ou atualizar minha senha.
 
-![perfil](images/perfil.png)
+![perfil](prototipos/perfil.png)
 
 ---
 
@@ -197,7 +197,7 @@ Para isso, uma barra de pesquisa deve estar **disponível** na tela da bibliotec
 **Eu, como usuário, desejo filtrar os livros da minha biblioteca por categoria.**
 Assim, consigo localizar com facilidade os **livros que ainda não li** ou que fazem parte de um gênero específico.
 
-![alt text](images/biblioteca.png)
+![alt text](prototipos/biblioteca.png)
 
 ---
 
@@ -206,7 +206,7 @@ Assim, consigo localizar com facilidade os **livros que ainda não li** ou que f
 **Eu, como usuário, desejo ler meus livros digitais diretamente na plataforma.**
 Para isso, o sistema deve disponibilizar um **leitor de ebooks** integrado, acessível a partir da biblioteca.
 
-![alt text](images/leitor.png)
+![alt text](prototipos/leitor.png)
 
 ---
 
@@ -221,8 +221,9 @@ Para isso, devo acessar a área de gerenciamento e **alterar** os dados necessá
 **Eu, como administrador, desejo remover livros do catálogo.**
 Assim, consigo **excluir** conteúdos desatualizados ou que não devem mais ser vendidos.
 
-![alt text](images/administrador.png)
+![alt text](prototipos/administrador.png)
 
+## Iterações
 ---
 
 ### Iteração 1 - Cadastro e Visualização de livros
@@ -244,17 +245,7 @@ _Requisitos_:
 
 - RF04 – Busca e Filtragem
 
-### Iteração 1 - Cadastro e Visualização de livros
-
-| Feature                                                                        | Autor     |
-| ------------------------------------------------------------------------------ | --------- |
-| Tela Home                                                                      | Guilherme |
-| Permitir ao administrador fazer login na plataforma                            | Ítalo     |
-| Permitir ao administrador adicionar livros                                     | Marcos    |
-| Permitir ao administrador remover livros                                       | Luiz      |
-| Permitir ao administrador editar livros                                        | Jhennifer |
-| Permitir ao usuário visualizar o catálogo sem o login com pesquisa e filtragem | Ítalo     |
-| Listagem de livros para o administrador                                        | Guilherme |
+[Acesse o relatório](relatorios/iteracao-1.md)
 
 ---
 
@@ -270,14 +261,6 @@ _Requisitos_:
 - RF05 - Visualização de Detalhes do Livro
 - RF06 - Carrinho de Compras
 
-### Iteração 2 - Autenticação do usuário e Carrinho de Compras.
-
-| Feature                                            | Autor     |
-| -------------------------------------------------- | --------- |
-| Permitir ao usuário se cadastrar na plataforma     | Guilherme |
-| Visualizar detalhes do livro                       | Marcos    |
-| Permitir ao usuário adicionar livros ao carrinho   | Luiz      |
-| Permitir ao usuário dar logout e salvar o carrinho | Jhennifer |
-| Tela de carrinho com os livros adicionados         | ítalo     |
+[Acesse o relatório](relatorios/iteracao-2.md)
 
 ---
