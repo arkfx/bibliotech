@@ -15,11 +15,18 @@
 - Luiz Felipe da Paz Leal
 - Marcos Freire de Melo
 
+## 📌 Navegação
+
+- [📚 Requisitos Funcionais](#📚-requisitos-funcionais)
+- [🎭 User Stories](#🎭-user-stories)
+- [🔁 Iterações](#🔁-iterações)
+
+
 ## 📖 Sobre o Projeto
 
 O **BiblioTech** é uma livraria digital que permite a venda de livros digitais (ebooks) de forma acessível e organizada. Os usuários poderão explorar um catálogo de livros, realizar compras e acessar sua biblioteca digital para leitura dos ebooks adquiridos.
 
-## Requisitos Funcionais
+## 📚 Requisitos Funcionais
 
 ### RF01: Cadastro do Usuário
 
@@ -223,7 +230,7 @@ Assim, consigo **excluir** conteúdos desatualizados ou que não devem mais ser 
 
 ![alt text](prototipos/administrador.png)
 
-## Iterações
+## 🔁 Iterações
 ---
 
 ### Iteração 1 - Cadastro e Visualização de livros
