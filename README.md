@@ -17,9 +17,9 @@
 
 ## 📌 Navegação
 
-- [📚 Requisitos Funcionais](#📚-requisitos-funcionais)
-- [🎭 User Stories](#🎭-user-stories)
-- [🔁 Iterações](#🔁-iterações)
+- [📚 Requisitos Funcionais](#requisitos-funcionais)
+- [🎭 User Stories](#user-stories)
+- [🔁 Iterações](#iterações)
 
 
 ## 📖 Sobre o Projeto
