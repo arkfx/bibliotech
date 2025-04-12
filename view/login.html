@@ -22,7 +22,7 @@
         <div class="login-card">
           <h1 class="login-title">Login</h1>
 
-          <form class="login-form">
+          <form class="login-form" id="login-form">
             <div class="form-group">
               <label for="email">Email</label>
               <div class="input-field">
@@ -36,16 +36,20 @@
 
             <div class="form-group">
               <label for="password">Senha</label>
-              <div class="input-field">
+              <div class="input-field" id="password-field">
                 <input
                   type="password"
-                  id="password"
+                  id="senha"
                   placeholder="Digite sua senha"
                 />
               </div>
             </div>
 
-            <button type="submit" class="btn-login">Entrar</button>
+            <button type="submit" class="btn-login" id="btn-login">
+              Entrar
+              <span id="loading-spinner" class="loading-spinner" style="display:none;"></span> <!-- Bola de carregamento -->
+            </button>
+            
           </form>
 
           <div class="divider"></div>
@@ -75,5 +79,5 @@
     </div>
 
     <script src="../public/js/modal.js"></script>
-  </body>
+    <script type="module" src="../public/js/pages/auth.js"></script>
 </html>

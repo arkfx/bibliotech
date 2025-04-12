@@ -49,10 +49,23 @@
               </svg>
             </a>
           </li>
-          <li><a href="login.html" class="main-nav-link nav-cta login">Login</a></li>
-          <li>
+
+          <!-- Botões visíveis apenas se o admin estiver logado -->
+          <li id="btnCadastrarLivro" style="display:none;">
+            <a href="#" class="main-nav-link">Painel Admin.</a>
+          </li>
+          <li id="btnPerfil" style="display:none;">
+            <a href="#" class="main-nav-link">Perfil</a>
+          </li>          
+
+          <!-- Botões visíveis quando o admin NÃO estiver logado -->
+          <li id="btnLogin">
+            <a href="login.html" class="main-nav-link nav-cta login">Login</a>
+          </li>
+          <li id="btnCadastro">
             <a href="#" class="main-nav-link nav-cta cadastro">Cadastro</a>
           </li>
+
         </ul>
       </nav>
     </header>
@@ -128,5 +141,7 @@
     
     <script src="../public/js/navigation.js"></script>
     <script src="../public/js/modal.js"></script>
+    <script src="../public/js/status.js"></script>
+
   </body>
 </html>
