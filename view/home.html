@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BiblioTech</title>
+    <link rel="stylesheet" href="../public/css/main.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="logo heading-primary">BiblioTech</div>
+
+      <div class="mobile-nav-toggle">
+        <span class="hamburger">&#9776;</span>
+      </div>
+
+      <nav class="main-nav">
+        <ul class="main-nav-list">
+          <li><input type="text" placeholder="Pesquisar Livro..." /></li>
+          <li><button class="btn">Buscar</button></li>
+          <li><a href="#" class="main-nav-link navegacao">Home</a></li>
+          <li><a href="#" class="main-nav-link navegacao">Gêneros</a></li>
+          <li><a href="#" class="main-nav-link navegacao">Catálogo</a></li>
+
+          <li>
+            <a href="#" class="main-nav-link cart-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path
+                  d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                ></path>
+              </svg>
+            </a>
+          </li>
+          <li><a href="#" class="main-nav-link nav-cta login">Login</a></li>
+          <li>
+            <a href="#" class="main-nav-link nav-cta cadastro">Cadastro</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Destaques -->
+    <main class="main-content">
+      <section class="section-hero">
+        <div class="container">
+          <h2 class="heading-secondary">Livros em destaque</h2>
+
+          <div class="grid grid--4-cols">
+            <!-- Livro -->
+            <div class="book-card">
+              <div class="book-cover">Capa do livro</div>
+              <div class="book-info">
+                <h3>Título do livro 1</h3>
+                <p>Autor do livro</p>
+                <strong>R$ xx,xx</strong>
+                <br />
+                <a href="#" class="btn-comprar">Comprar</a>
+              </div>
+            </div>
+
+            <!-- Clone os livros conforme necessário -->
+            <div class="book-card">
+              <div class="book-cover">Capa do livro</div>
+              <div class="book-info">
+                <h3>Título do livro 2</h3>
+                <p>Autor do livro</p>
+                <strong>R$ xx,xx</strong>
+                <br />
+                <a href="#" class="btn-comprar">Comprar</a>
+              </div>
+            </div>
+
+            <div class="book-card">
+              <div class="book-cover">Capa do livro</div>
+              <div class="book-info">
+                <h3>Título do livro 3</h3>
+                <p>Autor do livro</p>
+                <strong>R$ xx,xx</strong>
+                <br />
+                <a href="#" class="btn-comprar">Comprar</a>
+              </div>
+            </div>
+
+            <div class="book-card">
+              <div class="book-cover">Capa do livro</div>
+              <div class="book-info">
+                <h3>Título do livro 4</h3>
+                <p>Autor do livro</p>
+                <strong>R$ xx,xx</strong>
+                <br />
+                <a href="#" class="btn-comprar">Comprar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Rodapé -->
+    <footer>© 2025 - Todos os direitos reservados.</footer>
+    <script src="../public/js/navigation.js"></script>
+  </body>
+</html>
