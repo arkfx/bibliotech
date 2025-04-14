@@ -6,12 +6,14 @@ class UsuarioDAO {
         $this->conn = $db;
     }
 
-    public function getUsuarioByEmail($email) : array {
+    public function getUsuarioByEmail($email): array {
         $query = "SELECT * FROM usuario WHERE email = :email";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        return $result ? $result : []; //retorna o resultado ou um array vazio
     }
 
     public function createUsuario($usuario): array {

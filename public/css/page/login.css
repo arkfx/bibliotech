@@ -161,6 +161,13 @@ main {
     box-shadow: 0 0.4rem 0.8rem rgba(0, 160, 240, 0.2);
 }
 
+/* mensagem de erro */
+.error-message {
+    color: #e53e3e;
+    font-size: 1.4rem;
+    margin-top: 1rem;
+    text-align: center;
+}
 
 .divider {
     width: 100%;

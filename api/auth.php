@@ -11,9 +11,9 @@ $data = json_decode(file_get_contents('php://input'), true);
 if (isset($data['email']) && isset($data['senha'])) {
     $usuario = $dao->getUsuarioByEmail($data['email']);
     if ($usuario && password_verify($data['senha'], $usuario['senha'])) {
-        echo json_encode(['status' => 'success', 'message' => 'Login successful.']);
+        echo json_encode(['status' => 'success', 'message' => 'Login realizado com sucesso!.']);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid email or password.']);
+        echo json_encode(['status' => 'error', 'message' => 'Email ou senha incorretos']);
     }
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Email and password are required.']);

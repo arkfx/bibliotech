@@ -30,17 +30,19 @@
                   type="email"
                   id="email"
                   placeholder="exemplo123@gmail.com"
+                  required
                 />
               </div>
             </div>
 
             <div class="form-group">
-              <label for="password">Senha</label>
+              <label for="senha">Senha</label>
               <div class="input-field" id="password-field">
                 <input
                   type="password"
                   id="senha"
                   placeholder="Digite sua senha"
+                  required
                 />
               </div>
             </div>
@@ -49,16 +51,18 @@
               Entrar
               <span id="loading-spinner" class="loading-spinner" style="display:none;"></span> <!-- Bola de carregamento -->
             </button>
-            
           </form>
 
           <div class="divider"></div>
-
-          <p class="signup-text">
-            Não tem uma conta?
-            <a href="#" class="signup-link cadastro">Cadastre-se</a>
-          </p>
+            <p class="signup-text">
+              Não tem uma conta?
+              <a href="#" class="signup-link cadastro">Cadastre-se</a>
+            </p>
         </div>
+
+        <!-- mensagem de erro -->
+          <div id="error-message" class="error-message" style="display:none;">
+          </div>
       </div>
     </main>
 
@@ -80,4 +84,5 @@
 
     <script src="../public/js/modal.js"></script>
     <script type="module" src="../public/js/pages/auth.js"></script>
+  </body>
 </html>
