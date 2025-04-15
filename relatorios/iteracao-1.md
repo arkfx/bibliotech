@@ -2,8 +2,8 @@
 
 | Feature                                                                        | Autor     | Revisor   | Concluído |
 | ------------------------------------------------------------------------------ | --------- | --------- | --------- |
-| Tela Home                                                                      | Guilherme | Ítalo     | ❌        |
-| Permitir ao administrador fazer login na plataforma                            | Ítalo     | Marcos    | ❌        |
+| Tela Home                                                                      | Guilherme | Ítalo     | ✅        |
+| Permitir ao administrador fazer login na plataforma                            | Ítalo     | Marcos    | ✅        |
 | Permitir ao administrador adicionar livros                                     | Marcos    | Luiz      | ❌        |
 | Permitir ao administrador remover livros                                       | Luiz      | Jhennifer | ❌        |
 | Permitir ao administrador editar livros                                        | Jhennifer | Guilherme | ❌        |
