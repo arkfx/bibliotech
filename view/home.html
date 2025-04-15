@@ -54,10 +54,15 @@
           <li id="btnCadastrarLivro" style="display:none;">
             <a href="#" class="main-nav-link">Painel Admin.</a>
           </li>
-          <li id="btnPerfil" style="display:none;">
-            <a href="#" class="main-nav-link">Perfil</a>
-          </li>          
 
+          <div class="dropdown">
+            <button class="dropdown-toggle" id="btnPerfil">Perfil</button>
+            <div class="dropdown-menu">
+              <a href="#" class="dropdown-item">Meus dados</a>
+              <a href="#" class="dropdown-item" id="btnLogout">Logout</a>
+            </div>
+          </div>
+          
           <!-- Botões visíveis quando o admin NÃO estiver logado -->
           <li id="btnLogin">
             <a href="login.html" class="main-nav-link nav-cta login">Login</a>
@@ -142,6 +147,7 @@
     <script src="../public/js/navigation.js"></script>
     <script src="../public/js/modal.js"></script>
     <script src="../public/js/status.js"></script>
+    <script src="../public/js/profile-menu.js"></script>
 
   </body>
 </html>

@@ -16,3 +16,19 @@ window.onload = function () {
     document.getElementById("btnPerfil").style.display = "none";
   }
 };
+
+document.addEventListener("DOMContentLoaded", function () {
+  const btnLogout = document.getElementById("btnLogout");
+
+  if (btnLogout) {
+    btnLogout.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      // Limpa os dados do usuário (exemplo com localStorage)
+      localStorage.removeItem("isLoggedIn");
+
+      //redireciona para a home
+      window.location.href = "../../../bibliotech/view/";
+    });
+  }
+});
