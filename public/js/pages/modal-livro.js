@@ -1,14 +1,15 @@
-// script.js - Script que carrega o modal dinamicamente
+import { createBook } from "../api/livro.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     const btnCadastrar = document.getElementById('cadastrar-livro');
     const modalBackdrop = document.getElementById('modal-backdrop');
-    
     // Função para carregar o modal
+
     async function carregarModal() {
+        console.log("carregando modal...");
         try {
             // Carregar o HTML do modal
-            const response = await fetch('../view/cadastrar-livros.html');
+            const response = await fetch('/bibliotech/view/cadastrar-livros.html');
             if (!response.ok) {
                 throw new Error('Não foi possível carregar o modal');
             }
@@ -46,17 +47,38 @@ document.addEventListener('DOMContentLoaded', function() {
             form.reset();
         });
         
-        // Evento para salvar
-        btnSalvar.addEventListener('click', function() {
-            alert('Livro cadastrado com sucesso!');
-            fecharModal();
-        });
-        
         // Fechar o modal ao clicar fora dele
         modalBackdrop.addEventListener('click', function(event) {
             if (event.target === modalBackdrop) {
                 fecharModal();
             }
+        });
+
+        btnSalvar.addEventListener('click', function() {
+            event.preventDefault(); // Impede o envio do formulário
+            
+            const titulo = form.titulo.value;
+            const autor = form.autor.value;
+            const genero = form.genero.value;
+            const preco = form.preco.value;
+            const editora = form.editora.value;
+            const descricao = form.descricao.value;
+        
+            try {
+                // Chamar a função de criação do livro
+                const response = createBook(titulo, autor, genero, preco, editora, descricao);
+                console.log("resposta da api:", response);
+                if (response.status === "success") {
+                    alert('Livro cadastrado com sucesso!');
+                } else {
+                    alert('Erro ao cadastrar o livro. Por favor, verifique os dados e tente novamente.');
+                }
+            } catch (error) {
+                console.error('Erro ao cadastrar livro:', error);
+                alert('Erro de conexão com o servidor. Tente novamente mais tarde.');
+                loadingSpinner.style.display = "none"; // Esconde a bola de carregamento
+            }
+            fecharModal();
         });
         
         // Evitar que o formulário seja enviado
@@ -72,6 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    
+
     // Função para fechar o modal
     function fecharModal() {
         modalBackdrop.style.display = 'none';
