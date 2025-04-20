@@ -1,6 +1,7 @@
 // Verifica o status de login
 window.onload = function () {
   const isLoggedIn = localStorage.getItem("isLoggedIn");
+  const isAdmin = localStorage.getItem("isAdmin");
 
   // Se o usuário estiver logado
   if (isLoggedIn === "true") {
@@ -8,6 +9,9 @@ window.onload = function () {
     document.getElementById("btnCadastro").style.display = "none"; // Esconde o botão de cadastro
     document.getElementById("btnCadastrarLivro").style.display = "block"; // Exibe o botão de cadastrar livro
     document.getElementById("btnPerfil").style.display = "block"; // Exibe o botão de perfil
+    if (isAdmin === "true") {
+      document.getElementById("icart").style.display = "none";
+    }
   } else {
     // Caso contrário, exibe os botões de login e cadastro
     document.getElementById("btnLogin").style.display = "block";
@@ -26,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Limpa os dados do usuário (exemplo com localStorage)
       localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("isAdmin");
 
       //redireciona para a home
       window.location.href = "../../../bibliotech/view/";
