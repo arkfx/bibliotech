@@ -63,7 +63,6 @@
           </nav>
         </aside>
 
-        <!-- Conteúdo principal -->
         <div class="admin-content">
           <div class="admin-header">
             <h2 class="heading-admin">Gerenciamento de Livros</h2>
@@ -240,9 +239,17 @@
 
           <div class="form-actions">
             <button type="button" class="btn limpar">LIMPAR CAMPOS</button>
-            <button type="submit" class="btn salvar">SALVAR</button>
+            <button type="submit" class="btn salvar" id="btnSalvarLivro">
+              SALVAR
+            </button>
           </div>
         </form>
+      </div>
+    </div>
+    <div class="modal-sucesso hidden" id="modalSucesso">
+      <div class="modal-sucesso-content">
+        <div class="check-icon">✅</div>
+        <p>Livro cadastrado com sucesso!</p>
       </div>
     </div>
     <script src="../public/js/navigation.js"></script>
@@ -250,5 +257,6 @@
     <script src="../public/js/status.js"></script>
     <script src="../public/js/profile-menu.js"></script>
     <script src="../public/js/auth-guard.js"></script>
+    <script type="module" src="../public/js/pages/livro.js"></script>
   </body>
 </html>

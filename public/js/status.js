@@ -3,7 +3,6 @@ window.onload = function () {
   const isLoggedIn = localStorage.getItem("isLoggedIn");
   const isAdmin = localStorage.getItem("isAdmin");
 
-  // Se o usuário estiver logado
   if (isLoggedIn === "true") {
     document.getElementById("btnLogin").style.display = "none"; // Esconde o botão de login
     document.getElementById("btnCadastro").style.display = "none"; // Esconde o botão de cadastro
@@ -13,7 +12,6 @@ window.onload = function () {
       document.getElementById("icart").style.display = "none";
     }
   } else {
-    // Caso contrário, exibe os botões de login e cadastro
     document.getElementById("btnLogin").style.display = "block";
     document.getElementById("btnCadastro").style.display = "block";
     document.getElementById("btnCadastrarLivro").style.display = "none";
