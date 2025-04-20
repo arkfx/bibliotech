@@ -24,12 +24,11 @@
         <ul class="main-nav-list">
           <li><input type="text" placeholder="Pesquisar Livro..." /></li>
           <li><button class="btn">Buscar</button></li>
-          <li><a href="#" class="main-nav-link navegacao">Home</a></li>
           <li><a href="#" class="main-nav-link navegacao">Gêneros</a></li>
           <li><a href="#" class="main-nav-link navegacao">Catálogo</a></li>
 
           <li>
-            <a href="#" class="main-nav-link cart-icon">
+            <a href="#" id="icart" class="main-nav-link cart-icon">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -51,8 +50,8 @@
           </li>
 
           <!-- Botões visíveis apenas se o admin estiver logado -->
-          <li id="btnCadastrarLivro" style="display:none;">
-            <a href="#" class="main-nav-link">Painel Admin.</a>
+          <li id="btnCadastrarLivro" style="display: none">
+            <a href="admin.html" class="main-nav-link">Painel Admin.</a>
           </li>
 
           <div class="dropdown">
@@ -62,7 +61,7 @@
               <a href="#" class="dropdown-item" id="btnLogout">Logout</a>
             </div>
           </div>
-          
+
           <!-- Botões visíveis quando o admin NÃO estiver logado -->
           <li id="btnLogin">
             <a href="login.html" class="main-nav-link nav-cta login">Login</a>
@@ -70,7 +69,6 @@
           <li id="btnCadastro">
             <a href="#" class="main-nav-link nav-cta cadastro">Cadastro</a>
           </li>
-
         </ul>
       </nav>
     </header>
@@ -139,15 +137,17 @@
       <div class="modal-content">
         <div class="modal-icon">⚠️</div>
         <h2 class="modal-title">Função Indisponível</h2>
-        <p class="modal-message">O sistema de cadastro ainda está em desenvolvimento e não está disponível no momento. Por favor, tente novamente mais tarde.</p>
+        <p class="modal-message">
+          O sistema de cadastro ainda está em desenvolvimento e não está
+          disponível no momento. Por favor, tente novamente mais tarde.
+        </p>
         <button class="modal-close">Entendi</button>
       </div>
     </div>
-    
+
     <script src="../public/js/navigation.js"></script>
     <script src="../public/js/modal.js"></script>
     <script src="../public/js/status.js"></script>
     <script src="../public/js/profile-menu.js"></script>
-
   </body>
 </html>
