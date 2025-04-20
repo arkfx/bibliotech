@@ -29,7 +29,7 @@
   font-size: 1.4rem;
   border-radius: 6px;
   border: none;
-  width: 20rem;
+  width: 70rem;
 }
 
 .main-nav-list button {
@@ -189,7 +189,7 @@
   position: absolute;
   background-color: #fff;
   min-width: 120px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   z-index: 1;
   border-radius: 4px;
   right: 0;
@@ -331,8 +331,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* RODAPÉ */
