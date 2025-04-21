@@ -21,4 +21,18 @@ class LivroDAO {
 
         return $stmt->execute();
     }
+
+    public function getAllBooks() {
+        $sql = "SELECT * FROM livros";
+        $stmt = $this->conn->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getBookById($id) {
+        $sql = "SELECT * FROM livros WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }

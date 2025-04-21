@@ -22,3 +22,33 @@ export async function createBook(
 
   return response.json();
 }
+
+export async function getBooks() {
+  const response = await fetch("/bibliotech/api/livro.php", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar os livros.");
+  }
+
+  return response.json();
+}
+
+export async function getBookById(id) {
+  const response = await fetch(`/bibliotech/api/livro.php?id=${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar o livro.");
+  }
+
+  return response.json();
+}

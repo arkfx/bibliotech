@@ -25,9 +25,37 @@ switch ($method) {
         }
         break;
 
-    // TODO: Implementar método GET
     case 'GET':
-        echo json_encode(['status' => 'pending', 'message' => 'Método GET ainda não implementado.']);
+        if (isset($_GET['id'])) {
+            //buscar um livro pelo ID
+            $id = intval($_GET['id']);
+            try {
+                $livro = $dao->getBookById($id);
+    
+                if ($livro) {
+                    echo json_encode(['status' => 'success', 'data' => $livro]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Livro não encontrado.']);
+                }
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Erro ao buscar livro: ' . $e->getMessage()]);
+            }
+        } else {
+            //buscar todos os livros
+            try {
+                $livros = $dao->getAllBooks();
+    
+                if ($livros) {
+                    echo json_encode(['status' => 'success', 'data' => $livros]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Nenhum livro encontrado.']);
+                }
+            } catch (Exception $e) {
+                http_response_code(500); // Erro interno do servidor
+                echo json_encode(['status' => 'error', 'message' => 'Erro ao buscar livros: ' . $e->getMessage()]);
+            }
+        }
         break;
 
     // TODO: Implementar método DELETE - Luiz
