@@ -37,6 +37,28 @@
             </div>
           </div>
 
+          <li>
+            <a href="#" id="icart" class="main-nav-link cart-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path
+                  d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                ></path>
+              </svg>
+            </a>
+          </li>
+
           <!-- Botões visíveis quando o admin NÃO estiver logado -->
           <li id="btnLogin">
             <a href="login.html" class="main-nav-link nav-cta login">Login</a>
@@ -63,11 +85,12 @@
           </nav>
         </aside>
 
-        <!-- Conteúdo principal -->
         <div class="admin-content">
           <div class="admin-header">
             <h2 class="heading-admin">Gerenciamento de Livros</h2>
-            <button class="btn-add-livro">Adicionar Livro</button>
+            <button class="btn-add-livro" id="btnCadastrarLivro">
+              Adicionar Livro
+            </button>
           </div>
 
           <table class="admin-table">
@@ -240,15 +263,20 @@
 
           <div class="form-actions">
             <button type="button" class="btn limpar">LIMPAR CAMPOS</button>
-            <button type="submit" class="btn salvar">SALVAR</button>
+            <button type="submit" class="btn salvar" id="btnSalvarLivro">
+              SALVAR
+            </button>
           </div>
         </form>
       </div>
     </div>
-    <script src="../public/js/navigation.js"></script>
-    <script src="../public/js/admin.js"></script>
-    <script src="../public/js/status.js"></script>
-    <script src="../public/js/profile-menu.js"></script>
-    <script src="../public/js/auth-guard.js"></script>
+    <div class="modal-sucesso hidden" id="modalSucesso">
+      <div class="modal-sucesso-content">
+        <div class="check-icon">✅</div>
+        <p>Livro cadastrado com sucesso!</p>
+      </div>
+    </div>
+    <script type="module" src="../public/js/admin.bundle.js"></script>
+    <script type="module" src="../public/js/pages/livro.js"></script>
   </body>
 </html>

@@ -1,16 +1,16 @@
-const API_BASE = "/bibliotech/api/auth.php";
+import { API_BASE } from "../config.js";
 
 export async function login(email, senha) {
-  const response = await fetch(API_BASE, {
-    method: 'POST',
+  const response = await fetch(API_BASE + "/auth.php", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, senha })
+    body: JSON.stringify({ email, senha }),
   });
 
   if (!response.ok) {
-    throw new Error('Login failed');
+    throw new Error("Login failed");
   }
 
   return response.json();
