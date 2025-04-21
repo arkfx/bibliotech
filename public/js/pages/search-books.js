@@ -16,20 +16,32 @@ function exibirLivros(livros) {
 
   livros.forEach((livro) => {
     const bookCard = `
-          <div class="book-card">
-            <div class="book-cover">
-              <img src="${livro.capa}" alt="Capa do livro ${livro.titulo}" />
-            </div>
-            <div class="book-info">
-              <h3>${livro.titulo}</h3>
-              <p>${livro.autor}</p>
-              <strong>R$ ${livro.preco}</strong>
-              <br />
-              <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
-            </div>
-          </div>
-        `;
+      <div class="book-card">
+        <div class="book-cover">
+          <img src="${livro.capa}" alt="Capa do livro ${livro.titulo}" />
+        </div>
+        <div class="book-info">
+          <h3>${livro.titulo}</h3>
+          <p>${livro.autor}</p>
+          <strong>R$ ${livro.preco}</strong>
+          <br />
+          <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
+        </div>
+      </div>
+    `;
     gridContainer.insertAdjacentHTML("beforeend", bookCard);
+  });
+
+  // Reatribuir eventos de clique aos botões "Comprar"
+  const comprarButtons = document.querySelectorAll(".btn-comprar");
+  comprarButtons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const tituloLivro = e.target.getAttribute("data-titulo");
+      abrirModal(
+        "Aviso de Compra",
+        `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
+      );
+    });
   });
 }
 // Função para mostrar skeletons enquanto a busca é realizada
@@ -89,5 +101,39 @@ searchButton.addEventListener("click", buscarLivros);
 searchInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     buscarLivros();
+  }
+});
+
+const comprarButtons = document.querySelectorAll(".btn-comprar");
+comprarButtons.forEach((button) => {
+  button.addEventListener("click", (e) => {
+    abrirModal(
+      "Aviso de Compra",
+      `O livro ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
+    );
+  });
+});
+
+const modal = document.getElementById("cadastroModal");
+const modalTitle = document.getElementById("modal-title");
+const modalMessage = document.getElementById("modal-message");
+const modalClose = document.getElementById("modal-close");
+
+// Função para abrir o modal
+function abrirModal(titulo, mensagem) {
+  modalTitle.textContent = titulo;
+  modalMessage.textContent = mensagem;
+  modal.style.display = "flex";
+}
+
+// Fechar o modal ao clicar no botão "Entendi"
+modalClose.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+// Fechar o modal ao clicar fora dele
+window.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.style.display = "none";
   }
 });
