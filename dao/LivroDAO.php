@@ -35,4 +35,13 @@ class LivroDAO {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function searchBooks($termo) {
+        $sql = "SELECT * FROM livros WHERE LOWER(titulo) LIKE LOWER(:termo) OR LOWER(autor) LIKE LOWER(:termo) OR LOWER(genero) LIKE LOWER(:termo)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':termo', '%' . strtolower($termo) . '%', PDO::PARAM_STR); // Converte o termo para minúsculas
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
 }

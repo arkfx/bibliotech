@@ -24,7 +24,7 @@ export async function createBook(
 }
 
 export async function getBooks() {
-  const response = await fetch("/bibliotech/api/livro.php", {
+  const response = await fetch(API_BASE + "/livro.php", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -39,7 +39,7 @@ export async function getBooks() {
 }
 
 export async function getBookById(id) {
-  const response = await fetch(`/bibliotech/api/livro.php?id=${id}`, {
+  const response = await fetch(API_BASE + `livro.php?id=${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -48,6 +48,21 @@ export async function getBookById(id) {
 
   if (!response.ok) {
     throw new Error("Erro ao buscar o livro.");
+  }
+
+  return response.json();
+}
+
+export async function searchBooks(query) {
+  const response = await fetch(API_BASE + `/livro.php?q=${query}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar os livros.");
   }
 
   return response.json();

@@ -41,6 +41,21 @@ switch ($method) {
                 http_response_code(500);
                 echo json_encode(['status' => 'error', 'message' => 'Erro ao buscar livro: ' . $e->getMessage()]);
             }
+        } elseif (isset($_GET['q'])) {
+            // buscar livros por termo (pesquisa)
+            $termo = '%' . $_GET['q'] . '%';
+            try {
+                $livros = $dao->searchBooks($termo);
+
+                if ($livros) {
+                    echo json_encode(['status' => 'success', 'data' => $livros]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Nenhum livro encontrado.']);
+                }
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Erro na pesquisa: ' . $e->getMessage()]);
+            } 
         } else {
             //buscar todos os livros
             try {
