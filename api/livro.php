@@ -26,55 +26,31 @@ switch ($method) {
         break;
 
     case 'GET':
-        if (isset($_GET['id'])) {
-            //buscar um livro pelo ID
-            $id = intval($_GET['id']);
-            try {
+        try {
+            if (isset($_GET['id'])) {
+                $id = intval($_GET['id']);
                 $livro = $dao->getBookById($id);
-    
+
                 if ($livro) {
                     echo json_encode(['status' => 'success', 'data' => $livro]);
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Livro não encontrado.']);
                 }
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode(['status' => 'error', 'message' => 'Erro ao buscar livro: ' . $e->getMessage()]);
-            }
-        } elseif (isset($_GET['q']) || isset($_GET['genero'])) {
-            // buscar livros por termo (pesquisa) e genero
-            $termo = isset($_GET['q']) ? '%' . $_GET['q'] . '%' : '%';
-            $genero = isset($_GET['genero']) && $_GET['genero'] !== '' ? $_GET['genero'] : null;
-            try {
-                if ($genero) {
-                    $livros = $dao->searchBooksByTermAndGenre($termo, $genero);
-                } else {
-                    $livros = $dao->searchBooks($termo);
-                }
-        
+            } else {
+                $termo = isset($_GET['q']) ? $_GET['q'] : null;
+                $genero = isset($_GET['genero']) && $_GET['genero'] !== '' ? $_GET['genero'] : null;
+
+                $livros = $dao->searchBooks($termo, $genero);
+
                 if ($livros) {
                     echo json_encode(['status' => 'success', 'data' => $livros]);
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'Nenhum livro encontrado.']);
                 }
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode(['status' => 'error', 'message' => 'Erro na pesquisa: ' . $e->getMessage()]);
             }
-        } else {
-            //buscar todos os livros
-            try {
-                $livros = $dao->getAllBooks();
-    
-                if ($livros) {
-                    echo json_encode(['status' => 'success', 'data' => $livros]);
-                } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Nenhum livro encontrado.']);
-                }
-            } catch (Exception $e) {
-                http_response_code(500); // Erro interno do servidor
-                echo json_encode(['status' => 'error', 'message' => 'Erro ao buscar livros: ' . $e->getMessage()]);
-            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Erro na requisição: ' . $e->getMessage()]);
         }
         break;
 

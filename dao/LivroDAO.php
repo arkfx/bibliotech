@@ -1,12 +1,15 @@
 <?php
-class LivroDAO {
+class LivroDAO
+{
     private $conn;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
-    public function createBook($titulo, $autor, $genero, $preco, $editora, $descricao) {
+    public function createBook($titulo, $autor, $genero, $preco, $editora, $descricao)
+    {
         $sql = "INSERT INTO livros (titulo, autor, genero, preco, editora, descricao, created_at, updated_at)
                 VALUES (:titulo, :autor, :genero, :preco, :editora, :descricao, NOW(), NOW())";
 
@@ -22,13 +25,8 @@ class LivroDAO {
         return $stmt->execute();
     }
 
-    public function getAllBooks() {
-        $sql = "SELECT * FROM livros";
-        $stmt = $this->conn->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getBookById($id) {
+    public function getBookById($id)
+    {
         $sql = "SELECT * FROM livros WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -36,23 +34,28 @@ class LivroDAO {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function searchBooks($termo) {
-        $sql = "SELECT * FROM livros WHERE LOWER(titulo) LIKE LOWER(:termo) OR LOWER(autor) LIKE LOWER(:termo) OR LOWER(genero) LIKE LOWER(:termo)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(':termo', '%' . strtolower($termo) . '%', PDO::PARAM_STR); // Converte o termo para minúsculas
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    public function searchBooks($termo = null, $genero = null)
+    {
+        $sql = "SELECT * FROM livros WHERE 1=1";
+        $params = [];
 
-    public function searchBooksByTermAndGenre($termo, $genero) {
-        $sql = "SELECT * FROM livros WHERE 
-                (LOWER(titulo) LIKE :termo OR LOWER(autor) LIKE :termo) 
-                AND LOWER(genero) = LOWER(:genero)";
+        if (!empty($termo)) {
+            $sql .= " AND (LOWER(titulo) LIKE :termo OR LOWER(autor) LIKE :termo)";
+            $params[':termo'] = '%' . strtolower($termo) . '%';
+        }
+
+        if (!empty($genero)) {
+            $sql .= " AND LOWER(genero) = :genero";
+            $params[':genero'] = strtolower($genero);
+        }
+
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(':termo', $termo, PDO::PARAM_STR);
-        $stmt->bindValue(':genero', $genero, PDO::PARAM_STR);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
 }

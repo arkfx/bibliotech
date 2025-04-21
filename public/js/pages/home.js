@@ -71,16 +71,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       } else {
         console.error("Erro ao carregar os livros:", response.message);
-        mostrarMensagemErro(gridContainer, "Não foi possível carregar os livros. Tente novamente mais tarde.");
+        mostrarMensagemErro(
+          gridContainer,
+          "Não foi possível carregar os livros. Tente novamente mais tarde."
+        );
       }
     } catch (error) {
       console.error("Erro ao buscar os livros:", error);
-      mostrarMensagemErro(gridContainer, "Erro ao conectar ao servidor, tente novamente mais tarde.");
+      mostrarMensagemErro(
+        gridContainer,
+        "Erro ao conectar ao servidor, tente novamente mais tarde."
+      );
     }
   }
 });
 
-// Função para mostrar estado de carregamento
 function mostrarCarregamento(container) {
   container.innerHTML = "";
 
@@ -101,11 +106,83 @@ function mostrarCarregamento(container) {
   }
 }
 
-// Função para mostrar mensagem de erro
 function mostrarMensagemErro(container, mensagem) {
   container.innerHTML = `
     <div class="error-message">
       <p>${mensagem}</p>
     </div>
   `;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    showToast("Bem-vindo à Bibliotech!", "info");
+  }, 1000);
+});
+
+function showToast(message, type = "info", duration = 3000) {
+  const toast = document.createElement("div");
+  toast.classList.add("toast", type);
+
+  const icons = {
+    info: "info-circle",
+    success: "check-circle",
+    error: "exclamation-circle",
+    warning: "exclamation-triangle",
+  };
+
+  const icon = icons[type] || "info-circle";
+
+  toast.innerHTML = `
+    <i class="fas fa-${icon} toast-icon"></i>
+    <span class="toast-message">${message}</span>
+    <button class="toast-close">&times;</button>
+  `;
+
+  let container = document.getElementById("toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    container.classList.add("toast-container");
+    document.body.appendChild(container);
+  }
+
+  container.appendChild(toast);
+
+  void toast.offsetWidth;
+
+  toast.classList.add("active");
+
+  let timeoutId = setTimeout(() => {
+    toast.classList.remove("active");
+    toast.classList.add("fadeOut");
+    toast.addEventListener("transitionend", () => toast.remove(), {
+      once: true,
+    });
+  }, duration);
+
+  toast.querySelector(".toast-close").addEventListener("click", () => {
+    clearTimeout(timeoutId);
+    toast.classList.remove("active");
+    toast.classList.add("fadeOut");
+    toast.addEventListener("transitionend", () => toast.remove(), {
+      once: true,
+    });
+  });
+
+  toast.addEventListener("mouseenter", () => {
+    clearTimeout(timeoutId);
+  });
+
+  toast.addEventListener("mouseleave", () => {
+    timeoutId = setTimeout(() => {
+      toast.classList.remove("active");
+      toast.classList.add("fadeOut");
+      toast.addEventListener("transitionend", () => toast.remove(), {
+        once: true,
+      });
+    }, duration);
+  });
+
+  return toast;
 }
