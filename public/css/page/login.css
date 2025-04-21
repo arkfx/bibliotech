@@ -7,6 +7,10 @@ main {
   padding: 4.8rem 0;
 }
 
+.logo {
+  text-decoration: none;
+}
+
 .login-container {
   width: 100%;
   max-width: 44rem;
