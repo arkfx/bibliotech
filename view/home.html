@@ -81,50 +81,7 @@
 
           <div class="grid grid--4-cols">
             <!-- Livro -->
-            <div class="book-card">
-              <div class="book-cover">Capa do livro</div>
-              <div class="book-info">
-                <h3>Título do livro 1</h3>
-                <p>Autor do livro</p>
-                <strong>R$ xx,xx</strong>
-                <br />
-                <a href="#" class="btn-comprar">Comprar</a>
-              </div>
-            </div>
-
-            <!-- Clone os livros conforme necessário -->
-            <div class="book-card">
-              <div class="book-cover">Capa do livro</div>
-              <div class="book-info">
-                <h3>Título do livro 2</h3>
-                <p>Autor do livro</p>
-                <strong>R$ xx,xx</strong>
-                <br />
-                <a href="#" class="btn-comprar">Comprar</a>
-              </div>
-            </div>
-
-            <div class="book-card">
-              <div class="book-cover">Capa do livro</div>
-              <div class="book-info">
-                <h3>Título do livro 3</h3>
-                <p>Autor do livro</p>
-                <strong>R$ xx,xx</strong>
-                <br />
-                <a href="#" class="btn-comprar">Comprar</a>
-              </div>
-            </div>
-
-            <div class="book-card">
-              <div class="book-cover">Capa do livro</div>
-              <div class="book-info">
-                <h3>Título do livro 4</h3>
-                <p>Autor do livro</p>
-                <strong>R$ xx,xx</strong>
-                <br />
-                <a href="#" class="btn-comprar">Comprar</a>
-              </div>
-            </div>
+            
           </div>
         </div>
       </section>
@@ -136,12 +93,12 @@
     <div id="cadastroModal" class="modal">
       <div class="modal-content">
         <div class="modal-icon">⚠️</div>
-        <h2 class="modal-title">Função Indisponível</h2>
-        <p class="modal-message">
+        <h2 class="modal-title" id="modal-title">Função Indisponível</h2>
+        <p class="modal-message" id="modal-message">
           O sistema de cadastro ainda está em desenvolvimento e não está
           disponível no momento. Por favor, tente novamente mais tarde.
         </p>
-        <button class="modal-close">Entendi</button>
+        <button class="modal-close" id="modal-close">Entendi</button>
       </div>
     </div>
 
@@ -149,5 +106,6 @@
     <script src="../public/js/modal.js"></script>
     <script src="../public/js/status.js"></script>
     <script src="../public/js/profile-menu.js"></script>
+    <script type="module" src="../public/js/pages/home.js"></script>
   </body>
 </html>
