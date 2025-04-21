@@ -43,5 +43,16 @@ class LivroDAO {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function searchBooksByTermAndGenre($termo, $genero) {
+        $sql = "SELECT * FROM livros WHERE 
+                (LOWER(titulo) LIKE :termo OR LOWER(autor) LIKE :termo) 
+                AND LOWER(genero) = LOWER(:genero)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':termo', $termo, PDO::PARAM_STR);
+        $stmt->bindValue(':genero', $genero, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
 }

@@ -1,1 +1,1 @@
-export const API_BASE = "/bibliotech/api";
+export const API_BASE = "http://localhost/bibliotech/api";

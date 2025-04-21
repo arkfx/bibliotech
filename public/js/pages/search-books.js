@@ -2,6 +2,7 @@ import { searchBooks } from "../api/livro.js";
 
 const searchInput = document.querySelector(".main-nav-list input");
 const searchButton = document.querySelector(".main-nav-list button");
+const genreFilter = document.querySelector(".filter-genres");
 const gridContainer = document.querySelector(".grid--4-cols");
 const sectionTitle = document.querySelector(".heading-secondary");
 
@@ -54,8 +55,14 @@ function mostrarCarregamento(container) {
 // Função para buscar livros
 async function buscarLivros() {
   const query = searchInput.value.trim();
-  
-  if (query) {
+  const genero = genreFilter.value;
+
+  //verifica se o valor do filtro de gênero é diferente de "todos"
+  if (query && genero) {
+    sectionTitle.textContent = `Resultados para "${query}" - Gênero: ${genero}`;
+  } else if (genero) {
+    sectionTitle.textContent = `Gênero: ${genero}`;
+  } else if (query) {
     sectionTitle.textContent = `Resultados para "${query}"`;
   } else {
     sectionTitle.textContent = "Livros em destaque";
@@ -64,11 +71,9 @@ async function buscarLivros() {
   mostrarCarregamento(gridContainer);
 
   try {
-    const response = await searchBooks(query);
+    const response = await searchBooks(query, genero);
     if (response.status === "success") {
       exibirLivros(response.data);
-      //limpar o campo de busca após a pesquisa
-      searchInput.value = "";
     } else {
       gridContainer.innerHTML = `<p>${response.message}</p>`;
     }

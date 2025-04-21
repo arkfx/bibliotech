@@ -53,8 +53,14 @@ export async function getBookById(id) {
   return response.json();
 }
 
-export async function searchBooks(query) {
-  const response = await fetch(API_BASE + `/livro.php?q=${query}`, {
+export async function searchBooks(query, genero = "") {
+  const url = new URL(API_BASE + "/livro.php");
+  if (query) url.searchParams.append("q", query);
+  if (genero) url.searchParams.append("genero", genero);
+
+  console.log("URL da API:", url.toString());
+
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

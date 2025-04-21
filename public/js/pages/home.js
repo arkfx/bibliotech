@@ -63,7 +63,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const comprarButtons = document.querySelectorAll(".btn-comprar");
         comprarButtons.forEach((button) => {
           button.addEventListener("click", (e) => {
-            const tituloLivro = e.target.getAttribute("data-titulo");
             abrirModal(
               "Aviso de Compra",
               `O livro ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
