@@ -3,6 +3,7 @@ import { searchBooks } from "../api/livro.js";
 const searchInput = document.querySelector(".main-nav-list input");
 const searchButton = document.querySelector(".main-nav-list button");
 const gridContainer = document.querySelector(".grid--4-cols");
+const sectionTitle = document.querySelector(".heading-secondary");
 
 function exibirLivros(livros) {
   gridContainer.innerHTML = "";
@@ -53,6 +54,12 @@ function mostrarCarregamento(container) {
 // Função para buscar livros
 async function buscarLivros() {
   const query = searchInput.value.trim();
+  
+  if (query) {
+    sectionTitle.textContent = `Resultados para "${query}"`;
+  } else {
+    sectionTitle.textContent = "Livros em destaque";
+  }
 
   mostrarCarregamento(gridContainer);
 
