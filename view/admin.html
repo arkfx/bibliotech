@@ -102,44 +102,7 @@
                 <th>Ações</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>01</td>
-                <td>Título Livro 1</td>
-                <td>Autor 1</td>
-                <td>Gênero 1</td>
-                <td>R$ xx,xx</td>
-                <td>
-                  <button class="btn visualizar">Visualizar</button>
-                  <button class="btn editar">Editar</button>
-                  <button class="btn excluir">Excluir</button>
-                </td>
-              </tr>
-              <tr>
-                <td>02</td>
-                <td>Título Livro 2</td>
-                <td>Autor 2</td>
-                <td>Gênero 2</td>
-                <td>R$ xx,xx</td>
-                <td>
-                  <button class="btn visualizar">Visualizar</button>
-                  <button class="btn editar">Editar</button>
-                  <button class="btn excluir">Excluir</button>
-                </td>
-              </tr>
-              <tr>
-                <td>03</td>
-                <td>Título Livro 3</td>
-                <td>Autor 3</td>
-                <td>Gênero 3</td>
-                <td>R$ xx,xx</td>
-                <td>
-                  <button class="btn visualizar">Visualizar</button>
-                  <button class="btn editar">Editar</button>
-                  <button class="btn excluir">Excluir</button>
-                </td>
-              </tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -271,7 +234,45 @@
     <div class="modal-sucesso hidden" id="modalSucesso">
       <div class="modal-sucesso-content">
         <div class="check-icon">✅</div>
-        <p>Livro cadastrado com sucesso!</p>
+        <p>Livro salvo com sucesso!</p>
+      </div>
+    </div>
+
+    <div id="modalSpinner" class="hidden">
+      <div class="modal-loading-content">
+        <div class="spinner"></div>
+        <p>Salvando dados...</p>
+      </div>
+    </div>
+    <div id="modalLoadingBarra" class="modal hidden">
+      <div class="modal-content" style="max-width: 300px; text-align: center">
+        <p>Processando...</p>
+        <div class="loading-bar">
+          <div class="bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalConfirmarExclusao" class="modal hidden">
+      <div class="modal-content">
+        <h2>Confirmar Exclusão</h2>
+        <p>Tem certeza que deseja excluir este livro?</p>
+        <div
+          class="form-actions"
+          style="justify-content: center; margin-top: 2rem"
+        >
+          <button id="btnConfirmarExclusao" class="btn excluir">
+            Sim, excluir
+          </button>
+          <button id="btnCancelarExclusao" class="btn limpar">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalSucessoExclusao" class="modal-sucesso hidden">
+      <div class="modal-sucesso-content">
+        <div class="check-icon">✔️</div>
+        <p>Livro excluído com sucesso!</p>
       </div>
     </div>
     <script type="module" src="../public/js/admin.bundle.js"></script>
