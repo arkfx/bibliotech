@@ -72,9 +72,28 @@ switch ($method) {
             echo json_encode(['status' => 'error', 'message' => 'ID do livro não fornecido.']);
         }
         break;
-    // TODO: Implementar método PUT - Jhennifer
     case 'PUT':
-        echo json_encode(['status' => 'pending', 'message' => 'Método PUT ainda não implementado.']);
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (isset($data['id'], $data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'])) {
+            $updated = $dao->updateBook(
+                $data['id'],
+                $data['titulo'],
+                $data['autor'],
+                $data['genero'],
+                $data['preco'],
+                $data['editora'],
+                $data['descricao']
+            );
+
+            if ($updated) {
+                echo json_encode(['status' => 'success', 'message' => 'Livro atualizado com sucesso!']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Erro ao atualizar o livro.']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Todos os campos, incluindo o ID, são obrigatórios.']);
+        }
         break;
     default:
         http_response_code(405); // Método não permitido
