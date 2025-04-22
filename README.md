@@ -24,7 +24,7 @@
 
 ## 📖 Sobre o Projeto
 
-O **BiblioTech** é uma livraria digital que permite a venda de livros digitais (ebooks) de forma acessível e organizada. Os usuários poderão explorar um catálogo de livros, realizar compras e acessar sua biblioteca digital para leitura dos ebooks adquiridos.
+O **BiblioTech** é uma livraria digital que permite a venda de livros digitais (ebooks) e livros físicos de forma acessível e organizada. Os usuários poderão explorar um catálogo de livros, realizar compras e acessar sua biblioteca digital para leitura dos ebooks adquiridos.
 
 ## Requisitos Funcionais 
 
