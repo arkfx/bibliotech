@@ -1,4 +1,4 @@
-import { createBook } from "../api/livro.js";
+import { createBook, deleteBook } from "../api/livro.js";
 
 const modal = document.getElementById("modalCadastroLivro");
 const btnAbrirModal = document.querySelector(".btn-add-livro");
@@ -66,3 +66,19 @@ formLivro.addEventListener("submit", async (e) => {
   }
 });
 btnLimpar.addEventListener("click", limparFormulario);
+
+document.querySelectorAll(".btn.excluir").forEach((button) => {
+  button.addEventListener("click", async (e) => {
+    const row = e.target.closest("tr");
+    const bookId = row.querySelector("td").textContent.trim(); // Assumindo que a primeira coluna conteha o ID do livro
+
+    if (confirm("Tem certeza que deseja excluir este livro?")) {
+      try {
+        await deleteBook(bookId);
+        row.remove();
+      } catch (error) {
+        alert(error.message);
+      } 
+    }
+  });
+});

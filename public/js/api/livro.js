@@ -73,3 +73,27 @@ export async function searchBooks(query, genero = "") {
 
   return response.json();
 }
+
+export async function deleteBook(id) {
+  const response = await fetch(API_BASE + `/livro.php?id=${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Erro ao deletar o livro.";
+    try {
+      const errorResponse = await response.json();
+      if (errorResponse.message) {
+        errorMessage = errorResponse.message;
+      }
+    } catch (e) {
+      console.error("Erro ao processar a resposta de erro:", e);
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}

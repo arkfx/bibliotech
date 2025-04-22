@@ -54,9 +54,23 @@ switch ($method) {
         }
         break;
 
-    // TODO: Implementar método DELETE - Luiz
     case 'DELETE':
-        echo json_encode(['status' => 'pending', 'message' => 'Método DELETE ainda não implementado.']);
+        if (isset($_GET['id'])) {
+            $id = intval($_GET['id']);
+            try {
+                $deleted = $dao->deleteBook($id);
+                if ($deleted) {
+                    echo json_encode(['status' => 'success', 'message' => 'Livro excluído com sucesso!']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Erro ao excluir o livro.']);
+                }
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Erro na exclusão: ' . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'ID do livro não fornecido.']);
+        }
         break;
     // TODO: Implementar método PUT - Jhennifer
     case 'PUT':
