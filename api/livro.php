@@ -56,13 +56,46 @@ switch ($method) {
         }
         break;
 
-    // TODO: Implementar método DELETE - Luiz
     case 'DELETE':
-        echo json_encode(['status' => 'pending', 'message' => 'Método DELETE ainda não implementado.']);
+        if (isset($_GET['id'])) {
+            $id = intval($_GET['id']);
+            try {
+                $deleted = $dao->deleteBook($id);
+                if ($deleted) {
+                    echo json_encode(['status' => 'success', 'message' => 'Livro excluído com sucesso!']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Erro ao excluir o livro.']);
+                }
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Erro na exclusão: ' . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'ID do livro não fornecido.']);
+        }
         break;
-    // TODO: Implementar método PUT - Jhennifer
     case 'PUT':
-        echo json_encode(['status' => 'pending', 'message' => 'Método PUT ainda não implementado.']);
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (isset($data['id'], $data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'])) {
+            $updated = $dao->updateBook(
+                $data['id'],
+                $data['titulo'],
+                $data['autor'],
+                $data['genero'],
+                $data['preco'],
+                $data['editora'],
+                $data['descricao']
+            );
+
+            if ($updated) {
+                echo json_encode(['status' => 'success', 'message' => 'Livro atualizado com sucesso!']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Erro ao atualizar o livro.']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Todos os campos, incluindo o ID, são obrigatórios.']);
+        }
         break;
     default:
         http_response_code(405); // Método não permitido
