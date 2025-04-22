@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - BiblioTech</title>
+    <link rel="stylesheet" href="../public/css/main.css" />
+    <link rel="stylesheet" href="../public/css/page/login.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <a href="home.html" class="logo heading-primary">BiblioTech</a>
+    </header>
+
+    <main>
+      <div class="login-container">
+        <div class="login-card">
+          <h1 class="login-title">Login</h1>
+
+          <form class="login-form" id="login-form">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <div class="input-field">
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="exemplo123@gmail.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="senha">Senha</label>
+              <div class="input-field" id="password-field">
+                <input
+                  type="password"
+                  id="senha"
+                  placeholder="Digite sua senha"
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="btn-login" id="btn-login">
+              Entrar
+              <span id="loading-spinner" class="loading-spinner" style="display:none;"></span> <!-- Bola de carregamento -->
+            </button>
+          </form>
+
+          <div class="divider"></div>
+            <p class="signup-text">
+              Não tem uma conta?
+              <a href="#" class="signup-link cadastro">Cadastre-se</a>
+            </p>
+        </div>
+
+        <!-- mensagem de erro -->
+          <div id="error-message" class="error-message" style="display:none;">
+          </div>
+      </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer>© 2025 - Todos os direitos reservados.</footer>
+
+    <!-- Modal de Aviso -->
+    <div id="cadastroModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-icon">⚠️</div>
+        <h2 class="modal-title">Função Indisponível</h2>
+        <p class="modal-message">
+          O sistema de cadastro ainda está em desenvolvimento e não está
+          disponível no momento. Por favor, tente novamente mais tarde.
+        </p>
+        <button class="modal-close">Entendi</button>
+      </div>
+    </div>
+
+    <script src="../public/js/modal.js"></script>
+    <script type="module" src="../public/js/pages/auth.js"></script>
+  </body>
+</html>

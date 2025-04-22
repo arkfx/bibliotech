@@ -1,0 +1,19 @@
+# Ignora arquivos de configuração do ambiente
+.env
+
+
+# Ignora arquivos temporários/sistema
+*.log
+*.cache
+*.tmp
+*.swp
+
+# Ignora IDEs/editor configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignora arquivos de sistema
+.DS_Store
+Thumbs.db
