@@ -59,14 +59,13 @@ class LivroDAO
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function deleteBook($id) 
+    public function deleteBook($id)
     {
         $sql = "DELETE FROM livros WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        //Verifica se alguma linha foi afetada.
         if ($stmt->rowCount() === 0) {
             throw new Exception("Livro com ID $id não encontrado.");
         }
@@ -74,7 +73,19 @@ class LivroDAO
         return true;
     }
 
-    
-    
-    
+
+    public function updateBook($id, $titulo, $autor, $genero, $preco, $editora, $descricao)
+    {
+        $sql = "UPDATE livros SET titulo = :titulo, autor = :autor, genero = :genero, preco = :preco, editora = :editora, descricao = :descricao WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':id' => $id,
+            ':titulo' => $titulo,
+            ':autor' => $autor,
+            ':genero' => $genero,
+            ':preco' => $preco,
+            ':editora' => $editora,
+            ':descricao' => $descricao
+        ]);
+    }
 }
