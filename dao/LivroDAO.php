@@ -34,7 +34,7 @@ class LivroDAO
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function searchBooks($termo = null, $genero = null)
+    public function searchBooks($termo = null, $genero = null, $ordem = 'DESC')
     {
         $sql = "SELECT * FROM livros WHERE 1=1";
         $params = [];
@@ -48,6 +48,10 @@ class LivroDAO
             $sql .= " AND LOWER(genero) = :genero";
             $params[':genero'] = strtolower($genero);
         }
+
+        $ordem = strtoupper($ordem) === 'ASC' ? 'ASC' : 'DESC';
+
+        $sql .= " ORDER BY created_at $ordem";
 
         $stmt = $this->conn->prepare($sql);
 

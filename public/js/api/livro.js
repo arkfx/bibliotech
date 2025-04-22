@@ -53,10 +53,14 @@ export async function getBookById(id) {
   return response.json();
 }
 
-export async function searchBooks(query, genero = "") {
+export async function searchBooks(query = "", genero = "", ordem = "DESC") {
   const url = new URL(API_BASE + "/livro.php");
+
   if (query) url.searchParams.append("q", query);
   if (genero) url.searchParams.append("genero", genero);
+  if (ordem && (ordem === "ASC" || ordem === "DESC")) {
+    url.searchParams.append("ordem", ordem);
+  }
 
   console.log("URL da API:", url.toString());
 

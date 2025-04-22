@@ -39,8 +39,10 @@ switch ($method) {
             } else {
                 $termo = isset($_GET['q']) ? $_GET['q'] : null;
                 $genero = isset($_GET['genero']) && $_GET['genero'] !== '' ? $_GET['genero'] : null;
+                $ordem = isset($_GET['ordem']) && in_array(strtoupper($_GET['ordem']), ['ASC', 'DESC']) ? strtoupper($_GET['ordem']) : 'DESC';
 
-                $livros = $dao->searchBooks($termo, $genero);
+
+                $livros = $dao->searchBooks($termo, $genero, $ordem);
 
                 if ($livros) {
                     echo json_encode(['status' => 'success', 'data' => $livros]);
