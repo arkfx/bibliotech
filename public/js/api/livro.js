@@ -31,6 +31,8 @@ export async function getBooks() {
     },
   });
 
+  console.log("Response received:", response);
+
   if (!response.ok) {
     throw new Error("Erro ao buscar os livros.");
   }
@@ -39,7 +41,7 @@ export async function getBooks() {
 }
 
 export async function getBookById(id) {
-  const response = await fetch(API_BASE + `livro.php?id=${id}`, {
+  const response = await fetch(API_BASE + `/livro.php?id=${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
