@@ -13,8 +13,8 @@ switch ($method) {
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (isset($data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'])) {
-            $livro = $dao->createBook($data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao']);
+        if (isset($data['titulo'], $data['autor'], $data['genero_id'], $data['preco'], $data['editora'], $data['descricao'])) {
+            $livro = $dao->createBook($data['titulo'], $data['autor'], $data['genero_id'], $data['preco'], $data['editora'], $data['descricao']);
             if ($livro) {
                 echo json_encode(['status' => 'success', 'message' => 'Livro cadastrado com sucesso!']);
             } else {
@@ -38,11 +38,11 @@ switch ($method) {
                 }
             } else {
                 $termo = isset($_GET['q']) ? $_GET['q'] : null;
-                $genero = isset($_GET['genero']) && $_GET['genero'] !== '' ? $_GET['genero'] : null;
+                $genero_id = isset($_GET['genero_id']) ? intval($_GET['genero_id']) : null;
                 $ordem = isset($_GET['ordem']) && in_array(strtoupper($_GET['ordem']), ['ASC', 'DESC']) ? strtoupper($_GET['ordem']) : 'DESC';
 
 
-                $livros = $dao->searchBooks($termo, $genero, $ordem);
+                $livros = $dao->searchBooks($termo, $genero_id, $ordem);
 
                 if ($livros) {
                     echo json_encode(['status' => 'success', 'data' => $livros]);
@@ -77,12 +77,12 @@ switch ($method) {
     case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (isset($data['id'], $data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'])) {
+        if (isset($data['id'], $data['titulo'], $data['autor'], $data['genero_id'], $data['preco'], $data['editora'], $data['descricao'])) {
             $updated = $dao->updateBook(
                 $data['id'],
                 $data['titulo'],
                 $data['autor'],
-                $data['genero'],
+                $data['genero_id'],
                 $data['preco'],
                 $data['editora'],
                 $data['descricao']

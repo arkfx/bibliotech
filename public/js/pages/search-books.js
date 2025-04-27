@@ -67,13 +67,15 @@ function mostrarCarregamento(container) {
 // Função para buscar livros
 async function buscarLivros() {
   const query = searchInput.value.trim();
-  const genero = genreFilter.value;
+  const generoId = genreFilter.value;
 
   //verifica se o valor do filtro de gênero é diferente de "todos"
-  if (query && genero) {
-    sectionTitle.textContent = `Resultados para "${query}" - Gênero: ${genero}`;
-  } else if (genero) {
-    sectionTitle.textContent = `Gênero: ${genero}`;
+  if (query && generoId) {
+    const generoNome = genreFilter.options[genreFilter.selectedIndex].text;
+    sectionTitle.textContent = `Resultados para "${query}" - Gênero: ${generoNome}`;
+  } else if (generoId) {
+    const generoNome = genreFilter.options[genreFilter.selectedIndex].text;
+    sectionTitle.textContent = `Gênero: ${generoNome}`;
   } else if (query) {
     sectionTitle.textContent = `Resultados para "${query}"`;
   } else {
@@ -83,7 +85,7 @@ async function buscarLivros() {
   mostrarCarregamento(gridContainer);
 
   try {
-    const response = await searchBooks(query, genero);
+    const response = await searchBooks(query, generoId);
     if (response.status === "success") {
       exibirLivros(response.data);
     } else {

@@ -6,6 +6,8 @@ import {
   getBookById,
 } from "../api/livro.js";
 
+import { carregarGeneros } from "./genero.js";
+
 const modal = document.getElementById("modalCadastroLivro");
 const btnAbrirModal = document.querySelector(".btn-add-livro");
 const btnFecharModal = modal.querySelector(".close-btn");
@@ -87,7 +89,7 @@ async function carregarLivros() {
           <td>${livro.id}</td>
           <td>${livro.titulo}</td>
           <td>${livro.autor}</td>
-          <td>${livro.genero}</td>
+          <td>${livro.genero_nome}</td>
           <td>R$ ${livro.preco}</td>
           <td>
             <button class="btn visualizar">Visualizar</button>
@@ -133,7 +135,7 @@ function adicionarEventosTabela() {
           const livro = response.data;
           document.getElementById("titulo").value = livro.titulo;
           document.getElementById("autor").value = livro.autor;
-          document.getElementById("genero").value = livro.genero;
+          document.getElementById("genero").value = livro.genero_id;
           document.getElementById("preco").value = livro.preco;
           document.getElementById("editora").value = livro.editora;
           document.getElementById("descricao").value = livro.descricao;
