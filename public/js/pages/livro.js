@@ -6,8 +6,6 @@ import {
   getBookById,
 } from "../api/livro.js";
 
-import { carregarGeneros } from "./genero.js";
-
 const modal = document.getElementById("modalCadastroLivro");
 const btnAbrirModal = document.querySelector(".btn-add-livro");
 const btnFecharModal = modal.querySelector(".close-btn");
@@ -71,6 +69,10 @@ function mostrarModalSucessoExclusao() {
   setTimeout(() => {
     modalSucessoExclusao.classList.add("hidden");
   }, 3000);
+
+  modalSucessoExclusao.addEventListener("click", () => {
+    modalSucessoExclusao.classList.add("hidden");
+  });
 }
 
 btnAbrirModal.addEventListener("click", abrirModal);

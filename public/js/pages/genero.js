@@ -1,17 +1,17 @@
 import { API_BASE } from "../config.js";
 
-export async function carregarGeneros(selectId) {
+export async function carregarGeneros(selectClass) {
   try {
+    const generoSelect = document.querySelector(`.${selectClass}`); // Seleciona o elemento pela classe
+    if (!generoSelect) {
+      console.error(`Elemento com a classe "${selectClass}" não encontrado.`);
+      return;
+    }
+
     const response = await fetch(`${API_BASE}/genero.php`);
     const data = await response.json();
 
     if (data.status === "success") {
-      const generoSelect = document.getElementById(selectId);
-      if (!generoSelect) {
-        console.error(`Elemento com ID "${selectId}" não encontrado.`);
-        return;
-      }
-
       data.data.forEach((genero) => {
         const option = document.createElement("option");
         option.value = genero.id;
@@ -27,5 +27,5 @@ export async function carregarGeneros(selectId) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    carregarGeneros("genero"); // ID do <select> de gêneros
-  });
+  carregarGeneros("genero"); // Classe do <select> de gêneros
+});
