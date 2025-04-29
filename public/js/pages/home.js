@@ -42,10 +42,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Adiciona os livros ao grid
         livros.forEach((livro) => {
+          console.log("Livro recebido:", livro);
           const bookCard = `
             <div class="book-card">
               <div class="book-cover">
-                <img src="${livro.capa}" alt="Capa do livro ${livro.titulo}" />
+                <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
               </div>
               <div class="book-info">
                 <h3>${livro.titulo}</h3>

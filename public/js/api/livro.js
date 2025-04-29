@@ -6,14 +6,15 @@ export async function createBook(
   genero,
   preco,
   editora,
-  descricao
+  descricao,
+  imagem_url
 ) {
   const response = await fetch(API_BASE + "/livro.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ titulo, autor, genero, preco, editora, descricao }),
+    body: JSON.stringify({ titulo, autor, genero, preco, editora, descricao, imagem_url }),
   });
 
   if (!response.ok) {
@@ -111,7 +112,8 @@ export async function updateBook(
   genero,
   preco,
   editora,
-  descricao
+  descricao,
+  imagem_url
 ) {
   const response = await fetch(API_BASE + "/livro.php", {
     method: "PUT",
@@ -126,6 +128,7 @@ export async function updateBook(
       preco,
       editora,
       descricao,
+      imagem_url,
     }),
   });
 
