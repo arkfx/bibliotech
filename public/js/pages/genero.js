@@ -1,4 +1,4 @@
-import { API_BASE } from "../config.js";
+import { getGeneros } from "../api/genero.js";
 
 export async function carregarGeneros(selectClass) {
   try {
@@ -8,18 +8,17 @@ export async function carregarGeneros(selectClass) {
       return;
     }
 
-    const response = await fetch(`${API_BASE}/genero.php`);
-    const data = await response.json();
-
-    if (data.status === "success") {
-      data.data.forEach((genero) => {
+    const response = await getGeneros(); 
+    
+    if (response.status === "success") {
+      response.data.forEach((genero) => {
         const option = document.createElement("option");
         option.value = genero.id;
         option.textContent = genero.nome;
         generoSelect.appendChild(option);
       });
     } else {
-      console.error("Erro ao carregar gêneros:", data.message);
+      console.error("Erro ao carregar gêneros:", response.message);
     }
   } catch (error) {
     console.error("Erro ao buscar gêneros:", error);

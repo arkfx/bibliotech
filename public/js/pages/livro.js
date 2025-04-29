@@ -191,9 +191,9 @@ formLivro.addEventListener("submit", async (e) => {
       await createBook(titulo, autor, genero, preco, editora, descricao);
     }
 
+    await carregarLivros();
     fecharModal();
     mostrarModalSucesso();
-    await carregarLivros();
   } catch (error) {
     alert("Erro ao salvar o livro: " + error.message);
   } finally {
