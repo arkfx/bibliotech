@@ -13,8 +13,8 @@ switch ($method) {
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (isset($data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'])) {
-            $livro = $dao->createBook($data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao']);
+        if (isset($data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'], $data['imagem_url'])) {
+            $livro = $dao->createBook($data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'], $data['imagem_url']);
             if ($livro) {
                 echo json_encode(['status' => 'success', 'message' => 'Livro cadastrado com sucesso!']);
             } else {
@@ -74,10 +74,11 @@ switch ($method) {
             echo json_encode(['status' => 'error', 'message' => 'ID do livro não fornecido.']);
         }
         break;
+
     case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (isset($data['id'], $data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'])) {
+        if (isset($data['id'], $data['titulo'], $data['autor'], $data['genero'], $data['preco'], $data['editora'], $data['descricao'], $data['imagem_url'])) {
             $updated = $dao->updateBook(
                 $data['id'],
                 $data['titulo'],
@@ -85,7 +86,8 @@ switch ($method) {
                 $data['genero'],
                 $data['preco'],
                 $data['editora'],
-                $data['descricao']
+                $data['descricao'],
+                $data['imagem_url']
             );
 
             if ($updated) {

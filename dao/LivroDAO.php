@@ -8,10 +8,10 @@ class LivroDAO
         $this->conn = $db;
     }
 
-    public function createBook($titulo, $autor, $genero, $preco, $editora, $descricao)
+    public function createBook($titulo, $autor, $genero, $preco, $editora, $descricao, $imagem_url)
     {
-        $sql = "INSERT INTO livros (titulo, autor, genero, preco, editora, descricao, created_at, updated_at)
-                VALUES (:titulo, :autor, :genero, :preco, :editora, :descricao, NOW(), NOW())";
+        $sql = "INSERT INTO livros (titulo, autor, genero, preco, editora, descricao, imagem_url, created_at, updated_at)
+                VALUES (:titulo, :autor, :genero, :preco, :editora, :descricao, :imagem_url, NOW(), NOW())";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -21,6 +21,7 @@ class LivroDAO
         $stmt->bindParam(':preco', $preco);
         $stmt->bindParam(':editora', $editora);
         $stmt->bindParam(':descricao', $descricao);
+        $stmt->bindParam(':imagem_url', $imagem_url);
 
         return $stmt->execute();
     }
@@ -78,9 +79,9 @@ class LivroDAO
     }
 
 
-    public function updateBook($id, $titulo, $autor, $genero, $preco, $editora, $descricao)
+    public function updateBook($id, $titulo, $autor, $genero, $preco, $editora, $descricao, $imagem_url)
     {
-        $sql = "UPDATE livros SET titulo = :titulo, autor = :autor, genero = :genero, preco = :preco, editora = :editora, descricao = :descricao WHERE id = :id";
+        $sql = "UPDATE livros SET titulo = :titulo, autor = :autor, genero = :genero, preco = :preco, editora = :editora, descricao = :descricao, imagem_url = :imagem_url, updated_at = NOW() WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
             ':id' => $id,
@@ -89,7 +90,8 @@ class LivroDAO
             ':genero' => $genero,
             ':preco' => $preco,
             ':editora' => $editora,
-            ':descricao' => $descricao
+            ':descricao' => $descricao,
+            ':imagem_url' => $imagem_url
         ]);
     }
 }
