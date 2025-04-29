@@ -1,4 +1,5 @@
 import { getBooks } from "../api/livro.js";
+import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const gridContainer = document.querySelector(".grid--4-cols");
@@ -8,7 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modalMessage = document.getElementById("modal-message");
   const modalClose = document.getElementById("modal-close");
 
-  // Função para abrir o modal
   function abrirModal(titulo, mensagem) {
     modalTitle.textContent = titulo;
     modalMessage.textContent = mensagem;
@@ -27,8 +27,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Mostrar estado de carregamento ao carregar os livros
-  mostrarCarregamento(gridContainer);
+  // Mostrar skeletons enquanto os livros são carregados
+  renderSkeletons(gridContainer);
 
   // Verificar se o campo de busca está vazio antes de carregar todos os livros
   if (!searchInput || searchInput.value.trim() === "") {
@@ -36,38 +36,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const response = await getBooks();
       if (response.status === "success") {
         const livros = response.data;
-
-        // Limpa o container antes de adicionar os livros
-        gridContainer.innerHTML = "";
-
-        // Adiciona os livros ao grid
-        livros.forEach((livro) => {
-          const bookCard = `
-            <div class="book-card">
-              <div class="book-cover">
-                <img src="${livro.capa}" alt="Capa do livro ${livro.titulo}" />
-              </div>
-              <div class="book-info">
-                <h3>${livro.titulo}</h3>
-                <p>${livro.autor}</p>
-                <strong>R$ ${livro.preco}</strong>
-                <br />
-                <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
-              </div>
-            </div>
-          `;
-          gridContainer.insertAdjacentHTML("beforeend", bookCard);
-        });
-
-        // Adiciona evento de clique aos botões "Comprar"
-        const comprarButtons = document.querySelectorAll(".btn-comprar");
-        comprarButtons.forEach((button) => {
-          button.addEventListener("click", (e) => {
-            abrirModal(
-              "Aviso de Compra",
-              `O livro ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
-            );
-          });
+        renderBooks(gridContainer, livros, (tituloLivro) => {
+          abrirModal(
+            "Aviso de Compra",
+            `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
+          );
         });
       } else {
         console.error("Erro ao carregar os livros:", response.message);
@@ -85,26 +58,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
-
-function mostrarCarregamento(container) {
-  container.innerHTML = "";
-
-  // Cria 8 skeleton cards para simular o carregamento
-  for (let i = 0; i < 8; i++) {
-    const skeletonCard = `
-      <div class="book-card skeleton-card">
-        <div class="book-cover skeleton-cover"></div>
-        <div class="book-info">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-author"></div>
-          <div class="skeleton-price"></div>
-          <div class="skeleton-button"></div>
-        </div>
-      </div>
-    `;
-    container.insertAdjacentHTML("beforeend", skeletonCard);
-  }
-}
 
 function mostrarMensagemErro(container, mensagem) {
   container.innerHTML = `

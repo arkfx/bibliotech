@@ -3,7 +3,7 @@ import { API_BASE } from "../config.js";
 export async function createBook(
   titulo,
   autor,
-  genero,
+  genero_id,
   preco,
   editora,
   descricao
@@ -13,7 +13,7 @@ export async function createBook(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ titulo, autor, genero, preco, editora, descricao }),
+    body: JSON.stringify({ titulo, autor, genero_id, preco, editora, descricao }),
   });
 
   if (!response.ok) {
@@ -55,16 +55,14 @@ export async function getBookById(id) {
   return response.json();
 }
 
-export async function searchBooks(query = "", genero = "", ordem = "DESC") {
+export async function searchBooks(query = "", genero_id = null, ordem = "DESC") {
   const url = new URL(API_BASE + "/livro.php");
 
   if (query) url.searchParams.append("q", query);
-  if (genero) url.searchParams.append("genero", genero);
+  if (genero_id) url.searchParams.append("genero_id", genero_id);
   if (ordem && (ordem === "ASC" || ordem === "DESC")) {
     url.searchParams.append("ordem", ordem);
   }
-
-  console.log("URL da API:", url.toString());
 
   const response = await fetch(url, {
     method: "GET",
@@ -108,7 +106,7 @@ export async function updateBook(
   id,
   titulo,
   autor,
-  genero,
+  genero_id,
   preco,
   editora,
   descricao
@@ -122,7 +120,7 @@ export async function updateBook(
       id,
       titulo,
       autor,
-      genero,
+      genero_id,
       preco,
       editora,
       descricao,
