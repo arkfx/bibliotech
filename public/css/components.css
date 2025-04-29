@@ -415,6 +415,28 @@
   background-color: #0085c8;
 }
 
+/* BOTÃO CARRINHO */
+.book-info .btn-carrinho {
+  font-size: 1.5rem;
+  text-decoration: none;
+  background-color: #00ff00;
+  color: white;
+  padding: 0.7rem 1.8rem;
+  border-radius: 8px;
+  display: inline-block;
+  font-weight: 500;
+  transition: all 0.3s;
+  margin-top: 5%;
+  letter-spacing: 0.02em;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.book-info .btn-carrinho:hover {
+  background-color: #007700;
+}
+
 /* Bola de carregamento */
 .loading-spinner {
   border: 3px solid #f3f3f3;

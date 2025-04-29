@@ -7,9 +7,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modalTitle = document.getElementById("modal-title");
   const modalMessage = document.getElementById("modal-message");
   const modalClose = document.getElementById("modal-close");
+  const modalIcon = modal.querySelector(".modal-icon");
 
   // Função para abrir o modal
-  function abrirModal(titulo, mensagem) {
+  function abrirModal(emoji, titulo, mensagem) {
+    modalIcon.textContent = emoji;
     modalTitle.textContent = titulo;
     modalMessage.textContent = mensagem;
     modal.style.display = "flex";
@@ -51,12 +53,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <h3>${livro.titulo}</h3>
                 <p>${livro.autor}</p>
                 <strong>R$ ${livro.preco}</strong>
-                <br />
                 <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
+                <button class="btn-carrinho" data-titulo="${livro.titulo}">Adicionar ao Carrinho</button>
               </div>
             </div>
           `;
           gridContainer.insertAdjacentHTML("beforeend", bookCard);
+        });
+
+        // Adiciona evento de clique aos botões "Adicionar ao Carrinho"
+        const carrinhoButtons = document.querySelectorAll(".btn-carrinho");
+        carrinhoButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
+            const titulo = e.target.dataset.titulo;
+            abrirModal(
+              "✅🛒",
+              "Sucesso",
+              `O livro "${titulo}" foi adicionado ao carrinho.`
+            );
+          });
         });
 
         // Adiciona evento de clique aos botões "Comprar"
@@ -64,6 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         comprarButtons.forEach((button) => {
           button.addEventListener("click", (e) => {
             abrirModal(
+              "⚠️", 
               "Aviso de Compra",
               `O livro ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
             );
