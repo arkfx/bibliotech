@@ -1,4 +1,5 @@
 import { getBooks } from "../api/livro.js";
+import { addBookToCart } from "../api/carrinho.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const gridContainer = document.querySelector(".grid--4-cols");
@@ -66,6 +67,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         carrinhoButtons.forEach((button) => {
           button.addEventListener("click", (e) => {
             const titulo = e.target.dataset.titulo;
+
+
+            //encontrar uma maneira de receber o userId do usuario logado
+            const userId = localStorage.getItem("userId");
+
+
+            const quantidade = 1;
+            try {
+              addBookToCart(titulo, userId, quantidade);
+            } catch (error) {
+              console.error("Erro ao adicionar ao carrinho:", error);
+              abrirModal(
+                "❌",
+                "Erro",
+                `Não foi possível adicionar o livro "${titulo}" ao carrinho.`
+              );
+            }
             abrirModal(
               "✅🛒",
               "Sucesso",
