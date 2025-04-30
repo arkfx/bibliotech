@@ -24,7 +24,7 @@ loginForm.addEventListener("submit", async (event) => {
     if (response.status === "success") {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("isAdmin", response.is_admin ? "true" : "false");
-      window.location.href = "../../../bibliotech/view/";
+      window.location.href = "../../../bibliotech/view/home.html";
     } else {
       errorMessage.textContent = "Email ou senha incorretos. Tente novamente."; //exibe a mensagem de erro retornada pela API
       errorMessage.style.display = "block"; // Mostra a mensagem de erro

@@ -6,14 +6,23 @@ export async function createBook(
   genero_id,
   preco,
   editora,
-  descricao
+  descricao,
+  imagem_url
 ) {
   const response = await fetch(API_BASE + "/livro.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ titulo, autor, genero_id, preco, editora, descricao }),
+    body: JSON.stringify({
+      titulo,
+      autor,
+      genero_id,
+      preco,
+      editora,
+      descricao,
+      imagem_url,
+    }),
   });
 
   if (!response.ok) {
@@ -55,7 +64,11 @@ export async function getBookById(id) {
   return response.json();
 }
 
-export async function searchBooks(query = "", genero_id = null, ordem = "DESC") {
+export async function searchBooks(
+  query = "",
+  genero_id = null,
+  ordem = "DESC"
+) {
   const url = new URL(API_BASE + "/livro.php");
 
   if (query) url.searchParams.append("q", query);
@@ -109,7 +122,8 @@ export async function updateBook(
   genero_id,
   preco,
   editora,
-  descricao
+  descricao,
+  imagem_url
 ) {
   const response = await fetch(API_BASE + "/livro.php", {
     method: "PUT",
@@ -124,6 +138,7 @@ export async function updateBook(
       preco,
       editora,
       descricao,
+      imagem_url,
     }),
   });
 

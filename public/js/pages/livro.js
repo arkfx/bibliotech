@@ -93,6 +93,7 @@ async function carregarLivros() {
           <td>${livro.autor}</td>
           <td>${livro.genero_nome}</td>
           <td>R$ ${livro.preco}</td>
+          <td><img src="${livro.imagem_url}" alt="${livro.titulo}" style="height: 50px;" /></td>
           <td>
             <button class="btn visualizar">Visualizar</button>
             <button class="btn editar">Editar</button>
@@ -141,6 +142,7 @@ function adicionarEventosTabela() {
           document.getElementById("preco").value = livro.preco;
           document.getElementById("editora").value = livro.editora;
           document.getElementById("descricao").value = livro.descricao;
+          document.getElementById("imagem_url").value = livro.imagem_url || "";
 
           livroEmEdicaoId = livro.id;
           btnSalvar.textContent = "ATUALIZAR";
@@ -167,8 +169,9 @@ formLivro.addEventListener("submit", async (e) => {
   const preco = document.getElementById("preco").value.trim();
   const editora = document.getElementById("editora").value;
   const descricao = document.getElementById("descricao").value.trim();
+  const imagem_url = document.getElementById("imagem_url").value.trim();
 
-  if (!titulo || !autor || !genero || !preco || !editora || !descricao) {
+  if (!titulo || !autor || !genero || !preco || !editora || !descricao || !imagem_url) {
     alert("Preencha todos os campos obrigatórios!");
     return;
   }
@@ -185,10 +188,11 @@ formLivro.addEventListener("submit", async (e) => {
         genero,
         preco,
         editora,
-        descricao
+        descricao,
+        imagem_url
       );
     } else {
-      await createBook(titulo, autor, genero, preco, editora, descricao);
+      await createBook(titulo, autor, genero, preco, editora, descricao, imagem_url);
     }
 
     await carregarLivros();
