@@ -1,16 +1,16 @@
 export function renderBooks(container, livros, onComprarClick) {
-    container.innerHTML = "";
-  
-    if (livros.length === 0) {
-      container.innerHTML = "<p>Nenhum livro encontrado.</p>";
-      return;
-    }
-  
-    livros.forEach((livro) => {
-      const bookCard = `
+  container.innerHTML = "";
+
+  if (livros.length === 0) {
+    container.innerHTML = "<p>Nenhum livro encontrado.</p>";
+    return;
+  }
+
+  livros.forEach((livro) => {
+    const bookCard = `
         <div class="book-card">
           <div class="book-cover">
-            <img src="${livro.capa}" alt="Capa do livro ${livro.titulo}" />
+            <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
           </div>
           <div class="book-info">
             <h3>${livro.titulo}</h3>
@@ -21,26 +21,26 @@ export function renderBooks(container, livros, onComprarClick) {
           </div>
         </div>
       `;
-      container.insertAdjacentHTML("beforeend", bookCard);
+    container.insertAdjacentHTML("beforeend", bookCard);
+  });
+
+  // Adiciona eventos de clique aos botões "Comprar"
+  const comprarButtons = container.querySelectorAll(".btn-comprar");
+  comprarButtons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const tituloLivro = e.target.getAttribute("data-titulo");
+      if (onComprarClick) {
+        onComprarClick(tituloLivro);
+      }
     });
-  
-    // Adiciona eventos de clique aos botões "Comprar"
-    const comprarButtons = container.querySelectorAll(".btn-comprar");
-    comprarButtons.forEach((button) => {
-      button.addEventListener("click", (e) => {
-        const tituloLivro = e.target.getAttribute("data-titulo");
-        if (onComprarClick) {
-          onComprarClick(tituloLivro);
-        }
-      });
-    });
-  }
-  
-  export function renderSkeletons(container, count = 8) {
-    container.innerHTML = "";
-  
-    for (let i = 0; i < count; i++) {
-      const skeletonCard = `
+  });
+}
+
+export function renderSkeletons(container, count = 8) {
+  container.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const skeletonCard = `
         <div class="book-card skeleton-card">
           <div class="book-cover skeleton-cover"></div>
           <div class="book-info">
@@ -51,6 +51,6 @@ export function renderBooks(container, livros, onComprarClick) {
           </div>
         </div>
       `;
-      container.insertAdjacentHTML("beforeend", skeletonCard);
-    }
+    container.insertAdjacentHTML("beforeend", skeletonCard);
   }
+}

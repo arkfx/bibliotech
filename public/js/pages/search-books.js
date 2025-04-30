@@ -17,23 +17,10 @@ function abrirModal(titulo, mensagem) {
   modal.style.display = "flex";
 }
 
-  livros.forEach((livro) => {
-    const bookCard = `
-      <div class="book-card">
-        <div class="book-cover">
-          <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
-        </div>
-        <div class="book-info">
-          <h3>${livro.titulo}</h3>
-          <p>${livro.autor}</p>
-          <strong>R$ ${livro.preco}</strong>
-          <br />
-          <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
-        </div>
-      </div>
-    `;
-    gridContainer.insertAdjacentHTML("beforeend", bookCard);
-  });
+// Fechar o modal ao clicar no botão "Entendi"
+modalClose.addEventListener("click", () => {
+  modal.style.display = "none";
+});
 
 // Fechar o modal ao clicar fora dele
 window.addEventListener("click", (e) => {
