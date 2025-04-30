@@ -1,18 +1,21 @@
 import { searchBooks } from "../api/livro.js";
+import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
 
 const searchInput = document.querySelector(".main-nav-list input");
 const searchButton = document.querySelector(".main-nav-list button");
 const genreFilter = document.querySelector(".filter-genres");
 const gridContainer = document.querySelector(".grid--4-cols");
 const sectionTitle = document.querySelector(".heading-secondary");
+const modal = document.getElementById("cadastroModal");
+const modalTitle = document.getElementById("modal-title");
+const modalMessage = document.getElementById("modal-message");
+const modalClose = document.getElementById("modal-close");
 
-function exibirLivros(livros) {
-  gridContainer.innerHTML = "";
-
-  if (livros.length === 0) {
-    gridContainer.innerHTML = "<p>Nenhum livro encontrado.</p>";
-    return;
-  }
+function abrirModal(titulo, mensagem) {
+  modalTitle.textContent = titulo;
+  modalMessage.textContent = mensagem;
+  modal.style.display = "flex";
+}
 
   livros.forEach((livro) => {
     const bookCard = `
@@ -32,60 +35,47 @@ function exibirLivros(livros) {
     gridContainer.insertAdjacentHTML("beforeend", bookCard);
   });
 
-  // Reatribuir eventos de clique aos botões "Comprar"
-  const comprarButtons = document.querySelectorAll(".btn-comprar");
-  comprarButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const tituloLivro = e.target.getAttribute("data-titulo");
-      abrirModal(
-        "Aviso de Compra",
-        `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
-      );
-    });
-  });
-}
-// Função para mostrar skeletons enquanto a busca é realizada
-function mostrarCarregamento(container) {
-  container.innerHTML = "";
+// Fechar o modal ao clicar fora dele
+window.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.style.display = "none";
+  }
+});
 
-  for (let i = 0; i < 8; i++) {
-    const skeletonCard = `
-        <div class="book-card skeleton-card">
-          <div class="book-cover skeleton-cover"></div>
-          <div class="book-info">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-author"></div>
-            <div class="skeleton-price"></div>
-            <div class="skeleton-button"></div>
-          </div>
-        </div>
-      `;
-    container.insertAdjacentHTML("beforeend", skeletonCard);
+// Atualiza o título da seção com base na busca
+function atualizarTitulo(query, generoId) {
+  if (query && generoId) {
+    const generoNome = genreFilter.options[genreFilter.selectedIndex].text;
+    sectionTitle.textContent = `Resultados para "${query}" - Gênero: ${generoNome}`;
+  } else if (generoId) {
+    const generoNome = genreFilter.options[genreFilter.selectedIndex].text;
+    sectionTitle.textContent = `Gênero: ${generoNome}`;
+  } else if (query) {
+    sectionTitle.textContent = `Resultados para "${query}"`;
+  } else {
+    sectionTitle.textContent = "Livros em destaque";
   }
 }
 
 // Função para buscar livros
 async function buscarLivros() {
   const query = searchInput.value.trim();
-  const genero = genreFilter.value;
+  const generoId = genreFilter.value;
 
-  //verifica se o valor do filtro de gênero é diferente de "todos"
-  if (query && genero) {
-    sectionTitle.textContent = `Resultados para "${query}" - Gênero: ${genero}`;
-  } else if (genero) {
-    sectionTitle.textContent = `Gênero: ${genero}`;
-  } else if (query) {
-    sectionTitle.textContent = `Resultados para "${query}"`;
-  } else {
-    sectionTitle.textContent = "Livros em destaque";
-  }
+  atualizarTitulo(query, generoId);
 
-  mostrarCarregamento(gridContainer);
+  //exibir skeletons enquanto os livros são carregados
+  renderSkeletons(gridContainer);
 
   try {
-    const response = await searchBooks(query, genero);
+    const response = await searchBooks(query, generoId);
     if (response.status === "success") {
-      exibirLivros(response.data);
+      renderBooks(gridContainer, response.data, (tituloLivro) => {
+        abrirModal(
+          "Aviso de Compra",
+          `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
+        );
+      });
     } else {
       gridContainer.innerHTML = `<p>${response.message}</p>`;
     }
@@ -96,44 +86,9 @@ async function buscarLivros() {
   }
 }
 
-// Adicionar eventos de busca
 searchButton.addEventListener("click", buscarLivros);
 searchInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     buscarLivros();
-  }
-});
-
-const comprarButtons = document.querySelectorAll(".btn-comprar");
-comprarButtons.forEach((button) => {
-  button.addEventListener("click", (e) => {
-    abrirModal(
-      "Aviso de Compra",
-      `O livro ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
-    );
-  });
-});
-
-const modal = document.getElementById("cadastroModal");
-const modalTitle = document.getElementById("modal-title");
-const modalMessage = document.getElementById("modal-message");
-const modalClose = document.getElementById("modal-close");
-
-// Função para abrir o modal
-function abrirModal(titulo, mensagem) {
-  modalTitle.textContent = titulo;
-  modalMessage.textContent = mensagem;
-  modal.style.display = "flex";
-}
-
-// Fechar o modal ao clicar no botão "Entendi"
-modalClose.addEventListener("click", () => {
-  modal.style.display = "none";
-});
-
-// Fechar o modal ao clicar fora dele
-window.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    modal.style.display = "none";
   }
 });
