@@ -1,5 +1,6 @@
 import { getBooks } from "../api/livro.js";
 import { addBookToCart } from "../api/carrinho.js";
+import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const gridContainer = document.querySelector(".grid--4-cols");
@@ -10,7 +11,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modalClose = document.getElementById("modal-close");
   const modalIcon = modal.querySelector(".modal-icon");
 
-  // Função para abrir o modal
   function abrirModal(emoji, titulo, mensagem) {
     modalIcon.textContent = emoji;
     modalTitle.textContent = titulo;
@@ -30,8 +30,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Mostrar estado de carregamento ao carregar os livros
-  mostrarCarregamento(gridContainer);
+  // Mostrar skeletons enquanto os livros são carregados
+  renderSkeletons(gridContainer);
 
   // Verificar se o campo de busca está vazio antes de carregar todos os livros
   if (!searchInput || searchInput.value.trim() === "") {
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           const bookCard = `
             <div class="book-card">
               <div class="book-cover">
-                <img src="${livro.capa}" alt="Capa do livro ${livro.titulo}" />
+                <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
               </div>
               <div class="book-info">
                 <h3>${livro.titulo}</h3>
@@ -119,26 +119,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
-
-function mostrarCarregamento(container) {
-  container.innerHTML = "";
-
-  // Cria 8 skeleton cards para simular o carregamento
-  for (let i = 0; i < 8; i++) {
-    const skeletonCard = `
-      <div class="book-card skeleton-card">
-        <div class="book-cover skeleton-cover"></div>
-        <div class="book-info">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-author"></div>
-          <div class="skeleton-price"></div>
-          <div class="skeleton-button"></div>
-        </div>
-      </div>
-    `;
-    container.insertAdjacentHTML("beforeend", skeletonCard);
-  }
-}
 
 function mostrarMensagemErro(container, mensagem) {
   container.innerHTML = `

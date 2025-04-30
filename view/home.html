@@ -28,11 +28,8 @@
         <ul class="main-nav-list">
           <!-- Select para filtrar por gêneros -->
           <li>
-            <select id="filter-genres" class="filter-genres">
+            <select id="filter-genres" class="filter-genres genero">
               <option value="">Todos os Gêneros</option>
-              <option value="romance">Romance</option>
-              <option value="ficcao">Ficção</option>
-              <option value="biografia">Biografia</option>
             </select>
           </li>
 
@@ -69,9 +66,24 @@
           </li>
 
           <div class="dropdown">
-            <button class="dropdown-toggle" id="btnPerfil">Perfil</button>
+            <button class="dropdown-toggle profile-button" id="btnPerfil">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="icon-profile"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </button>
             <div class="dropdown-menu">
-              <a href="#" class="dropdown-item">Meus dados</a>
               <a href="#" class="dropdown-item" id="btnLogout">Logout</a>
             </div>
           </div>
@@ -121,5 +133,6 @@
     <script src="../public/js/profile-menu.js"></script>
     <script type="module" src="../public/js/pages/home.js"></script>
     <script type="module" src="../public/js/pages/search-books.js"></script>
+    <script type="module" src="../public/js/pages/genero.js"></script>
   </body>
 </html>

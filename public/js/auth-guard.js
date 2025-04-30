@@ -4,6 +4,6 @@
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   if (!isLoggedIn || !isAdmin) {
-    window.location.href = "../../../bibliotech/view/";
+    window.location.href = "../../../bibliotech/view/home.html";
   }
 })();
