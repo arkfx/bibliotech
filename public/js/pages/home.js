@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Adiciona evento de clique aos botões "Adicionar ao Carrinho"
         const carrinhoButtons = document.querySelectorAll(".btn-carrinho");
         carrinhoButtons.forEach((button) => {
-          button.addEventListener("click", (e) => {
+          button.addEventListener("click", async (e) => {
             const titulo = e.target.dataset.titulo;
 
 
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const quantidade = 1;
             try {
-              addBookToCart(titulo, userId, quantidade);
+              await addBookToCart(titulo, userId, quantidade);
             } catch (error) {
               console.error("Erro ao adicionar ao carrinho:", error);
               abrirModal(
