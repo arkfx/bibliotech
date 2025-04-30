@@ -29,6 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("isAdmin");
-    window.location.href = "../../../bibliotech/view/";
+    window.location.href = "../../../bibliotech/view/home.html";
   });
 });
