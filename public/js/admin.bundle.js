@@ -2,10 +2,11 @@ import "./navigation.js";
 import "./status.js";
 import "./profile-menu.js";
 
+import { verificarSessao } from "./api/session.js";
+
 async function verificarAcessoAdmin() {
   try {
-    const response = await fetch("../../../bibliotech/api/session-status.php");
-    const data = await response.json();
+    const data = await verificarSessao();
 
     if (data.status !== "success" || !data.isAdmin) {
       // Redireciona para a página inicial se não for administrador
