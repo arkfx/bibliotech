@@ -40,23 +40,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Limpa o container antes de adicionar os livros
         gridContainer.innerHTML = "";
 
-        // Adiciona os livros ao grid
-        livros.forEach((livro) => {
-          const bookCard = `
-            <div class="book-card">
-              <div class="book-cover">
-                <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
-              </div>
-              <div class="book-info">
-                <h3>${livro.titulo}</h3>
-                <p>${livro.autor}</p>
-                <strong>R$ ${livro.preco}</strong>
-                <br />
-                <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
-              </div>
-            </div>
-          `;
-          gridContainer.insertAdjacentHTML("beforeend", bookCard);
+        // Renderiza os livros
+        renderBooks(gridContainer, livros, (tituloLivro) => {
+          abrirModal(
+            "Aviso de Compra",
+            `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
+          );
         });
 
         // Adiciona evento de clique aos botões "Comprar"
