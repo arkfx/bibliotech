@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - BiblioTech</title>
+    <title>Cadastro - BiblioTech</title>
     <link rel="stylesheet" href="../public/css/main.css" />
     <link rel="stylesheet" href="../public/css/page/form-usuario.css" />
     <link
@@ -20,9 +20,21 @@
     <main class="user-page">
       <div class="form-container">
         <div class="form-card">
-          <h1 class="form-title">Login</h1>
+          <h1 class="form-title">Cadastro</h1>
 
-          <form class="user-form" id="login-form">
+          <form class="user-form" id="cadastro-form">
+            <div class="form-group">
+              <label for="nome">Nome</label>
+              <div class="input-field">
+                <input
+                  type="text"
+                  id="nome"
+                  placeholder="Digite seu nome completo"
+                  required
+                />
+              </div>
+            </div>
+
             <div class="form-group">
               <label for="email">Email</label>
               <div class="input-field">
@@ -37,7 +49,7 @@
 
             <div class="form-group">
               <label for="senha">Senha</label>
-              <div class="input-field" id="password-field">
+              <div class="input-field">
                 <input
                   type="password"
                   id="senha"
@@ -47,16 +59,28 @@
               </div>
             </div>
 
-            <button type="submit" class="form-button" id="btn-login">
-              Entrar
+            <div class="form-group">
+              <label for="confirmar-senha">Confirmar senha</label>
+              <div class="input-field">
+                <input
+                  type="password"
+                  id="confirmar-senha"
+                  placeholder="Confirme sua senha"
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="form-button" id="btn-cadastrar">
+              Cadastrar
               <span id="loading-spinner" class="loading-spinner" style="display:none;"></span>
             </button>
           </form>
 
           <div class="form-divider"></div>
           <p class="alt-action-text">
-            Não tem uma conta?
-            <a href="cadastro-usuario.html" class="alt-action-link">Cadastre-se</a>
+            Já tem uma conta?
+            <a href="login.html" class="alt-action-link">Fazer login</a>
           </p>
         </div>
 

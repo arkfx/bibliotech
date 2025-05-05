@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/../db/Database.php';
 require_once __DIR__ . '/../dao/UsuarioDAO.php';
 
@@ -13,11 +14,13 @@ if (isset($data['email']) && isset($data['senha'])) {
     $usuario = $dao->getUsuarioByEmail($data['email']);
 
     if ($usuario && password_verify($data['senha'], $usuario['senha'])) {
-        $is_admin = $usuario['cargo_id'] == 2;
+        $_SESSION['isLoggedIn'] = true;
+        $_SESSION['isAdmin'] = $usuario['cargo_id'] == 2;
+
         echo json_encode([
             'status' => 'success',
             'message' => 'Login realizado com sucesso!',
-            'is_admin' => $is_admin
+            'is_admin' => $_SESSION['isAdmin']
         ]);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Email ou senha incorretos']);
