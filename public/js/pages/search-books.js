@@ -121,7 +121,7 @@ function aplicarFiltroDePreco(reset = false) {
 // cria e mostra o filtro de preço
 function showPriceFilter() {
   // Verifica se o gênero selecionado é "Todos os Gêneros"
-  if (genreFilter.value === "") {
+  if (genreFilter.value === "" && searchInput.value.trim() === "") {
     // Remove o filtro de preço se ele já estiver visível
     const existingSidebar = document.querySelector(".price-filter-sidebar");
     if (existingSidebar) {
