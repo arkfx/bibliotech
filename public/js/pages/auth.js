@@ -2,12 +2,33 @@ import { login, cadastrarUsuario } from "../api/auth.js";
 
 const loginForm = document.getElementById("login-form");
 const cadastroForm = document.getElementById("cadastro-form");
-const errorMessage = document.querySelector(".form-error");
+const errorMessage = document.getElementById("error-message");
+const successMessage = document.getElementById("success-message");
 const loadingSpinner = document.querySelector(".loading-spinner");
+
+const urlParams = new URLSearchParams(window.location.search);
+const cadastroSuccess = urlParams.get("cadastro");
+
+if (cadastroSuccess === "success") {  
+  successMessage.textContent = "Cadastro realizado com sucesso! Faça login para continuar.";
+  successMessage.style.display = "block";
+
+  // Remove a query string da URL para evitar que a mensagem apareça novamente ao recarregar a página
+  window.history.replaceState({}, document.title, window.location.pathname);
+
+  setTimeout(() => {
+    successMessage.style.display = "none";
+  }, 5000);
+}
 
 if (loginForm) {
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+
+    // Verifica se a mensagem de sucesso existe e a esconde
+    if (successMessage) {
+      successMessage.style.display = "none";
+    }
 
     errorMessage.style.display = "none"; // Esconde a mensagem de erro
     errorMessage.textContent = ""; // Limpa o texto da mensagem de erro
