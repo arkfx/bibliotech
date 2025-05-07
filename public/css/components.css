@@ -523,3 +523,118 @@ footer {
   border-radius: 8px;
   animation: pulse 1.5s infinite alternate;
 }
+
+/* Layout com sidebar */
+.main-content .container.with-sidebar {
+  display: grid;
+  grid-template-columns: 25rem 1fr;
+  gap: 2.4rem;
+  max-width: 120rem;
+  margin: 0 auto;
+}
+
+/* Título deve ocupar toda a largura na parte superior */
+.main-content .container.with-sidebar .heading-secondary {
+  grid-column: 1 / -1;
+  margin-bottom: 2rem;
+}
+
+/* Sidebar de filtro de preço */
+.price-filter-sidebar {
+  width: 25rem;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  margin-top: 0;
+  animation: slideIn 0.3s ease-out;
+}
+
+.price-filter-sidebar h3 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.6rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Slider de preço */
+.price-slider-container {
+  margin-bottom: 2rem;
+}
+
+.price-slider {
+  width: 100%;
+  margin: 1rem 0;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 5px;
+  background: #ddd;
+  border-radius: 5px;
+  outline: none;
+}
+
+.price-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #00a0f0;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.price-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #00a0f0;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.price-ranges {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.4rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* Botões do filtro */
+.price-filter-sidebar .btn {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.price-filter-sidebar .btn:hover{
+  background-color: #0085c8;
+}
+
+.price-filter-sidebar .btn-secondary {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.price-filter-sidebar .btn-secondary:hover {
+  background-color: #dee2e6;
+}
+
+/* Ajuste responsivo para o filtro de preço */
+@media (max-width: 768px) {
+  .main-content .container.with-sidebar {
+    flex-direction: column;
+  }
+  
+  .price-filter-sidebar {
+    width: 100%;
+    min-width: 100%;
+    margin-bottom: 2rem;
+    margin-top: 0;
+  }
+}
