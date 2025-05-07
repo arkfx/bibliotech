@@ -15,3 +15,20 @@ export async function login(email, senha) {
 
   return response.json();
 }
+
+export async function cadastrarUsuario(nome, email, senha) {
+  const response = await fetch(API_BASE + "/cadastro-usuario.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ nome, email, senha }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Cadastro falhou");
+  }
+
+  return response.json();
+}
+

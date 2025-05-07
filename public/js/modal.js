@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+/* document.addEventListener("DOMContentLoaded", function () {
   const cadastroButton = document.querySelector(".cadastro");
   const modal = document.getElementById("cadastroModal");
   const closeButton = document.querySelector(".modal-close");
@@ -21,3 +21,4 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+ */
