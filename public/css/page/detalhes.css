@@ -1,0 +1,126 @@
+.livro-container {
+    display: flex;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    gap: 30px;
+}
+
+.capa-container {
+    flex: 0 0 220px;
+}
+
+.capa-livro {
+    width: 100%;
+    height: 320px;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-style: italic;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.detalhes-container {
+    flex: 1;
+}
+
+.titulo-livro {
+    font-size: 24px;
+    margin: 0 0 10px 0;
+    color: #222;
+}
+
+.autor {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.opcoes-compra {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.opcao {
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    display: inline-block;
+    width: 150px;
+}
+
+.opcao.ativo {
+    border-color: #0085ca;
+    background-color: #e6f5fc;
+}
+
+.preco {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 15px 0;
+    color: #333;
+}
+
+.btn-comprar {
+    background-color: #0095e6;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    transition: background-color 0.2s;
+}
+
+.btn-comprar:hover {
+    background-color: #0085ca;
+}
+
+.secao {
+    margin: 30px 0;
+}
+
+.secao-titulo {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.secao-conteudo {
+    color: #555;
+    line-height: 1.6;
+}
+
+.info-item {
+    margin-bottom: 10px;
+}
+
+.info-label {
+    font-weight: bold;
+    color: #444;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .livro-container {
+        flex-direction: column;
+    }
+    
+    .capa-container {
+        align-self: center;
+        margin-bottom: 20px;
+    }
+}
