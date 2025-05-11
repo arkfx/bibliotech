@@ -1,4 +1,5 @@
 import { getBookById } from "../api/livro.js";
+import { renderSkeletonDetalhes } from "../utils/renderBooks.js";
 
 function selecionarOpcao(elemento) {
     // Remove a classe ativo de todos os botões
@@ -20,6 +21,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  const container = document.querySelector(".livro-container");
+
+  // Renderiza o skeleton enquanto os dados são carregados
+  renderSkeletonDetalhes(container);
+
   try {
     const response = await getBookById(bookId);
     if (response.status === "success") {
@@ -27,21 +33,68 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log("Dados do livro:", livro);
 
       // Atualiza os elementos da página com os detalhes do livro
-      document.querySelector(".titulo-livro").textContent = livro.titulo;
-      document.querySelector(".autor").textContent = `por ${livro.autor}`;
-      document.querySelector(".preco").textContent = `R$ ${livro.preco}`;
-      document.querySelector(".capa-livro").innerHTML = `<img src="${livro.imagem_url}" alt="${livro.titulo}" />`;
-      document.querySelector(".descricao").textContent = livro.descricao || "Descrição não disponível.";
-      document.querySelector(".editora").textContent = livro.editora || "Editora não informada.";
-      document.querySelector(".publicacao").textContent = livro.data_publicacao || "Data de publicação não disponível.";
-      document.querySelector(".idioma").textContent = livro.idioma || "Idioma não informado.";
-      document.querySelector(".genero").textContent = livro.genero_nome || "Gênero não informado.";
+      container.innerHTML = `
+        <div class="capa-container">
+          <div class="capa-livro">
+            <img src="${livro.imagem_url}" alt="${livro.titulo}" />
+          </div>
+        </div>
+        <div class="detalhes-container">
+          <h1 class="titulo-livro">${livro.titulo}</h1>
+          <p class="autor">por ${livro.autor}</p>
+          
+          <div class="opcoes-compra">
+            <button class="opcao ativo" onclick="selecionarOpcao(this)">
+              E-Book<br>
+              Disponível<br>
+              instantaneamente
+            </button>
+            <button class="opcao" onclick="selecionarOpcao(this)">
+              Livro Normal<br>
+              Envio por Correios
+            </button>
+          </div>
+          
+          <div class="preco">R$ ${livro.preco}</div>
+          
+          <button class="btn-comprar" data-titulo="${livro.titulo}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            Comprar
+          </button>
+          
+          <div class="secao">
+            <h2 class="secao-titulo">Descrição</h2>
+            <div class="secao-conteudo descricao">${livro.descricao || "Descrição não disponível."}</div>
+          </div>
+          <div class="secao">
+            <h2 class="secao-titulo">Informações</h2>
+            <div class="secao-conteudo">
+              <div class="info-item">
+                <span class="info-label">Editora:</span> <span class="editora">${livro.editora || "Editora não informada."}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Publicação:</span> <span class="publicacao">${livro.data_publicacao || "Data de publicação não disponível."}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Gênero:</span> <span class="genero-nome">${livro.genero_nome || "Gênero não informado."}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Idioma:</span> <span class="idioma">${livro.idioma || "Idioma não informado."}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
     } else {
       alert("Erro ao carregar os detalhes do livro.");
     }
   } catch (error) {
     console.error("Erro ao buscar os detalhes do livro:", error);
-    alert("Erro ao carregar os detalhes do livro.");
+    container.innerHTML = "<p>Erro ao carregar os detalhes do livro. Tente novamente mais tarde.</p>";
   }
 });
 

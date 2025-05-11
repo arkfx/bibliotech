@@ -10,8 +10,8 @@ export function renderBooks(container, livros, onComprarClick) {
     const bookCard = `
         <div class="book-card">
           <div class="book-cover">
-            <a href="detalhes-livro.html?id=${livro.id}">
-              <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
+            <a href="detalhes-livro.html?id=${livro.id}" class="book-cover-link">
+              <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" class="book-cover-image" />
             </a>
           </div>
           <div class="book-info">
@@ -38,6 +38,7 @@ export function renderBooks(container, livros, onComprarClick) {
       }
     });
   });
+  
 }
 
 export function renderSkeletons(container, count = 8) {
@@ -57,4 +58,22 @@ export function renderSkeletons(container, count = 8) {
       `;
     container.insertAdjacentHTML("beforeend", skeletonCard);
   }
+}
+
+export function renderSkeletonDetalhes(container) {
+  container.innerHTML = `
+    <div class="skeleton-detalhes">
+      <div class="skeleton-capa"></div>
+      <div class="skeleton-info">
+        <div class="skeleton-titulo"></div>
+        <div class="skeleton-autor"></div>
+        <div class="skeleton-preco"></div>
+        <div class="skeleton-descricao"></div>
+        <div class="skeleton-editora"></div>
+        <div class="skeleton-publicacao"></div>
+        <div class="skeleton-idioma"></div>
+        <div class="skeleton-genero"></div>
+      </div>
+    </div>
+  `;
 }

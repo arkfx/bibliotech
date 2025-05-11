@@ -1,14 +1,17 @@
-/* Reset e regras globais */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.skeleton-detalhes .skeleton-capa,
+.skeleton-detalhes .skeleton-info > div {
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-html, body {
-  width: 100%;
-  overflow-x: hidden;
-  font-family: Arial, sans-serif;
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* Container principal do livro */
@@ -57,15 +60,15 @@ html, body {
 }
 
 .titulo-livro {
-  font-size: 24px;
-  margin: 0 0 10px 0;
+  font-size: 2.8rem; /* Tamanho maior para o título */
+  margin: 0 0 1.2rem 0;
   color: #222;
 }
 
 .autor {
-  font-size: 16px;
+  font-size: 1.8rem; /* Tamanho maior para o autor */
   color: #555;
-  margin-bottom: 25px;
+  margin-bottom: 2.5rem; /* Mais espaço após o autor */
 }
 
 .opcoes-compra {
@@ -93,9 +96,9 @@ html, body {
 }
 
 .preco {
-  font-size: 28px;
+  font-size: 3rem;
   font-weight: bold;
-  margin: 15px 0;
+  margin: 1.8rem 0;
   color: #333;
 }
 
@@ -103,14 +106,14 @@ html, body {
   background-color: #0095e6;
   color: white;
   border: none;
-  padding: 12px 25px;
+  padding: 1.4rem 2.8rem;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 1.8rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 25px;
+  gap: 1rem;
+  margin-bottom: 3rem;
   transition: background-color 0.2s;
 }
 
@@ -123,25 +126,34 @@ html, body {
 }
 
 .secao-titulo {
-  font-size: 20px;
-  margin-bottom: 15px;
+  font-size: 2.2rem;
+  margin-bottom: 1.8rem;
   color: #333;
+  font-weight: 600;
 }
 
 .secao-conteudo {
   color: #555;
-  line-height: 1.6;
+  line-height: 1.8; /* Aumentando o espaçamento entre linhas */
+  font-size: 1.6rem; /* Aumentando o tamanho da fonte */
 }
 
 .info-item {
-  margin-bottom: 10px;
+  margin-bottom: 1.2rem; /* Maior espaçamento entre itens de informação */
+  font-size: 1.6rem; /* Tamanho padrão para elementos de informação */
 }
 
 .info-label {
   font-weight: bold;
   color: #444;
   display: inline-block;
-  margin-right: 5px;
+  margin-right: 1rem;
+  font-size: 1.6rem; /* Tamanho consistente com o resto do texto */
+}
+
+.descricao {
+  font-size: 1.6rem; /* Tamanho maior para a descrição */
+  margin-bottom: 2rem;
 }
 
 /* Responsividade: imagem em cima só em telas bem pequenas */
