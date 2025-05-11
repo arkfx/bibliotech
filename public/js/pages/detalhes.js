@@ -1,5 +1,4 @@
 import { getBookById } from "../api/livro.js";
-import { getGeneros } from "../api/genero.js";
 
 function selecionarOpcao(elemento) {
     // Remove a classe ativo de todos os botões
@@ -36,15 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.querySelector(".editora").textContent = livro.editora || "Editora não informada.";
       document.querySelector(".publicacao").textContent = livro.data_publicacao || "Data de publicação não disponível.";
       document.querySelector(".idioma").textContent = livro.idioma || "Idioma não informado.";
-      const generosResponse = await getGeneros();
-      if (generosResponse.status === "success") {
-        const generos = generosResponse.data;
-        const genero = generos.find(g => g.id === livro.genero_nome);
-        document.querySelector(".genero").textContent = genero ? genero.nome : "Gênero não informado.";
-      } else {
-        console.error("Erro ao carregar gêneros:", generosResponse.message);
-        document.querySelector(".genero").textContent = "Gênero não informado.";
-      }
+      document.querySelector(".genero").textContent = livro.genero_nome || "Gênero não informado.";
     } else {
       alert("Erro ao carregar os detalhes do livro.");
     }
