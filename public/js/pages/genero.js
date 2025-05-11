@@ -11,6 +11,7 @@ export async function carregarGeneros(selectClass) {
     const response = await getGeneros(); 
     
     if (response.status === "success") {
+      console.log("Gêneros carregados com sucesso:", response);
       response.data.forEach((genero) => {
         const option = document.createElement("option");
         option.value = genero.id;
