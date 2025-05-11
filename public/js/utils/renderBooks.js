@@ -10,10 +10,14 @@ export function renderBooks(container, livros, onComprarClick) {
     const bookCard = `
         <div class="book-card">
           <div class="book-cover">
-            <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
+            <a href="detalhes-livro.html?id=${livro.id}">
+              <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
+            </a>
           </div>
           <div class="book-info">
-            <h3>${livro.titulo}</h3>
+            <h3>
+              <a href="detalhes-livro.html?id=${livro.id}">${livro.titulo}</a>
+            </h3>
             <p>${livro.autor}</p>
             <strong>R$ ${livro.preco}</strong>
             <br />

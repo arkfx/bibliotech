@@ -93,12 +93,12 @@
 
     <div class="livro-container">
         <div class="capa-container">
-            <div class="capa-livro">Capa do livro</div>
+            <div class="capa-livro"></div>
         </div>
         
         <div class="detalhes-container">
-            <h1 class="titulo-livro">Título do Livro Completo</h1>
-            <p class="autor">por Autor do livro</p>
+            <h1 class="titulo-livro"></h1>
+            <p class="autor"></p>
             
             <div class="opcoes-compra">
                 <button class="opcao ativo" onclick="selecionarOpcao(this)">
@@ -112,7 +112,7 @@
                 </button>
             </div>
             
-            <div class="preco">R$ xx,xx</div>
+            <div class="preco"></div>
             
             <button class="btn-comprar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -125,25 +125,23 @@
             
             <div class="secao">
                 <h2 class="secao-titulo">Descrição</h2>
-                <div class="secao-conteudo">
-                    Descrição do livro será exibida aqui.
-                </div>
+                <div class="secao-conteudo descricao"></div>
             </div>
             
             <div class="secao">
                 <h2 class="secao-titulo">Informações</h2>
                 <div class="secao-conteudo">
                     <div class="info-item">
-                        <span class="info-label">Editora:</span> -
+                        <span class="info-label">Editora:</span> <span class="editora"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Publicação:</span> -
+                        <span class="info-label">Publicação:</span> <span class="publicacao"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Gênero:</span> -
+                        <span class="info-label">Gênero:</span> <span class="genero"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Idioma:</span> -
+                        <span class="info-label">Idioma:</span> <span class="idioma"></span>
                     </div>
                 </div>
             </div>
@@ -153,8 +151,8 @@
     <footer>© 2025 - Todos os direitos reservados.</footer>
 
     <script src="../public/js/main.js"></script>
-    <script src="../public/js/detalhes.js"></script>
     <script src="../public/js/navigation.js"></script>
+    <script type="module" src="../public/js/pages/detalhes.js"></script>
     <script type="module" src="../public/js/status.js"></script>
     <script type="module" src="../public/js/profile-menu.js"></script>
     <script type="module" src="../public/js/pages/home.js"></script>
