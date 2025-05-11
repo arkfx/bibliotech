@@ -22,8 +22,20 @@ function fecharModal() {
   modal.style.display = "none";
 }
 
+if (searchButton) {
+  searchButton.addEventListener("click", () => {
+    showPriceFilter();
+    buscarLivros();
+  });
+} else {
+  console.warn("Elemento 'searchButton' não encontrado no DOM.");
+}
 // Eventos para fechar o modal
-modalClose.addEventListener("click", fecharModal);
+if (modalClose) {
+  modalClose.addEventListener("click", fecharModal);
+} else {
+  console.warn("Elemento 'modalClose' não encontrado no DOM.");
+}
 window.addEventListener("click", (e) => {
   if (e.target === modal) fecharModal();
 });
