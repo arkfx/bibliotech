@@ -23,9 +23,12 @@ class UsuarioDAO
     {
         $query = "INSERT INTO usuario (nome, email, senha) VALUES (:nome, :email, :senha)";
         $stmt = $this->conn->prepare($query);
+
+        $hashedPassword = password_hash($usuario['senha'], PASSWORD_BCRYPT);
+
         $stmt->bindParam(':nome', $usuario['nome']);
         $stmt->bindParam(':email', $usuario['email']);
-        $stmt->bindParam(':senha', password_hash($usuario['senha'], PASSWORD_BCRYPT));
+        $stmt->bindParam(':senha', $hashedPassword);
 
         if ($stmt->execute()) {
             return ['status' => 'success', 'message' => 'Usuario created successfully.'];

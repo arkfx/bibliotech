@@ -19,20 +19,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Fechar o modal ao clicar no botão "Entendi"
+  if (modalClose) {
   modalClose.addEventListener("click", () => {
     modal.style.display = "none";
   });
+  } else {
+  console.warn("Elemento 'modalClose' não encontrado no DOM.");
+  }
 
   // Fechar o modal ao clicar fora dele
-  window.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-    }
+  if (modalClose) {
+  modalClose.addEventListener("click", () => {
+    modal.style.display = "none";
   });
+} else {
+  console.warn("Elemento 'modalClose' não encontrado no DOM.");
+}
 
   // Mostrar skeletons enquanto os livros são carregados
   renderSkeletons(gridContainer);
-
+  if (searchInput) {
+  searchInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      buscarLivros();
+    }
+  });
+} else {
+  console.warn("Elemento 'searchInput' não encontrado no DOM.");
+}
   // Verificar se o campo de busca está vazio antes de carregar todos os livros
   if (!searchInput || searchInput.value.trim() === "") {
     try {
@@ -43,23 +58,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Limpa o container antes de adicionar os livros
         gridContainer.innerHTML = "";
 
-        // Adiciona os livros ao grid
-        livros.forEach((livro) => {
-          const bookCard = `
-            <div class="book-card">
-              <div class="book-cover">
-                <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" />
-              </div>
-              <div class="book-info">
-                <h3>${livro.titulo}</h3>
-                <p>${livro.autor}</p>
-                <strong>R$ ${livro.preco}</strong>
-                <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
-                <button class="btn-carrinho" data-titulo="${livro.titulo}">Adicionar ao Carrinho</button>
-              </div>
-            </div>
-          `;
-          gridContainer.insertAdjacentHTML("beforeend", bookCard);
+        // Renderiza os livros
+        renderBooks(gridContainer, livros, (tituloLivro) => {
+          abrirModal(
+            "Aviso de Compra",
+            `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
+          );
         });
 
         // Adiciona evento de clique aos botões "Adicionar ao Carrinho"

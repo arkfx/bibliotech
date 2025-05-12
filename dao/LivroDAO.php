@@ -28,9 +28,13 @@ class LivroDAO
         return $stmt->execute();
     }
 
-    public function getBookById($id)
-    {
-        $sql = "SELECT * FROM livros WHERE id = :id";
+    public function getBookById($id){
+        $sql = "SELECT 
+                    livros.*, 
+                    generos.nome AS genero_nome 
+                FROM livros
+                INNER JOIN generos ON livros.genero_id = generos.id
+                WHERE livros.id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
