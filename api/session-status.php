@@ -6,7 +6,8 @@ if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] === true) {
     echo json_encode([
         'status' => 'success',
         'isLoggedIn' => true,
-        'isAdmin' => $_SESSION['isAdmin'] ?? false
+        'isAdmin' => $_SESSION['isAdmin'] ?? false,
+        'userId' => $_SESSION['userId'] ?? null
     ]);
 } else {
     echo json_encode([

@@ -11,6 +11,7 @@
 # Ignora IDEs/editor configs
 .vscode/
 .idea/
+.cursor/
 *.sublime-project
 *.sublime-workspace
 

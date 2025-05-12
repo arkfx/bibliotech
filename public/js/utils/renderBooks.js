@@ -1,4 +1,4 @@
-export function renderBooks(container, livros, onComprarClick) {
+export function renderBooks(container, livros) {
   container.innerHTML = "";
 
   if (livros.length === 0) {
@@ -8,37 +8,36 @@ export function renderBooks(container, livros, onComprarClick) {
 
   livros.forEach((livro) => {
     const bookCard = `
-        <div class="book-card">
-          <div class="book-cover">
-            <a href="detalhes-livro.html?id=${livro.id}" class="book-cover-link">
-              <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" class="book-cover-image" />
-            </a>
-          </div>
-          <div class="book-info">
-            <h3>
-              <a href="detalhes-livro.html?id=${livro.id}">${livro.titulo}</a>
-            </h3>
-            <p>${livro.autor}</p>
-            <strong>R$ ${livro.preco}</strong>
-            <br />
-            <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
-          </div>
+      <div class="book-card">
+        <div class="book-cover">
+          <a href="detalhes-livro.html?id=${livro.id}" class="book-cover-link">
+            <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" class="book-cover-image" />
+          </a>
         </div>
-      `;
+        <div class="book-info">
+          <h3>
+            <a href="detalhes-livro.html?id=${livro.id}">${livro.titulo}</a>
+          </h3>
+          <p>${livro.autor}</p>
+          <strong>R$ ${livro.preco}</strong>
+          <br />
+<button class="btn-comprar" data-titulo="${livro.titulo}">
+  <svg class="icon-cart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <circle cx="9" cy="21" r="1"></circle>
+    <circle cx="20" cy="21" r="1"></circle>
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+  </svg>
+  Comprar
+</button>
+
+        </div>
+      </div>
+    `;
     container.insertAdjacentHTML("beforeend", bookCard);
   });
 
-  // Adiciona eventos de clique aos botões "Comprar"
-  const comprarButtons = container.querySelectorAll(".btn-comprar");
-  comprarButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const tituloLivro = e.target.getAttribute("data-titulo");
-      if (onComprarClick) {
-        onComprarClick(tituloLivro);
-      }
-    });
-  });
-  
+  // Notifica carrinho.js que os botões foram renderizados
+  document.dispatchEvent(new Event("livrosRenderizados"));
 }
 
 export function renderSkeletons(container, count = 8) {
@@ -46,16 +45,16 @@ export function renderSkeletons(container, count = 8) {
 
   for (let i = 0; i < count; i++) {
     const skeletonCard = `
-        <div class="book-card skeleton-card">
-          <div class="book-cover skeleton-cover"></div>
-          <div class="book-info">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-author"></div>
-            <div class="skeleton-price"></div>
-            <div class="skeleton-button"></div>
-          </div>
+      <div class="book-card skeleton-card">
+        <div class="book-cover skeleton-cover"></div>
+        <div class="book-info">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-author"></div>
+          <div class="skeleton-price"></div>
+          <div class="skeleton-button"></div>
         </div>
-      `;
+      </div>
+    `;
     container.insertAdjacentHTML("beforeend", skeletonCard);
   }
 }
