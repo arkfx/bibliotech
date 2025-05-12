@@ -22,6 +22,7 @@ export function renderBooks(container, livros, onComprarClick) {
             <strong>R$ ${livro.preco}</strong>
             <br />
             <button class="btn-comprar" data-titulo="${livro.titulo}">Comprar</button>
+            <button class="btn-carrinho" data-titulo="${livro.titulo}">Carrinho</button>
           </div>
         </div>
       `;

@@ -450,7 +450,7 @@
 .book-info .btn-comprar {
   font-size: 1.5rem;
   text-decoration: none;
-  background-color: #00a0f0;
+  background-color: #00ff00;
   color: white;
   padding: 0.7rem 1.8rem;
   border-radius: 8px;
@@ -465,21 +465,21 @@
 }
 
 .book-info .btn-comprar:hover {
-  background-color: #0085c8;
+  background-color: #007700;
 }
 
 /* BOTÃO CARRINHO */
 .book-info .btn-carrinho {
   font-size: 1.5rem;
   text-decoration: none;
-  background-color: #00ff00;
+  background-color: #00aaff;
   color: white;
   padding: 0.7rem 1.8rem;
   border-radius: 8px;
   display: inline-block;
   font-weight: 500;
   transition: all 0.3s;
-  margin-top: 5%;
+  margin-top: 2%;
   letter-spacing: 0.02em;
   border: none;
   outline: none;
@@ -487,7 +487,7 @@
 }
 
 .book-info .btn-carrinho:hover {
-  background-color: #007700;
+  background-color: #005077;
 }
 
 .loading-spinner {

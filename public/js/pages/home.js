@@ -1,6 +1,7 @@
 import { getBooks } from "../api/livro.js";
 import { addBookToCart } from "../api/carrinho.js";
 import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
+import { API_BASE } from "../config.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const gridContainer = document.querySelector(".grid--4-cols");
@@ -10,6 +11,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modalMessage = document.getElementById("modal-message");
   const modalClose = document.getElementById("modal-close");
   const modalIcon = modal.querySelector(".modal-icon");
+
+  let userId = null;
+  try {
+    const sessionRes = await fetch(API_BASE + "/session-status.php");
+    const sessionData = await sessionRes.json();
+    if (sessionData.status === "success" && sessionData.userId) {
+      userId = sessionData.userId;
+    } else {
+      console.warn("Usuário não está logado ou userId não disponível.");
+    }
+  } catch (err) {
+    console.error("Erro ao buscar status da sessão:", err);
+  }
 
   function abrirModal(emoji, titulo, mensagem) {
     modalIcon.textContent = emoji;
@@ -72,14 +86,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           button.addEventListener("click", async (e) => {
             const titulo = e.target.dataset.titulo;
 
-
-            //encontrar uma maneira de receber o userId do usuario logado
-            const userId = localStorage.getItem("userId");
-
-
             const quantidade = 1;
             try {
               await addBookToCart(titulo, userId, quantidade);
+              abrirModal(
+                "✅🛒",
+                "Sucesso",
+                `O livro "${titulo}" foi adicionado ao carrinho.`
+              );
             } catch (error) {
               console.error("Erro ao adicionar ao carrinho:", error);
               abrirModal(
@@ -88,11 +102,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 `Não foi possível adicionar o livro "${titulo}" ao carrinho.`
               );
             }
-            abrirModal(
-              "✅🛒",
-              "Sucesso",
-              `O livro "${titulo}" foi adicionado ao carrinho.`
-            );
           });
         });
 
