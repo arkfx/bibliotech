@@ -1,23 +1,7 @@
 import { addBookToCart } from "../api/carrinho.js";
-import { API_BASE } from "../config.js";
+import { obterUserId } from "../utils/auth-utils.js";
 
 let userId = null;
-
-async function obterUserId() {
-  if (userId !== null) return userId;
-
-  try {
-    const res = await fetch(API_BASE + "/session-status.php");
-    const data = await res.json();
-    if (data.status === "success") {
-      userId = data.userId;
-    }
-  } catch (err) {
-    console.error("Erro ao verificar sessão:", err);
-  }
-
-  return userId;
-}
 
 function abrirModal(emoji, titulo, mensagem) {
   const modal = document.getElementById("cadastroModal");
@@ -39,7 +23,7 @@ function abrirModal(emoji, titulo, mensagem) {
 }
 
 async function prepararEventosCarrinho() {
-  await obterUserId();
+  userId = await obterUserId();
 
   const botoes = document.querySelectorAll(".btn-comprar");
   botoes.forEach((button) => {
@@ -74,7 +58,7 @@ async function prepararEventosCarrinho() {
       }
     };
 
-    button.__carrinhoHandler = handler;
+    button.__carrinhoHandler = handler; // Guarda para poder remover depois
     button.addEventListener("click", handler);
   });
 }
@@ -85,4 +69,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 document.addEventListener("livrosRenderizados", async () => {
   await prepararEventosCarrinho();
+});
+
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("btn-remover")) {
+    const livroId = e.target.getAttribute("data-livro-id");
+
+    // 1. Confirmação opcional
+    if (!confirm("Deseja remover este item do carrinho?")) return;
+
+    try {
+      // 2. Chamada ao backend (AJAX ou fetch)
+      await fetch(`/api/carrinho/${livroId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // 3. Remove item do DOM
+      const itemElement = e.target.closest(".cart-item");
+      if (itemElement) itemElement.remove();
+
+      // 4. Atualiza totais
+      atualizarResumoCarrinho();
+    } catch (error) {
+      console.error("Erro ao remover item:", error);
+      alert("Falha ao remover item. Tente novamente.");
+    }
+  }
 });

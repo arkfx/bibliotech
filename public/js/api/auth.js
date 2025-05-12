@@ -31,4 +31,3 @@ export async function cadastrarUsuario(nome, email, senha) {
 
   return response.json();
 }
-

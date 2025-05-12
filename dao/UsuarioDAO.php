@@ -16,10 +16,10 @@ class UsuarioDAO
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $result ? $result : []; //retorna o resultado ou um array vazio
+        return $result ? $result : [];
     }
 
-    public function createUsuario($usuario): array
+    public function createUsuario($usuario): bool
     {
         $query = "INSERT INTO usuario (nome, email, senha) VALUES (:nome, :email, :senha)";
         $stmt = $this->conn->prepare($query);
@@ -30,10 +30,6 @@ class UsuarioDAO
         $stmt->bindParam(':email', $usuario['email']);
         $stmt->bindParam(':senha', $hashedPassword);
 
-        if ($stmt->execute()) {
-            return ['status' => 'success', 'message' => 'Usuario created successfully.'];
-        } else {
-            return ['status' => 'error', 'message' => 'Failed to create usuario.'];
-        }
+        return $stmt->execute();
     }
 }
