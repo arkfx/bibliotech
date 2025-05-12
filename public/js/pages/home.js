@@ -1,5 +1,4 @@
 import { getBooks } from "../api/livro.js";
-import { addBookToCart } from "../api/carrinho.js";
 import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
 import { API_BASE } from "../config.js";
 
@@ -32,90 +31,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     modal.style.display = "flex";
   }
 
-  // Fechar o modal ao clicar no botão "Entendi"
   if (modalClose) {
-  modalClose.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
+    modalClose.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
   } else {
-  console.warn("Elemento 'modalClose' não encontrado no DOM.");
+    console.warn("Elemento 'modalClose' não encontrado no DOM.");
   }
 
-  // Fechar o modal ao clicar fora dele
-  if (modalClose) {
-  modalClose.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-} else {
-  console.warn("Elemento 'modalClose' não encontrado no DOM.");
-}
-
-  // Mostrar skeletons enquanto os livros são carregados
   renderSkeletons(gridContainer);
+
   if (searchInput) {
-  searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      buscarLivros();
-    }
-  });
-} else {
-  console.warn("Elemento 'searchInput' não encontrado no DOM.");
-}
-  // Verificar se o campo de busca está vazio antes de carregar todos os livros
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        buscarLivros();
+      }
+    });
+  } else {
+    console.warn("Elemento 'searchInput' não encontrado no DOM.");
+  }
+
   if (!searchInput || searchInput.value.trim() === "") {
     try {
       const response = await getBooks();
       if (response.status === "success") {
         const livros = response.data;
-
-        // Limpa o container antes de adicionar os livros
         gridContainer.innerHTML = "";
 
-        // Renderiza os livros
         renderBooks(gridContainer, livros, (tituloLivro) => {
           abrirModal(
+            "⚠️",
             "Aviso de Compra",
             `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
           );
         });
 
-        // Adiciona evento de clique aos botões "Adicionar ao Carrinho"
-        const carrinhoButtons = document.querySelectorAll(".btn-carrinho");
-        carrinhoButtons.forEach((button) => {
-          button.addEventListener("click", async (e) => {
-            const titulo = e.target.dataset.titulo;
-
-            const quantidade = 1;
-            try {
-              await addBookToCart(titulo, userId, quantidade);
-              abrirModal(
-                "✅🛒",
-                "Sucesso",
-                `O livro "${titulo}" foi adicionado ao carrinho.`
-              );
-            } catch (error) {
-              console.error("Erro ao adicionar ao carrinho:", error);
-              abrirModal(
-                "❌",
-                "Erro",
-                `Não foi possível adicionar o livro "${titulo}" ao carrinho.`
-              );
-            }
-          });
-        });
-
-        // Adiciona evento de clique aos botões "Comprar"
-        const comprarButtons = document.querySelectorAll(".btn-comprar");
-        comprarButtons.forEach((button) => {
-          button.addEventListener("click", (e) => {
-            abrirModal(
-              "⚠️", 
-              "Aviso de Compra",
-              `O livro ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
-            );
-          });
-        });
+        // 🚨 Carrinho agora é gerenciado separadamente em carrinho.js
+        document.dispatchEvent(
+          new CustomEvent("livrosRenderizados", {
+            detail: { userId },
+          })
+        );
       } else {
         console.error("Erro ao carregar os livros:", response.message);
         mostrarMensagemErro(
