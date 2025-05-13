@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       btnLogin.style.display = "none";
       btnCadastro.style.display = "none";
       btnPerfil.style.display = "block";
-      
+
       if (data.isAdmin) {
         icart.style.display = "none";
         btnPainelAdmin.style.display = "block";
@@ -31,4 +31,3 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.error("Erro ao verificar o status do usuário:", error);
   }
 });
-

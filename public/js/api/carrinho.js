@@ -44,15 +44,21 @@ export async function getCarrinhoDoUsuario(userId) {
   }
 }
 
-async function removerDoCarrinho(livroId, userId) {
+export async function removerDoCarrinho(livroId, userId) {
   try {
-    const res = await fetch("/api/carrinho.php", {
+    const res = await fetch(API_BASE + "/carrinho.php", {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
       },
-      body: `id=${livroId}&userId=${userId}`,
+      body: JSON.stringify({ id: livroId, userId }),
     });
+
+    const contentType = res.headers.get("content-type");
+
+    if (!res.ok || !contentType || !contentType.includes("application/json")) {
+      throw new Error("Resposta inesperada do servidor.");
+    }
 
     const data = await res.json();
 
@@ -64,5 +70,43 @@ async function removerDoCarrinho(livroId, userId) {
   } catch (error) {
     console.error("Erro ao remover item:", error);
     alert("Erro inesperado.");
+  }
+}
+
+export async function atualizarQuantidadeNoServidor(
+  livroId,
+  novaQuantidade,
+  userId
+) {
+  try {
+    const res = await fetch(API_BASE + "/carrinho.php", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: livroId,
+        userId: userId,
+        quantidade: novaQuantidade,
+      }),
+    });
+
+    const contentType = res.headers.get("content-type");
+
+    if (!res.ok || !contentType || !contentType.includes("application/json")) {
+      throw new Error("Resposta inesperada do servidor.");
+    }
+
+    const data = await res.json();
+
+    if (data.status !== "success") {
+      alert("Erro ao atualizar: " + data.message);
+      throw new Error(data.message);
+    }
+
+    console.log("Quantidade atualizada com sucesso!");
+  } catch (error) {
+    console.error("Erro ao atualizar quantidade:", error);
+    alert("Erro ao atualizar quantidade no servidor.");
   }
 }

@@ -13,25 +13,33 @@ switch ($method) {
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (isset($data['id'], $data['userId'], $data['quantidade'])) {
-            $livroId = $data['id'];
-            $userId = $data['userId'];
-            $quantidade = $data['quantidade'];
-            try {
-                $result = $dao->addItem($livroId, $userId, $quantidade);
-                echo json_encode([
-                    'status' => $result ? 'success' : 'error',
-                    'message' => $result
-                        ? 'Livro adicionado ao carrinho com sucesso!'
-                        : 'Erro ao adicionar livro ao carrinho.'
-                ]);
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode(['status' => 'error', 'message' => 'Erro na requisição.', 'details' => $e->getMessage()]);
-            }
-        } else {
+        if (!isset($data['id'], $data['userId'], $data['quantidade'])) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Dados obrigatórios ausentes.']);
+            exit;
+        }
+
+        $livroId = (int) $data['id'];
+        $userId = (int) $data['userId'];
+        $quantidade = (int) $data['quantidade'];
+
+        if ($livroId <= 0 || $userId <= 0 || $quantidade <= 0) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'ID e quantidade devem ser maiores que zero.']);
+            exit;
+        }
+
+        try {
+            $result = $dao->addItem($livroId, $userId, $quantidade);
+            echo json_encode([
+                'status' => $result ? 'success' : 'error',
+                'message' => $result
+                    ? 'Livro adicionado ao carrinho com sucesso!'
+                    : 'Erro ao adicionar livro ao carrinho.'
+            ]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Erro na requisição.', 'details' => $e->getMessage()]);
         }
         break;
 
@@ -43,6 +51,11 @@ switch ($method) {
         }
 
         $userId = (int) $_GET['userId'];
+        if ($userId <= 0) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'ID de usuário inválido.']);
+            exit;
+        }
 
         try {
             $carrinho = $dao->getCarrinhoPorUsuario($userId);
@@ -54,7 +67,7 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        parse_str(file_get_contents("php://input"), $data);
+        $data = json_decode(file_get_contents("php://input"), true);
 
         if (!isset($data['id'], $data['userId'])) {
             http_response_code(400);
@@ -64,6 +77,12 @@ switch ($method) {
 
         $livroId = (int) $data['id'];
         $userId = (int) $data['userId'];
+
+        if ($livroId <= 0 || $userId <= 0) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'IDs inválidos.']);
+            exit;
+        }
 
         try {
             $result = $dao->removeItem($livroId, $userId);
@@ -83,6 +102,38 @@ switch ($method) {
         }
         break;
 
+    case 'PUT':
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($data['id'], $data['userId'], $data['quantidade'])) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'Parâmetros obrigatórios ausentes.']);
+            exit;
+        }
+
+        $livroId = (int) $data['id'];
+        $userId = (int) $data['userId'];
+        $quantidade = (int) $data['quantidade'];
+
+        if ($livroId <= 0 || $userId <= 0 || $quantidade <= 0) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'ID e quantidade devem ser maiores que zero.']);
+            exit;
+        }
+
+        try {
+            $result = $dao->atualizarQuantidade($livroId, $userId, $quantidade);
+            echo json_encode([
+                'status' => $result ? 'success' : 'error',
+                'message' => $result
+                    ? 'Quantidade atualizada com sucesso.'
+                    : 'Falha ao atualizar quantidade.'
+            ]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Erro no servidor.', 'details' => $e->getMessage()]);
+        }
+        break;
 
     default:
         http_response_code(405);

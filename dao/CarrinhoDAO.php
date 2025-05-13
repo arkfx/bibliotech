@@ -57,4 +57,14 @@ class CarrinhoDAO
         $stmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    public function atualizarQuantidade($livroId, $userId, $quantidade)
+    {
+        $query = "UPDATE carrinho SET quantidade = :quantidade WHERE usuario_id = :userId AND livro_id = :livroId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':quantidade', $quantidade, PDO::PARAM_INT);
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
 }
