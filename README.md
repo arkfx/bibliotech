@@ -270,4 +270,18 @@ _Requisitos_:
 
 [Acesse o relatório](relatorios/iteracao-2.md)
 
+### Iteração 3 - Finalização do Pedido e Gerenciamento de Perfil com Histórico de Pedidos
+
+_Valor_: Proporcionar uma experiência completa de compra, permitindo que os usuários finalizem pedidos e acompanhem seu histórico de compras. Além disso, oferecer funcionalidades para gerenciar o perfil e visualizar informações pessoais.
+
+_Objetivo_: Implementar as funcionalidades de finalização de pedidos e gerenciamento de perfil, incluindo o histórico de pedidos, para melhorar a experiência do usuário e garantir que ele tenha acesso às informações de suas compras e dados pessoais.
+
+
+_Requisitos_:
+
+- RF07 - Finalização do Pedido
+- RF08 - Gerenciamento de Perfil
+
+[Acesse o relatório](relatorios/iteracao-3.md)
+
 ---

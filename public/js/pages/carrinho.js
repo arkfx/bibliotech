@@ -10,14 +10,21 @@ function abrirModal(emoji, titulo, mensagem) {
   const modalTitle = document.getElementById("modal-title");
   const modalMessage = document.getElementById("modal-message");
   const modalIcon = modal.querySelector(".modal-icon");
+  const modalClose = modal.querySelector("#modal-close");
 
   modalIcon.textContent = emoji;
   modalTitle.textContent = titulo;
   modalMessage.textContent = mensagem;
   modal.style.display = "flex";
 
-  const modalClose = modal.querySelector("#modal-close");
-  if (modalClose) {
+  // Configura o botão com base na mensagem
+  if (mensagem === "Você precisa estar logado para comprar.") {
+    modalClose.textContent = "Ir para Login";
+    modalClose.onclick = () => {
+      window.location.href = "login.html";
+    };
+  } else {
+    modalClose.textContent = "Ir para o Carrinho";
     modalClose.onclick = () => {
       window.location.href = "carrinho.html";
     };

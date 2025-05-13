@@ -158,6 +158,14 @@ function adicionarEventosTabela() {
       }
     });
   });
+
+  tbody.querySelectorAll(".btn.visualizar").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const row = e.target.closest("tr");
+      const bookId = row.querySelector("td").textContent.trim();
+      window.location.href = `/bibliotech/view/detalhes-livro.html?id=${bookId}`;
+    });
+  });
 }
 
 formLivro.addEventListener("submit", async (e) => {

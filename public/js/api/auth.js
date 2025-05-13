@@ -25,9 +25,12 @@ export async function cadastrarUsuario(nome, email, senha) {
     body: JSON.stringify({ nome, email, senha }),
   });
 
+    const responseData = await response.json();
+
   if (!response.ok) {
-    throw new Error("Cadastro falhou");
+    // Lança a mensagem de erro retornada pelo backend
+    throw new Error(responseData.message || "Erro desconhecido no cadastro");
   }
 
-  return response.json();
+  return responseData;
 }
