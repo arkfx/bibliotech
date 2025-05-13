@@ -1,5 +1,6 @@
 import { getBooks } from "../api/livro.js";
 import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
+import { API_BASE } from "../config.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const gridContainer = document.querySelector(".grid--4-cols");
@@ -8,71 +9,70 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modalTitle = document.getElementById("modal-title");
   const modalMessage = document.getElementById("modal-message");
   const modalClose = document.getElementById("modal-close");
+  const modalIcon = modal.querySelector(".modal-icon");
 
-  function abrirModal(titulo, mensagem) {
+  let userId = null;
+  try {
+    const sessionRes = await fetch(API_BASE + "/session-status.php");
+    const sessionData = await sessionRes.json();
+    if (sessionData.status === "success" && sessionData.userId) {
+      userId = sessionData.userId;
+    } else {
+      console.warn("Usuário não está logado ou userId não disponível.");
+    }
+  } catch (err) {
+    console.error("Erro ao buscar status da sessão:", err);
+  }
+
+  function abrirModal(emoji, titulo, mensagem) {
+    modalIcon.textContent = emoji;
     modalTitle.textContent = titulo;
     modalMessage.textContent = mensagem;
     modal.style.display = "flex";
   }
 
-  // Fechar o modal ao clicar no botão "Entendi"
   if (modalClose) {
-  modalClose.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
+    modalClose.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
   } else {
-  console.warn("Elemento 'modalClose' não encontrado no DOM.");
+    console.warn("Elemento 'modalClose' não encontrado no DOM.");
   }
 
-  // Fechar o modal ao clicar fora dele
-  if (modalClose) {
-  modalClose.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-} else {
-  console.warn("Elemento 'modalClose' não encontrado no DOM.");
-}
-
-  // Mostrar skeletons enquanto os livros são carregados
   renderSkeletons(gridContainer);
+
   if (searchInput) {
-  searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      buscarLivros();
-    }
-  });
-} else {
-  console.warn("Elemento 'searchInput' não encontrado no DOM.");
-}
-  // Verificar se o campo de busca está vazio antes de carregar todos os livros
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        buscarLivros();
+      }
+    });
+  } else {
+    console.warn("Elemento 'searchInput' não encontrado no DOM.");
+  }
+
   if (!searchInput || searchInput.value.trim() === "") {
     try {
       const response = await getBooks();
       if (response.status === "success") {
         const livros = response.data;
-
-        // Limpa o container antes de adicionar os livros
         gridContainer.innerHTML = "";
 
-        // Renderiza os livros
         renderBooks(gridContainer, livros, (tituloLivro) => {
           abrirModal(
+            "⚠️",
             "Aviso de Compra",
             `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
           );
         });
 
-        // Adiciona evento de clique aos botões "Comprar"
-        const comprarButtons = document.querySelectorAll(".btn-comprar");
-        comprarButtons.forEach((button) => {
-          button.addEventListener("click", (e) => {
-            abrirModal(
-              "Aviso de Compra",
-              `O livro ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
-            );
-          });
-        });
+        // 🚨 Carrinho agora é gerenciado separadamente em carrinho.js
+        document.dispatchEvent(
+          new CustomEvent("livrosRenderizados", {
+            detail: { userId },
+          })
+        );
       } else {
         console.error("Erro ao carregar os livros:", response.message);
         mostrarMensagemErro(

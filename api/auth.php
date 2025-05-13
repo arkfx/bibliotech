@@ -16,6 +16,7 @@ if (isset($data['email']) && isset($data['senha'])) {
     if ($usuario && password_verify($data['senha'], $usuario['senha'])) {
         $_SESSION['isLoggedIn'] = true;
         $_SESSION['isAdmin'] = $usuario['cargo_id'] == 2;
+        $_SESSION['userId'] = $usuario['id'];
 
         echo json_encode([
             'status' => 'success',
