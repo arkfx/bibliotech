@@ -3,7 +3,6 @@ import { renderSkeletonDetalhes } from "../utils/renderBooks.js";
 import "./carrinho.js"; // Importa a lógica centralizada
 
 function selecionarOpcao(elemento) {
-  // Remove a classe ativo de todos os botões
   const botoes = document.querySelectorAll(".opcao");
   botoes.forEach((btn) => btn.classList.remove("ativo"));
 
@@ -23,7 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const container = document.querySelector(".livro-container");
 
-  // Renderiza o skeleton enquanto os dados são carregados
   renderSkeletonDetalhes(container);
 
   try {

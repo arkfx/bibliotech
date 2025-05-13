@@ -367,7 +367,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .book-cover {
@@ -380,11 +379,20 @@
 }
 
 .book-cover-link {
-  display: flex;
   width: 100%;
   height: 100%;
   align-items: center;
   justify-content: center;
+}
+.livro-titulo a {
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.livro-titulo a:hover {
+  text-decoration: underline;
+  color: #0077cc;
 }
 
 .book-cover img {
@@ -408,7 +416,7 @@
   color: #004d88;
   line-height: 1.4;
   font-weight: 600;
-  min-height: 3.5rem;
+  height: 4.7rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -431,22 +439,25 @@
   font-size: 1.5rem;
   color: #555;
   margin-top: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   font-style: italic;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  height: 2.4rem;
 }
 
 .book-info strong {
   display: block;
-  margin: 1rem 0 1.6rem;
+  margin: 1rem 0 1rem;
   font-size: 1.8rem;
   color: #004d88;
   font-weight: 700;
+  height: 2.7rem;
 }
 
 .book-info .btn-comprar {
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -472,6 +483,12 @@
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
+}
+
+.btn-comprar.btn-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 /* BOTÃO CARRINHO */
@@ -502,11 +519,12 @@
   border-radius: 50%;
   width: 16px;
   height: 16px;
-  animation: spin 1s linear infinite;
-  margin-left: 10px;
+  animation: spinRotate 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
 }
 
-@keyframes spin {
+@keyframes spinRotate {
   0% {
     transform: rotate(0deg);
   }

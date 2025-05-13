@@ -10,7 +10,6 @@ class CarrinhoDAO
 
     public function addItem($livroId, $userId, $quantidade)
     {
-        //Verifica se o item já existe no carrinho
         $query = "SELECT quantidade FROM carrinho WHERE usuario_id = :userId AND livro_id = :livroId";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
@@ -19,7 +18,6 @@ class CarrinhoDAO
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
-            // Item existe, atualiza a quantidade
             $newQuantidade = $row['quantidade'] + $quantidade;
             $updateQuery = "UPDATE carrinho SET quantidade = :quantidade WHERE usuario_id = :userId AND livro_id = :livroId";
             $updateStmt = $this->conn->prepare($updateQuery);
@@ -28,7 +26,6 @@ class CarrinhoDAO
             $updateStmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
             return $updateStmt->execute();
         } else {
-            // Item não existe, insere nova linha
             $insertQuery = "INSERT INTO carrinho (usuario_id, livro_id, quantidade) VALUES (:userId, :livroId, :quantidade)";
             $insertStmt = $this->conn->prepare($insertQuery);
             $insertStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
@@ -36,5 +33,38 @@ class CarrinhoDAO
             $insertStmt->bindParam(':quantidade', $quantidade, PDO::PARAM_INT);
             return $insertStmt->execute();
         }
+    }
+
+    public function getCarrinhoPorUsuario($userId)
+    {
+        $query = "SELECT c.livro_id, l.titulo, l.imagem_url, l.autor, c.quantidade, l.preco 
+              FROM carrinho c
+              JOIN livros l ON c.livro_id = l.id
+              WHERE c.usuario_id = :userId";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function removeItem($livroId, $userId)
+    {
+        $query = "DELETE FROM carrinho WHERE usuario_id = :userId AND livro_id = :livroId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    public function atualizarQuantidade($livroId, $userId, $quantidade)
+    {
+        $query = "UPDATE carrinho SET quantidade = :quantidade WHERE usuario_id = :userId AND livro_id = :livroId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':quantidade', $quantidade, PDO::PARAM_INT);
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 }
