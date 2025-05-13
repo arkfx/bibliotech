@@ -19,8 +19,7 @@ export function renderBooks(container, livros) {
             <a href="detalhes-livro.html?id=${livro.id}">${livro.titulo}</a>
           </h3>
           <p>${livro.autor}</p>
-          <strong>R$ ${livro.preco}</strong>
-          <br />
+          <strong>R$ ${livro.preco}</strong>   
 <button class="btn-comprar" data-titulo="${livro.titulo}">
   <svg class="icon-cart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <circle cx="9" cy="21" r="1"></circle>
@@ -36,7 +35,7 @@ export function renderBooks(container, livros) {
     container.insertAdjacentHTML("beforeend", bookCard);
   });
 
-  // Notifica carrinho.js que os botões foram renderizados
+  // Notifica carrinho.js que os botÃµes foram renderizados
   document.dispatchEvent(new Event("livrosRenderizados"));
 }
 
