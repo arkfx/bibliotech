@@ -30,7 +30,7 @@
           <li><a href="#" class="main-nav-link navegacao">Catálogo</a></li>
 
           <li>
-            <a href="#" id="icart" class="main-nav-link cart-icon">
+            <a href="carrinho.html" id="icart" class="main-nav-link cart-icon">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -151,9 +151,12 @@
       <!-- Modal de feedback para o carrinho -->
       <div id="cadastroModal" class="modal" style="display: none">
         <div class="modal-content">
-          <span class="modal-icon"></span>
+          <div class="modal-icon"></div>
           <h2 id="modal-title"></h2>
-          <p id="modal-message"></p>
+          <p class="modal-message" id="modal-message"></p>
+          <button class="modal-close" id="modal-close">
+            Ir para o carrinho
+          </button>
         </div>
       </div>
     </main>

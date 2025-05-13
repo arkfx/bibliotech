@@ -50,10 +50,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="livro-info">
           <img src="${livro.imagem_url}" alt="${livro.titulo}">
           <div class="livro-detalhes">
-            <p class="livro-titulo">${livro.titulo}</p>
-            <p class="livro-autor">por ${
-              livro.autor || "Autor desconhecido"
-            }</p>
+            <h3 class="livro-titulo">
+  <a class="book-cover-link" href="detalhes-livro.html?id=${livro.livro_id}">
+    ${livro.titulo}
+  </a>
+</h3>
+          <p class="livro-autor">por ${livro.autor || "Autor desconhecido"}</p>
             <p class="livro-preco">R$ ${livro.preco}</p>
           </div>
         </div>

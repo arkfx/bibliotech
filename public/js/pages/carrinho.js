@@ -44,11 +44,10 @@ async function prepararEventosCarrinho() {
         return;
       }
 
-      btn.disabled = false;
+      btn.disabled = true;
       const textoOriginal = btn.innerHTML;
-      btn.innerHTML = `
-  <span class="loading-spinner"></span>
-`;
+      btn.classList.add("btn-loading");
+      btn.innerHTML = `${textoOriginal} <span class="loading-spinner"></span>`;
 
       try {
         await addBookToCart(titulo, userId, 1);
@@ -65,8 +64,8 @@ async function prepararEventosCarrinho() {
           `Não foi possível adicionar o livro "${titulo}".`
         );
       } finally {
-        btn.classList.remove("btn-loading");
         btn.disabled = false;
+        btn.classList.remove("btn-loading");
         btn.innerHTML = textoOriginal;
       }
     };
@@ -83,3 +82,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 document.addEventListener("livrosRenderizados", async () => {
   await prepararEventosCarrinho();
 });
+("");
