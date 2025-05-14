@@ -1,8 +1,30 @@
 import { getBooks } from "../api/livro.js";
 import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
+import {
+  getListaDesejos,
+  adicionarLivroListaDesejos,
+  removerLivroListaDesejos
+} from "../api/lista-desejos.js";
+import { obterUserId } from "../utils/auth-utils.js";
 import { API_BASE } from "../config.js";
 
+// TOAST DE BOAS-VINDAS
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    showToast("Bem-vindo à Bibliotech!", "info");
+  }, 1000);
+});
+
+// MAIN
 document.addEventListener("DOMContentLoaded", async () => {
+    // 🔄 Recarrega a página se voltar do histórico
+    window.addEventListener("pageshow", (event) => {
+    if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+        location.reload();
+    }
+    });
+
+
   const gridContainer = document.querySelector(".grid--4-cols");
   const searchInput = document.querySelector(".main-nav-list input");
   const modal = document.getElementById("cadastroModal");
@@ -17,8 +39,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sessionData = await sessionRes.json();
     if (sessionData.status === "success" && sessionData.userId) {
       userId = sessionData.userId;
-    } else {
-      console.warn("Usuário não está logado ou userId não disponível.");
     }
   } catch (err) {
     console.error("Erro ao buscar status da sessão:", err);
@@ -35,8 +55,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     modalClose.addEventListener("click", () => {
       modal.style.display = "none";
     });
-  } else {
-    console.warn("Elemento 'modalClose' não encontrado no DOM.");
   }
 
   renderSkeletons(gridContainer);
@@ -48,10 +66,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         buscarLivros();
       }
     });
-  } else {
-    console.warn("Elemento 'searchInput' não encontrado no DOM.");
   }
 
+  // CARREGAR LIVROS
   if (!searchInput || searchInput.value.trim() === "") {
     try {
       const response = await getBooks();
@@ -59,37 +76,69 @@ document.addEventListener("DOMContentLoaded", async () => {
         const livros = response.data;
         gridContainer.innerHTML = "";
 
-        renderBooks(gridContainer, livros, (tituloLivro) => {
-          abrirModal(
-            "⚠️",
-            "Aviso de Compra",
-            `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
-          );
-        });
+        renderBooks(gridContainer, livros);
 
-        // 🚨 Carrinho agora é gerenciado separadamente em carrinho.js
         document.dispatchEvent(
           new CustomEvent("livrosRenderizados", {
             detail: { userId },
           })
         );
+
+        if (userId) {
+          try {
+            const resposta = await getListaDesejos(userId);
+            const lista = resposta.data || [];
+            const favoritos = new Set(lista.map(id => parseInt(id)));
+
+            document.querySelectorAll(".btn-favorito").forEach((btn) => {
+              const livroId = parseInt(btn.dataset.id);
+
+              const atualizarBotao = () => {
+                if (favoritos.has(livroId)) {
+                  btn.classList.add("salvo");
+                  btn.textContent = "❌";
+                  btn.title = "Remover da Lista de Desejos";
+                } else {
+                  btn.classList.remove("salvo");
+                  btn.textContent = "💙";
+                  btn.title = "Salvar na Lista de Desejos";
+                }
+              };
+
+              atualizarBotao();
+
+              btn.addEventListener("click", async () => {
+                if (favoritos.has(livroId)) {
+                  const res = await removerLivroListaDesejos(livroId);
+                  if (res.status === "success") {
+                    favoritos.delete(livroId);
+                    atualizarBotao();
+                    showToast("Removido da lista de desejos", "info");
+                  }
+                } else {
+                  const res = await adicionarLivroListaDesejos(livroId);
+                  if (res.status === "success") {
+                    favoritos.add(livroId);
+                    atualizarBotao();
+                    showToast("Adicionado à lista de desejos!", "success");
+                  }
+                }
+              });
+            });
+          } catch (err) {
+            console.error("Erro ao gerenciar favoritos na home:", err);
+          }
+        }
       } else {
-        console.error("Erro ao carregar os livros:", response.message);
-        mostrarMensagemErro(
-          gridContainer,
-          "Não foi possível carregar os livros. Tente novamente mais tarde."
-        );
+        mostrarMensagemErro(gridContainer, "Erro ao carregar livros.");
       }
     } catch (error) {
-      console.error("Erro ao buscar os livros:", error);
-      mostrarMensagemErro(
-        gridContainer,
-        "Erro ao conectar ao servidor, tente novamente mais tarde."
-      );
+      mostrarMensagemErro(gridContainer, "Erro de conexão.");
     }
   }
 });
 
+// FUNÇÕES AUXILIARES
 function mostrarMensagemErro(container, mensagem) {
   container.innerHTML = `
     <div class="error-message">
@@ -97,12 +146,6 @@ function mostrarMensagemErro(container, mensagem) {
     </div>
   `;
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    showToast("Bem-vindo à Bibliotech!", "info");
-  }, 1000);
-});
 
 function showToast(message, type = "info", duration = 3000) {
   const toast = document.createElement("div");
@@ -134,7 +177,6 @@ function showToast(message, type = "info", duration = 3000) {
   container.appendChild(toast);
 
   void toast.offsetWidth;
-
   toast.classList.add("active");
 
   let timeoutId = setTimeout(() => {
