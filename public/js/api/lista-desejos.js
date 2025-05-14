@@ -1,7 +1,7 @@
 import { API_BASE } from '../config.js';
 import { obterUserId } from '../utils/auth-utils.js';
 
-const BASE_URL = `${API_BASE}/lista_desejos.php`;
+const BASE_URL = `${API_BASE}/lista-desejos.php`;
 
 export async function getListaDesejos(usuarioId) {
     const response = await fetch(`${BASE_URL}?usuario_id=${usuarioId}`);
@@ -34,4 +34,15 @@ export async function removerLivroListaDesejos(livroId) {
         body: `usuario_id=${usuarioId}&livro_id=${livroId}`
     });
     return response.json();
+}
+
+export async function verificarLivroNaListaDesejos(usuarioId, livroId) {
+  const response = await fetch(`${BASE_URL}?usuario_id=${usuarioId}&livro_id=${livroId}`);
+  const data = await response.json();
+
+  if (data.status === "success") {
+    return data.exists;
+  }
+
+  throw new Error("Falha ao verificar lista de desejos.");
 }
