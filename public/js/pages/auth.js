@@ -92,8 +92,11 @@ if (cadastroForm) {
       }
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
-      errorMessage.textContent =
-        "Erro de conexão com o servidor. Tente novamente.";
+      if (error.message) {
+          errorMessage.textContent = error.message;
+      } else {
+          errorMessage.textContent = "Erro de conexão com o servidor. Tente novamente.";
+      }
       errorMessage.style.display = "block";
     } finally {
       cadastroButton.disabled = false;
