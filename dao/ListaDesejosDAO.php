@@ -35,4 +35,13 @@ class ListaDesejosDAO {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
+
+    public function checkBook($usuarioId, $livroId) {
+        $sql = "SELECT COUNT(*) FROM lista_desejos WHERE usuario_id = :usuario_id AND livro_id = :livro_id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':usuario_id', $usuarioId);
+        $stmt->bindParam(':livro_id', $livroId);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
 }

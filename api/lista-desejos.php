@@ -57,7 +57,13 @@ switch ($method) {
 
     case 'GET':
         try {
-            if (isset($_GET['usuario_id'])) {
+            if (isset($_GET['usuario_id']) && isset($_GET['livro_id'])) {
+                $existe = $dao->checkBook($_GET['usuario_id'], $_GET['livro_id']);
+                echo json_encode([
+                    'status' => 'success',
+                    'exists' => $existe
+                ]);
+            } elseif (isset($_GET['usuario_id'])) {
                 $livros = $dao->listBooks($_GET['usuario_id']);
                 echo json_encode(['status' => 'success', 'data' => $livros]);
             } else {
@@ -68,7 +74,8 @@ switch ($method) {
             http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => 'Erro ao buscar lista de desejos: ' . $e->getMessage()]);
         }
-        break;
+    break;
+
 
     default:
         http_response_code(405); // Método não permitido
