@@ -419,6 +419,7 @@
   height: 4.7rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -711,4 +712,31 @@ footer {
     margin-bottom: 2rem;
     margin-top: 0;
   }
+}
+
+.book-info .btn-favorito {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f2f2f2;
+  color: #444;
+  border: 1px solid #ccc;
+  padding: 0.8rem 1.6rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.book-info .btn-favorito:hover {
+  background-color: #e0e0e0;
+  color: #111;
+}
+
+.book-info .btn-favorito.salvo {
+  background-color: #e6f4ff;
+  border-color: #3399ff;
+  color: #0077cc;
 }
