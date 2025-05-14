@@ -1,19 +1,23 @@
 <?php
 
-class Database {
+class Database
+{
     private static $instance = null;
     private $connection;
 
-    public function __construct($host, $port, $username, $password, $dbname) {
+    public function __construct($host, $port, $username, $password, $dbname)
+    {
         try {
             $this->connection = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $username, $password);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
         } catch (PDOException $e) {
             die("Falha ao conectar com o banco: " . $e->getMessage());
         }
     }
 
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (self::$instance === null) {
             $config = require __DIR__ . '/db-config.php';
             self::$instance = new self(
@@ -27,9 +31,8 @@ class Database {
         return self::$instance;
     }
 
-    public function getConnection(){
-         return $this->connection;
+    public function getConnection()
+    {
+        return $this->connection;
     }
 }
-
-

@@ -15,7 +15,9 @@
 }
 
 .grid--4-cols {
+  display: grid;
   grid-template-columns: repeat(4, 1fr);
+  align-items: stretch; /* <-- esta linha garante altura igual */
 }
 
 /* RESPONSIVE GRID */
