@@ -5,7 +5,7 @@ export async function createBook(
   autor,
   genero_id,
   preco,
-  editora,
+  editora_id,
   descricao,
   imagem_url
 ) {
@@ -19,7 +19,7 @@ export async function createBook(
       autor,
       genero_id,
       preco,
-      editora,
+      editora_id,
       descricao,
       imagem_url,
     }),
@@ -121,7 +121,7 @@ export async function updateBook(
   autor,
   genero_id,
   preco,
-  editora,
+  editora_id,
   descricao,
   imagem_url
 ) {
@@ -136,7 +136,7 @@ export async function updateBook(
       autor,
       genero_id,
       preco,
-      editora,
+      editora_id,
       descricao,
       imagem_url,
     }),

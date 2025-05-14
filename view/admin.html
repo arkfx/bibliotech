@@ -91,14 +91,15 @@
           <h3 class="sidebar-title">Painel Administrativo</h3>
           <nav class="sidebar-nav">
             <ul class="sidebar-menu">
-              <li class="active">Gerenciar Livros</li>
-              <li>Gêneros/categorias</li>
-              <li>Editoras</li>
+              <li class="menu-item" data-section="livros">Gerenciar Livros</li>
+              <li class="menu-item" data-section="generos">Gêneros/categorias</li>
+              <li class="menu-item" data-section="editoras">Editoras</li>
             </ul>
           </nav>
         </aside>
 
-        <div class="admin-content">
+        <!-- Seção de Livros -->
+        <div class="admin-content" id="section-livros">
           <div class="admin-header">
             <h2 class="heading-admin">Gerenciamento de Livros</h2>
             <button class="btn-add-livro" id="btnCadastrarLivro">
@@ -119,6 +120,28 @@
               </tr>
             </thead>
             <tbody></tbody>
+          </table>
+        </div>
+        
+        <!-- Seção de Editoras -->
+        <div class="admin-content hidden" id="section-editoras">
+          <div class="admin-header">
+            <h2 class="heading-admin">Gerenciamento de Editoras</h2>
+            <button class="btn-add" id="btnAdicionarEditora">
+              Adicionar Editora
+            </button>
+          </div>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Data de Criação</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-editoras"></tbody>
           </table>
         </div>
       </div>
@@ -186,10 +209,7 @@
               <i class="icon publisher-icon">🏢</i>
               <select id="editora">
                 <option value="" selected disabled>Selecione a editora</option>
-                <option value="companhia">Companhia das Letras</option>
-                <option value="rocco">Rocco</option>
-                <option value="intrinseca">Intrínseca</option>
-                <!-- Mais opções aqui -->
+                <!-- Editoras serão carregadas dinamicamente via JavaScript -->
               </select>
             </div>
           </div>
@@ -289,8 +309,38 @@
         <p>Livro excluído com sucesso!</p>
       </div>
     </div>
+
+    <!-- Modal de Cadastro/Edição de Editora -->
+    <div class="modal hidden" id="modalEditora">
+      <div class="modal-content">
+        <h2 id="modal-editora-titulo">Adicionar Editora</h2>
+        <span class="close-btn">&times;</span>
+
+        <form class="form-editora">
+          <input type="hidden" id="editora-id">
+          
+          <div class="form-group">
+            <label for="editora-nome">Nome da Editora</label>
+            <div class="input-with-icon">
+              <i class="icon publisher-icon">🏢</i>
+              <input
+                type="text"
+                id="editora-nome"
+                placeholder="Digite o nome da editora"
+              />
+            </div>
+          </div>
+
+          <div class="form-buttons">
+            <button type="button" class="btn-cancel">Cancelar</button>
+            <button type="submit" class="btn-save">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
     <script type="module" src="../public/js/admin.bundle.js"></script>
     <script type="module" src="../public/js/pages/livro.js"></script>
     <script type="module" src="../public/js/pages/genero.js"></script>
+    <script type="module" src="../public/js/pages/editora.js"></script>
   </body>
 </html>

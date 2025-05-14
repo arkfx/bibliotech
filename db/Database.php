@@ -8,6 +8,10 @@ class Database {
         try {
             $this->connection = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $username, $password);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // Disable prepared statement emulation
+            $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            // Close cursors when connection is closed
+            $this->connection->setAttribute(PDO::ATTR_PERSISTENT, false);
         } catch (PDOException $e) {
             die("Falha ao conectar com o banco: " . $e->getMessage());
         }
