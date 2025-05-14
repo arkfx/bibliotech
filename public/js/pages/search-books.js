@@ -109,14 +109,24 @@ function setupPriceSlider() {
   atualizarSlider(maxSlider, minSlider, maxValue, false);
 }
 
-// Aplica ou reseta o filtro de preço
 function aplicarFiltroDePreco(reset = false) {
-  const minPrice = reset ? 0 : parseInt(document.getElementById("price-min").value);
-  const maxPrice = reset ? 200 : parseInt(document.getElementById("price-max").value);
+  const minSlider = document.getElementById("price-min");
+  const maxSlider = document.getElementById("price-max");
+  const minValue = document.getElementById("min-value");
+  const maxValue = document.getElementById("max-value");
 
-  document.getElementById("min-value").textContent = minPrice;
-  document.getElementById("max-value").textContent = maxPrice;
+  const minPrice = reset ? 0 : parseInt(minSlider.value);
+  const maxPrice = reset ? 200 : parseInt(maxSlider.value);
 
+  //atualiza os valores dos sliders e os números exibidos
+  if (reset) {
+    minSlider.value = 0;
+    maxSlider.value = 200;
+  }
+  minValue.textContent = minPrice;
+  maxValue.textContent = maxPrice;
+
+  //filtra os livros com base no preço
   const bookCards = document.querySelectorAll(".book-card");
   bookCards.forEach((card) => {
     const priceText = card
@@ -129,7 +139,6 @@ function aplicarFiltroDePreco(reset = false) {
       price >= minPrice && price <= maxPrice ? "flex" : reset ? "flex" : "none";
   });
 }
-
 // cria e mostra o filtro de preço
 function showPriceFilter() {
   // Verifica se o gênero selecionado é "Todos os Gêneros"

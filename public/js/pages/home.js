@@ -6,7 +6,7 @@ import {
   removerLivroListaDesejos
 } from "../api/lista-desejos.js";
 import { obterUserId } from "../utils/auth-utils.js";
-import { API_BASE } from "../config.js";
+import { mostrarModalPadrao } from "../utils/modal-utils.js";
 
 // TOAST DE BOAS-VINDAS
 document.addEventListener("DOMContentLoaded", () => {
@@ -28,28 +28,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const gridContainer = document.querySelector(".grid--4-cols");
   const searchInput = document.querySelector(".main-nav-list input");
   const modal = document.getElementById("cadastroModal");
-  const modalTitle = document.getElementById("modal-title");
-  const modalMessage = document.getElementById("modal-message");
   const modalClose = document.getElementById("modal-close");
-  const modalIcon = modal.querySelector(".modal-icon");
 
-  let userId = null;
-  try {
-    const sessionRes = await fetch(API_BASE + "/session-status.php");
-    const sessionData = await sessionRes.json();
-    if (sessionData.status === "success" && sessionData.userId) {
-      userId = sessionData.userId;
-    }
-  } catch (err) {
-    console.error("Erro ao buscar status da sessão:", err);
-  }
+  const userId = await obterUserId();
 
-  function abrirModal(emoji, titulo, mensagem) {
-    modalIcon.textContent = emoji;
-    modalTitle.textContent = titulo;
-    modalMessage.textContent = mensagem;
-    modal.style.display = "flex";
-  }
 
   if (modalClose) {
     modalClose.addEventListener("click", () => {
@@ -128,6 +110,18 @@ document.addEventListener("DOMContentLoaded", async () => {
           } catch (err) {
             console.error("Erro ao gerenciar favoritos na home:", err);
           }
+        } else {
+          document.querySelectorAll(".btn-favorito").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              mostrarModalPadrao(
+                "🔒",
+                "Login necessário",
+                "Você precisa estar logado para salvar livros na lista de desejos.",
+                "login.html",
+                "Ir para o login"
+              );
+            });
+          });
         }
       } else {
         mostrarMensagemErro(gridContainer, "Erro ao carregar livros.");

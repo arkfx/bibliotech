@@ -1,26 +1,26 @@
-import { API_BASE } from "../config.js";
-
-let userId = null;
+import { verificarSessao } from "../api/session.js";
 
 /**
  * Retorna o ID do usuário logado, buscando da sessão apenas uma vez.
  * Se o usuário não estiver logado, retorna null.
  */
 export async function obterUserId() {
-  if (userId !== null) return userId;
+  if (window.userId) {
+    return window.userId;
+  }
 
   try {
-    const res = await fetch(API_BASE + "/session-status.php");
-    const data = await res.json();
-
+    const data = await verificarSessao();
     if (data.status === "success") {
-      userId = data.userId;
-      return userId;
+      window.userId = data.userId;
+      return data.userId;
     } else {
+      window.userId = null;
       return null;
     }
-  } catch (err) {
-    console.error("Erro ao verificar sessão:", err);
+  } catch (error) {
+    console.error("Erro ao verificar sessão:", error);
+    window.userId = null;
     return null;
   }
 }

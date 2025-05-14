@@ -6,6 +6,8 @@ class CarrinhoDAO
     public function __construct($db)
     {
         $this->conn = $db;
+        $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     public function addItem($livroId, $userId, $quantidade)
@@ -16,6 +18,7 @@ class CarrinhoDAO
         $stmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
 
         if ($row) {
             $newQuantidade = $row['quantidade'] + $quantidade;
@@ -24,14 +27,18 @@ class CarrinhoDAO
             $updateStmt->bindParam(':quantidade', $newQuantidade, PDO::PARAM_INT);
             $updateStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
             $updateStmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
-            return $updateStmt->execute();
+            $result = $updateStmt->execute();
+            $updateStmt->closeCursor();
+            return $result;
         } else {
             $insertQuery = "INSERT INTO carrinho (usuario_id, livro_id, quantidade) VALUES (:userId, :livroId, :quantidade)";
             $insertStmt = $this->conn->prepare($insertQuery);
             $insertStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
             $insertStmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
             $insertStmt->bindParam(':quantidade', $quantidade, PDO::PARAM_INT);
-            return $insertStmt->execute();
+            $result = $insertStmt->execute();
+            $insertStmt->closeCursor();
+            return $result;
         }
     }
 
@@ -45,8 +52,9 @@ class CarrinhoDAO
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function removeItem($livroId, $userId)
@@ -55,7 +63,9 @@ class CarrinhoDAO
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
-        return $stmt->execute();
+        $result = $stmt->execute();
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function atualizarQuantidade($livroId, $userId, $quantidade)
@@ -65,6 +75,8 @@ class CarrinhoDAO
         $stmt->bindParam(':quantidade', $quantidade, PDO::PARAM_INT);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->bindParam(':livroId', $livroId, PDO::PARAM_INT);
-        return $stmt->execute();
+        $result = $stmt->execute();
+        $stmt->closeCursor();
+        return $result;
     }
 }

@@ -3,8 +3,6 @@ import { obterUserId } from "../utils/auth-utils.js";
 import { removerDoCarrinho } from "../api/carrinho.js";
 import { atualizarResumoCarrinho } from "./carrinho-view.js";
 
-let userId = null;
-
 function abrirModal(emoji, titulo, mensagem) {
   const modal = document.getElementById("cadastroModal");
   const modalTitle = document.getElementById("modal-title");

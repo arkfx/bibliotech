@@ -4,13 +4,17 @@ class GeneroDAO {
 
     public function __construct($db) {
         $this->conn = $db;
+        $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     public function getAllGeneros() {
         $query = "SELECT * FROM generos";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function getGeneroById($id) {
@@ -18,20 +22,26 @@ class GeneroDAO {
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function insertGenero($nome) {
         $query = "INSERT INTO generos (nome) VALUES (:nome)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
-        return $stmt->execute();
+        $result = $stmt->execute();
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function deleteGenero($id) {
         $query = "DELETE FROM generos WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
+        $result = $stmt->execute();
+        $stmt->closeCursor();
+        return $result;
     }
 }

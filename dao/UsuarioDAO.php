@@ -6,6 +6,8 @@ class UsuarioDAO
     public function __construct($db)
     {
         $this->conn = $db;
+        $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     public function getUsuarioByEmail($email): array
@@ -15,6 +17,7 @@ class UsuarioDAO
         $stmt->bindParam(':email', $email);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
 
         return $result ? $result : [];
     }
@@ -30,6 +33,8 @@ class UsuarioDAO
         $stmt->bindParam(':email', $usuario['email']);
         $stmt->bindParam(':senha', $hashedPassword);
 
-        return $stmt->execute();
+        $result = $stmt->execute();
+        $stmt->closeCursor();
+        return $result;
     }
 }
