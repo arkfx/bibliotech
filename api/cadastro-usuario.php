@@ -22,7 +22,7 @@ try {
         exit;
     }
 
-    if (strlen($data['senha']) < 3) {
+    if (strlen($data['senha']) < 6) {
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'A senha deve ter no mínimo 6 caracteres.']);
         exit;
