@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="secao-conteudo">
             <div class="info-item">
               <span class="info-label">Editora:</span>
-              <span class="editora">${livro.editora || "Editora não informada."}</span>
+              <span class="editora">${livro.editora_nome || "Editora não informada."}</span>
             </div>
             <div class="info-item">
               <span class="info-label">Gênero:</span>

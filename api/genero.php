@@ -15,17 +15,16 @@ switch ($method) {
                 $id = intval($_GET['id']);
                 $genero = $dao->getGeneroById($id);
                 if ($genero) {
+                    http_response_code(200);
                     echo json_encode(['status' => 'success', 'data' => $genero]);
                 } else {
+                    http_response_code(404);
                     echo json_encode(['status' => 'error', 'message' => 'Gênero não encontrado.']);
                 }
             } else {
                 $generos = $dao->getAllGeneros();
-                if ($generos) {
-                    echo json_encode(['status' => 'success', 'data' => $generos]);
-                } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Nenhum gênero encontrado.']);
-                }
+                http_response_code(200);
+                echo json_encode(['status' => 'success', 'data' => $generos]);
             }
         } catch (Exception $e) {
             http_response_code(500);
@@ -37,23 +36,34 @@ switch ($method) {
         if (isset($data['nome'])) {
             $nome = $data['nome'];
             if ($dao->insertGenero($nome)) {
+                http_response_code(201);
                 echo json_encode(['status' => 'success', 'message' => 'Gênero inserido com sucesso!']);
             } else {
+                http_response_code(400);
                 echo json_encode(['status' => 'error', 'message' => 'Erro ao inserir gênero.']);
             }
         } else {
+            http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Nome do gênero é obrigatório.']);
         }
         break;
     case 'DELETE':
         if (isset($_GET['id'])) {
             $id = intval($_GET['id']);
-            if ($dao->deleteGenero($id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Gênero excluído com sucesso!']);
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Erro ao excluir gênero.']);
+            try {
+                if ($dao->deleteGenero($id)) {
+                    http_response_code(200);
+                    echo json_encode(['status' => 'success', 'message' => 'Gênero excluído com sucesso!']);
+                } else {
+                    http_response_code(404);
+                    echo json_encode(['status' => 'error', 'message' => 'Erro ao excluir gênero.']);
+                }
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Erro ao excluir: ' . $e->getMessage()]);
             }
         } else {
+            http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'ID do gênero é obrigatório.']);
         }
         break;

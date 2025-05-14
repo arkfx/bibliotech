@@ -6,6 +6,8 @@ import {
   getBookById,
 } from "../api/livro.js";
 
+import { getAllEditoras } from "../api/editora.js";
+
 const modal = document.getElementById("modalCadastroLivro");
 const btnAbrirModal = document.querySelector(".btn-add-livro");
 const btnFecharModal = modal.querySelector(".close-btn");
@@ -24,6 +26,12 @@ const modalSucessoExclusao = document.getElementById("modalSucessoExclusao");
 
 let livroEmEdicaoId = null;
 let livroParaExcluirId = null;
+
+// Carregar as editoras quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', async () => {
+  await carregarLivros();
+  await carregarEditoras();
+});
 
 function abrirModal() {
   modal.classList.remove("hidden");
@@ -78,6 +86,31 @@ function mostrarModalSucessoExclusao() {
 btnAbrirModal.addEventListener("click", abrirModal);
 btnFecharModal.addEventListener("click", fecharModal);
 btnLimpar.addEventListener("click", limparFormulario);
+
+async function carregarEditoras() {
+  try {
+    const response = await getAllEditoras();
+    
+    if (response.success) {
+      const editoraSelect = document.getElementById('editora');
+      
+      // Limpar opções existentes (exceto a primeira)
+      const firstOption = editoraSelect.options[0];
+      editoraSelect.innerHTML = '';
+      editoraSelect.appendChild(firstOption);
+      
+      // Adicionar as editoras como opções
+      response.data.forEach(editora => {
+        const option = document.createElement('option');
+        option.value = editora.id;
+        option.textContent = editora.nome;
+        editoraSelect.appendChild(option);
+      });
+    }
+  } catch (error) {
+    console.error("Erro ao carregar editoras:", error);
+  }
+}
 
 async function carregarLivros() {
   try {
@@ -140,7 +173,7 @@ function adicionarEventosTabela() {
           document.getElementById("autor").value = livro.autor;
           document.getElementById("genero").value = livro.genero_id;
           document.getElementById("preco").value = livro.preco;
-          document.getElementById("editora").value = livro.editora;
+          document.getElementById("editora").value = livro.editora_id;
           document.getElementById("descricao").value = livro.descricao;
           document.getElementById("imagem_url").value = livro.imagem_url || "";
 
@@ -173,13 +206,13 @@ formLivro.addEventListener("submit", async (e) => {
 
   const titulo = document.getElementById("titulo").value.trim();
   const autor = document.getElementById("autor").value.trim();
-  const genero = document.getElementById("genero").value;
+  const genero_id = document.getElementById("genero").value;
   const preco = document.getElementById("preco").value.trim();
-  const editora = document.getElementById("editora").value;
+  const editora_id = document.getElementById("editora").value;
   const descricao = document.getElementById("descricao").value.trim();
   const imagem_url = document.getElementById("imagem_url").value.trim();
 
-  if (!titulo || !autor || !genero || !preco || !editora || !descricao || !imagem_url) {
+  if (!titulo || !autor || !genero_id || !preco || !editora_id || !descricao || !imagem_url) {
     alert("Preencha todos os campos obrigatórios!");
     return;
   }
@@ -193,24 +226,23 @@ formLivro.addEventListener("submit", async (e) => {
         livroEmEdicaoId,
         titulo,
         autor,
-        genero,
+        genero_id,
         preco,
-        editora,
+        editora_id,
         descricao,
         imagem_url
       );
     } else {
-      await createBook(titulo, autor, genero, preco, editora, descricao, imagem_url);
+      await createBook(titulo, autor, genero_id, preco, editora_id, descricao, imagem_url);
     }
 
     await carregarLivros();
     fecharModal();
     mostrarModalSucesso();
   } catch (error) {
-    alert("Erro ao salvar o livro: " + error.message);
+    alert("Erro ao salvar livro. Tente novamente!");
+    console.error(error);
   } finally {
-    btnSalvar.textContent = livroEmEdicaoId ? "Atualizando..." : "Salvando...";
-
     btnSalvar.classList.remove("loading");
     btnSalvar.innerHTML = livroEmEdicaoId ? "ATUALIZAR" : "SALVAR";
   }
@@ -219,6 +251,7 @@ formLivro.addEventListener("submit", async (e) => {
 document.addEventListener("readystatechange", () => {
   if (document.readyState === "complete") {
     carregarLivros();
+    carregarEditoras();
   }
 });
 

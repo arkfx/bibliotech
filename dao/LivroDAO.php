@@ -6,14 +6,17 @@ class LivroDAO
     public function __construct($db)
     {
         $this->conn = $db;
+        $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
     }
 
-    public function createBook($titulo, $autor, $genero_id, $preco, $editora, $descricao, $imagem_url)
+    public function createBook($titulo, $autor, $genero_id, $preco, $editora_id, $descricao, $imagem_url)
     {
         $sql = "INSERT INTO livros (
-                    titulo, autor, genero_id, preco, editora, descricao, imagem_url, created_at, updated_at
+                    titulo, autor, genero_id, preco, editora_id, descricao, imagem_url, created_at, updated_at
                 ) VALUES (
-                    :titulo, :autor, :genero_id, :preco, :editora, :descricao, :imagem_url, NOW(), NOW()
+                    :titulo, :autor, :genero_id, :preco, :editora_id, :descricao, :imagem_url, NOW(), NOW()
                 )";
 
         $stmt = $this->conn->prepare($sql);
@@ -22,29 +25,40 @@ class LivroDAO
         $stmt->bindParam(':autor', $autor);
         $stmt->bindParam(':genero_id', $genero_id, PDO::PARAM_INT);
         $stmt->bindParam(':preco', $preco);
-        $stmt->bindParam(':editora', $editora);
+        $stmt->bindParam(':editora_id', $editora_id, PDO::PARAM_INT);
         $stmt->bindParam(':descricao', $descricao);
         $stmt->bindParam(':imagem_url', $imagem_url);
-        return $stmt->execute();
+        $result = $stmt->execute();
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function getBookById($id){
         $sql = "SELECT 
                     livros.*, 
-                    generos.nome AS genero_nome 
+                    generos.nome AS genero_nome,
+                    editoras.nome AS editora_nome
                 FROM livros
                 INNER JOIN generos ON livros.genero_id = generos.id
+                INNER JOIN editoras ON livros.editora_id = editoras.id
                 WHERE livros.id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function searchBooks($termo = null, $genero_id = null, $ordem = 'DESC')
     {
-        $sql = "SELECT livros.*, generos.nome AS genero_nome FROM livros
+        $sql = "SELECT 
+                    livros.*, 
+                    generos.nome AS genero_nome,
+                    editoras.nome AS editora_nome 
+                FROM livros
                 LEFT JOIN generos ON livros.genero_id = generos.id
+                LEFT JOIN editoras ON livros.editora_id = editoras.id
                 WHERE 1=1";
         $params = [];
 
@@ -68,7 +82,9 @@ class LivroDAO
         }
 
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        return $result;
     }
 
     public function deleteBook($id)
@@ -79,29 +95,33 @@ class LivroDAO
         $stmt->execute();
 
         if ($stmt->rowCount() === 0) {
+            $stmt->closeCursor();
             throw new Exception("Livro com ID $id não encontrado.");
         }
 
+        $stmt->closeCursor();
         return true;
     }
 
-    public function updateBook($id, $titulo, $autor, $genero_id, $preco, $editora, $descricao, $imagem_url)
+    public function updateBook($id, $titulo, $autor, $genero_id, $preco, $editora_id, $descricao, $imagem_url)
     {
         $sql = "UPDATE livros 
                  SET titulo = :titulo, autor = :autor, genero_id = :genero_id, preco = :preco, 
-                     editora = :editora, descricao = :descricao, imagem_url = :imagem_url, 
+                     editora_id = :editora_id, descricao = :descricao, imagem_url = :imagem_url, 
                      updated_at = NOW() 
                  WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([
+        $result = $stmt->execute([
             ':id' => $id,
             ':titulo' => $titulo,
             ':autor' => $autor,
             ':genero_id' => $genero_id,
             ':preco' => $preco,
-            ':editora' => $editora,
+            ':editora_id' => $editora_id,
             ':descricao' => $descricao,
             ':imagem_url' => $imagem_url
         ]);
+        $stmt->closeCursor();
+        return $result;
     }
 }
