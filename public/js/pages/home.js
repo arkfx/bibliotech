@@ -13,9 +13,14 @@ document.addEventListener("DOMContentLoaded", () => {
 // MAIN
 document.addEventListener("DOMContentLoaded", async () => {
   // 🔄 Recarrega a página se voltar do histórico
-  window.addEventListener("pageshow", (event) => {
+  window.addEventListener("pageshow", async (event) => {
     if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
-      location.reload();
+      try {
+        const favoritos = await carregarListaDesejos();
+        configurarBotoesFavoritos(favoritos, ".btn-favorito");
+      } catch (error) {
+        console.error("Erro ao atualizar a lista de desejos ao voltar:", error);
+      }
     }
   });
 

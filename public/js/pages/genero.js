@@ -3,6 +3,8 @@ import { searchBooks } from "../api/livro.js";
 import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
 import { carregarListaDesejos, configurarBotoesFavoritos } from "../utils/wishlist-utils.js";
 
+
+
 export async function carregarGeneros(selectClass) {
   try {
     const generoSelect = document.querySelector(`.${selectClass}`); // Seleciona o elemento pela classe
@@ -101,8 +103,31 @@ async function carregarLivrosPorGenero() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("generos-container");
+  const modal = document.getElementById("cadastroModal");
+
+  if (modal) {
+    // Fecha o modal ao clicar fora dele
+    window.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+
   if (container) {
     carregarLivrosPorGenero();
+    
+    // Atualiza a lista de desejos ao voltar do histórico
+    window.addEventListener("pageshow", async (event) => {
+      if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+        try {
+          const favoritos = await carregarListaDesejos();
+          configurarBotoesFavoritos(favoritos, ".btn-favorito");
+        } catch (error) {
+          console.error("Erro ao atualizar a lista de desejos ao voltar:", error);
+        }
+      }
+    });
   } else {
     console.warn("Elemento 'generos-container' não encontrado no DOM.");
   }
