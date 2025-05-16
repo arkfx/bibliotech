@@ -295,7 +295,7 @@ _Requisitos_:
 
 ---
 
-### Iteração 3 - Finalização do Pedido e Gerenciamento de Perfil com Histórico de Pedidos
+### Iteração 3 - Finalização do Pedido e Gerenciamento de Perfil com Histórico de Pedidos e Lista de desejos
 
 _Valor_: Proporcionar uma experiência completa de compra, permitindo que os usuários finalizem pedidos, acompanhem seu histórico de compras e gerenciem suas listas de desejos. Além disso, oferecer funcionalidades para gerenciar o perfil e visualizar informações pessoais.
 
