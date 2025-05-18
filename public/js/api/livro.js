@@ -9,11 +9,12 @@ export async function createBook(
   descricao,
   imagem_url
 ) {
-  const response = await fetch(API_BASE + "/livro.php", {
+  const response = await fetch(API_BASE + "/livros", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify({
       titulo,
       autor,
@@ -33,7 +34,7 @@ export async function createBook(
 }
 
 export async function getBooks() {
-  const response = await fetch(API_BASE + "/livro.php", {
+  const response = await fetch(API_BASE + "/livros", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -50,7 +51,7 @@ export async function getBooks() {
 }
 
 export async function getBookById(id) {
-  const response = await fetch(API_BASE + `/livro.php?id=${id}`, {
+  const response = await fetch(API_BASE + `/livros/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -69,7 +70,7 @@ export async function searchBooks(
   genero_id = null,
   ordem = "DESC"
 ) {
-  const url = new URL(API_BASE + "/livro.php");
+  const url = new URL(API_BASE + "/livros");
 
   if (query) url.searchParams.append("q", query);
   if (genero_id) url.searchParams.append("genero_id", genero_id);
@@ -92,7 +93,7 @@ export async function searchBooks(
 }
 
 export async function deleteBook(id) {
-  const response = await fetch(API_BASE + `/livro.php?id=${id}`, {
+  const response = await fetch(API_BASE + `/livros/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -125,7 +126,7 @@ export async function updateBook(
   descricao,
   imagem_url
 ) {
-  const response = await fetch(API_BASE + "/livro.php", {
+  const response = await fetch(API_BASE + "/livros", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

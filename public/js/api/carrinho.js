@@ -1,7 +1,7 @@
 import { API_BASE } from "../config.js";
 import { searchBooks } from "./livro.js";
 
-export async function addBookToCart(titulo, userId, quantidade) {
+export async function addBookToCart(titulo, quantidade) {
   try {
     const livros = (await searchBooks(titulo)).data;
 
@@ -12,12 +12,12 @@ export async function addBookToCart(titulo, userId, quantidade) {
     }
 
     const livroId = livros[0].id;
-    const response = await fetch(API_BASE + "/carrinho.php", {
+    const response = await fetch(API_BASE + "/carrinho", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: livroId, userId, quantidade }),
+      body: JSON.stringify({ id: livroId, quantidade }),
     });
     if (!response.ok) {
       throw new Error("Erro ao adicionar o livro ao carrinho.");
@@ -29,9 +29,9 @@ export async function addBookToCart(titulo, userId, quantidade) {
   }
 }
 
-export async function getCarrinhoDoUsuario(userId) {
+export async function getCarrinhoDoUsuario() {
   try {
-    const response = await fetch(`${API_BASE}/carrinho.php?userId=${userId}`);
+    const response = await fetch(`${API_BASE}/carrinho`);
 
     if (!response.ok) {
       throw new Error("Erro ao buscar o carrinho.");
@@ -44,14 +44,12 @@ export async function getCarrinhoDoUsuario(userId) {
   }
 }
 
-export async function removerDoCarrinho(livroId, userId) {
+export async function removerDoCarrinho(livroId) {
   try {
-    const res = await fetch(API_BASE + "/carrinho.php", {
+    const res = await fetch(API_BASE + "/carrinho", {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: livroId, userId }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: livroId }), // 🔥 Removido userId
     });
 
     const contentType = res.headers.get("content-type");
@@ -73,22 +71,12 @@ export async function removerDoCarrinho(livroId, userId) {
   }
 }
 
-export async function atualizarQuantidadeNoServidor(
-  livroId,
-  novaQuantidade,
-  userId
-) {
+export async function atualizarQuantidadeNoServidor(livroId, novaQuantidade) {
   try {
-    const res = await fetch(API_BASE + "/carrinho.php", {
+    const res = await fetch(API_BASE + "/carrinho", {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: livroId,
-        userId: userId,
-        quantidade: novaQuantidade,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: livroId, quantidade: novaQuantidade }),
     });
 
     const contentType = res.headers.get("content-type");

@@ -15,7 +15,6 @@ function abrirModal(emoji, titulo, mensagem) {
   modalMessage.textContent = mensagem;
   modal.style.display = "flex";
 
-  // Configura o botão com base na mensagem
   if (mensagem === "Você precisa estar logado para comprar.") {
     modalClose.textContent = "Ir para Login";
     modalClose.onclick = () => {
@@ -55,7 +54,7 @@ async function prepararEventosCarrinho() {
       btn.innerHTML = `${textoOriginal} <span class="loading-spinner"></span>`;
 
       try {
-        await addBookToCart(titulo, userId, 1);
+        await addBookToCart(titulo, 1); // ✅ Removido userId
         abrirModal(
           "✅🛒",
           "Sucesso",
