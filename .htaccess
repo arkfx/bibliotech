@@ -1,0 +1,31 @@
+RewriteEngine On
+
+# Rule for handling HTML files (e.g., /carrinho.html -> /view/carrinho.html)
+# Only apply if the request is for a .html file
+RewriteCond %{REQUEST_URI} \.html$
+# And the requested file doesn't exist in the root
+RewriteCond %{REQUEST_FILENAME} !-f
+# And the file exists in the /view/ directory
+RewriteCond %{DOCUMENT_ROOT}/view/%{REQUEST_URI} -f
+RewriteRule ^(.+\.html)$ view/$1 [L]
+
+# Ensure that requests to / (root) are still handled by DirectoryIndex
+# This might not be strictly necessary if DirectoryIndex is already doing its job for the root.
+# RewriteCond %{REQUEST_URI} ^/$
+# RewriteRule ^$ view/home.html [L]
+
+# Rule for handling the root path explicitly if needed,
+# especially if DirectoryIndex doesn't cover all cases or if you want to be more explicit.
+# This ensures that accessing the base URL (e.g., http://localhost/) serves view/home.html.
+RewriteCond %{REQUEST_URI} ^/$
+RewriteCond %{DOCUMENT_ROOT}/view/home.html -f
+RewriteRule ^$ view/home.html [L]
+
+# If you also want to handle cases where users might type /view/ or /view/home.html explicitly
+# and you want to ensure consistency or redirect them, you could add rules for that,
+# but for now, let's focus on making the simple links work.
+
+# It's also good practice to prevent access to .htaccess itself
+<Files .htaccess>
+    Require all denied
+</Files> 
