@@ -38,6 +38,7 @@ async function prepararEventosCarrinho() {
     const handler = async (e) => {
       const btn = e.currentTarget;
       const titulo = btn.dataset.titulo;
+      const livroId = parseInt(btn.dataset.id);
 
       if (!userId) {
         abrirModal(
@@ -54,7 +55,7 @@ async function prepararEventosCarrinho() {
       btn.innerHTML = `${textoOriginal} <span class="loading-spinner"></span>`;
 
       try {
-        await addBookToCart(titulo, 1); // ✅ Removido userId
+        await addBookToCart(livroId, 1); // ✅ Removido userId
         abrirModal(
           "✅🛒",
           "Sucesso",

@@ -15,6 +15,8 @@ export async function carregarGeneros(selectClass) {
       return;
     }
 
+    generoSelect.innerHTML = '<option value="">Todos os Gêneros</option>';
+
     const response = await getGeneros();
     console.log("Resposta da API de gêneros:", response);
 
@@ -89,11 +91,13 @@ async function carregarLivrosPorGenero() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Página carregada:", window.location.pathname);
+  const generoSelect = document.querySelector(".genero");
+  if (generoSelect) {
+    carregarGeneros("genero");
+  }
 
   const container = document.getElementById("generos-container");
   const modal = document.getElementById("cadastroModal");
-  const generoSelect = document.querySelector(".genero");
 
   if (modal) {
     window.addEventListener("click", (event) => {
@@ -101,10 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.style.display = "none";
       }
     });
-  }
-
-  if (generoSelect) {
-    carregarGeneros("genero");
   }
 
   if (container) {
@@ -126,7 +126,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
-  } else {
-    console.warn("Elemento '#generos-container' não encontrado no DOM.");
   }
 });

@@ -11,6 +11,7 @@ export async function adicionarLivroListaDesejos(livroId) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ livro_id: livroId }),
+    credentials: "include",
   });
 
   return response.json();
@@ -24,6 +25,7 @@ export async function removerLivroListaDesejos(livroId) {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ usuario_id: usuarioId, livro_id: livroId }),
+    credentials: "include",
   });
 
   return response.json();

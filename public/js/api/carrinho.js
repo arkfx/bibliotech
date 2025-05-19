@@ -1,17 +1,8 @@
 import { API_BASE } from "../config.js";
 import { searchBooks } from "./livro.js";
 
-export async function addBookToCart(titulo, quantidade) {
+export async function addBookToCart(livroId, quantidade) {
   try {
-    const livros = (await searchBooks(titulo)).data;
-
-    if (!livros || livros.length === 0) {
-      throw new Error("Livro não encontrado.");
-    } else if (livros.length > 1) {
-      throw new Error("Mais de um livro encontrado.");
-    }
-
-    const livroId = livros[0].id;
     const response = await fetch(API_BASE + "/carrinho", {
       method: "POST",
       headers: {
@@ -19,12 +10,16 @@ export async function addBookToCart(titulo, quantidade) {
       },
       body: JSON.stringify({ id: livroId, quantidade }),
     });
-    if (!response.ok) {
-      throw new Error("Erro ao adicionar o livro ao carrinho.");
+
+    const contentType = response.headers.get("content-type");
+    if (!response.ok || !contentType?.includes("application/json")) {
+      const erroTexto = await response.text();
+      throw new Error("Erro do servidor: " + erroTexto.slice(0, 100));
     }
-    return response.json();
+
+    return await response.json();
   } catch (error) {
-    console.error("Erro ao buscar o livro ou adicionar ao carrinho:", error);
+    console.error("Erro ao adicionar ao carrinho:", error);
     throw error;
   }
 }
