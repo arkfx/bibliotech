@@ -63,7 +63,7 @@ export async function updateEditora(id, nome) {
 }
 
 export async function deleteEditora(id) {
-  const response = await fetch(API_BASE + "/editoras", {
+  const response = await fetch(API_BASE + `/editoras/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
