@@ -9,8 +9,9 @@ const loadingSpinner = document.querySelector(".loading-spinner");
 const urlParams = new URLSearchParams(window.location.search);
 const cadastroSuccess = urlParams.get("cadastro");
 
-if (cadastroSuccess === "success") {  
-  successMessage.textContent = "Cadastro realizado com sucesso! Faça login para continuar.";
+if (cadastroSuccess === "success") {
+  successMessage.textContent =
+    "Cadastro realizado com sucesso! Faça login para continuar.";
   successMessage.style.display = "block";
 
   // Remove a query string da URL para evitar que a mensagem apareça novamente ao recarregar a página
@@ -45,13 +46,18 @@ if (loginForm) {
       if (response.status === "success") {
         window.location.href = "home.html";
       } else {
-        errorMessage.textContent = "Email ou senha incorretos. Tente novamente.";
+        errorMessage.textContent =
+          "Email ou senha incorretos. Tente novamente.";
         errorMessage.style.display = "block";
       }
     } catch (error) {
       console.error("Erro ao fazer login:", error);
-      errorMessage.textContent =
-        "Erro de conexão com o servidor. Tente novamente.";
+      if (error.message === "Login failed") {
+        errorMessage.textContent = "Email ou senha incorretos.";
+      } else {
+        errorMessage.textContent =
+          "Erro de conexão com o servidor. Tente novamente.";
+      }
       errorMessage.style.display = "block";
     } finally {
       loginButton.disabled = false;
@@ -70,7 +76,9 @@ if (cadastroForm) {
     const nome = document.getElementById("nome").value.trim();
     const email = document.getElementById("email").value.trim();
     const senha = document.getElementById("senha").value.trim();
-    const confirmarSenha = document.getElementById("confirmar-senha").value.trim();
+    const confirmarSenha = document
+      .getElementById("confirmar-senha")
+      .value.trim();
     const cadastroButton = document.getElementById("btn-cadastrar");
 
     if (senha !== confirmarSenha) {
@@ -93,9 +101,10 @@ if (cadastroForm) {
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       if (error.message) {
-          errorMessage.textContent = error.message;
+        errorMessage.textContent = error.message;
       } else {
-          errorMessage.textContent = "Erro de conexão com o servidor. Tente novamente.";
+        errorMessage.textContent =
+          "Erro de conexão com o servidor. Tente novamente.";
       }
       errorMessage.style.display = "block";
     } finally {

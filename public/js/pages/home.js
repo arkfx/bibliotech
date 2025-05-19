@@ -1,6 +1,9 @@
 import { getBooks } from "../api/livro.js";
 import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
-import { carregarListaDesejos, configurarBotoesFavoritos } from "../utils/wishlist-utils.js";
+import {
+  carregarListaDesejos,
+  configurarBotoesFavoritos,
+} from "../utils/wishlist-utils.js";
 import { showToast } from "../utils/toast.js";
 
 // TOAST DE BOAS-VINDAS
@@ -14,7 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", async () => {
   // 🔄 Recarrega a página se voltar do histórico
   window.addEventListener("pageshow", async (event) => {
-    if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+    if (
+      event.persisted ||
+      performance.getEntriesByType("navigation")[0].type === "back_forward"
+    ) {
       try {
         const favoritos = await carregarListaDesejos();
         configurarBotoesFavoritos(favoritos, ".btn-favorito");
@@ -59,7 +65,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Carregar lista de desejos
         const favoritos = await carregarListaDesejos();
 
-        // Configurar botões de favoritos
         configurarBotoesFavoritos(favoritos, ".btn-favorito");
       } else {
         mostrarMensagemErro(gridContainer, "Erro ao carregar livros.");
