@@ -1,33 +1,42 @@
 import { API_BASE } from "../config.js";
 
-export async function createBook(
-  titulo,
-  autor,
-  genero_id,
-  preco,
-  editora_id,
-  descricao,
-  imagem_url
-) {
+export async function createBook(livro) {
   const response = await fetch(API_BASE + "/livros", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify({
-      titulo,
-      autor,
-      genero_id,
-      preco,
-      editora_id,
-      descricao,
-      imagem_url,
-    }),
+    body: JSON.stringify(livro),
   });
 
   if (!response.ok) {
     throw new Error("Falha no Cadastro do Livro");
+  }
+
+  return response.json();
+}
+
+export async function updateBook(livro) {
+  const response = await fetch(API_BASE + "/livros", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(livro),
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Erro ao atualizar o livro.";
+    try {
+      const errorResponse = await response.json();
+      if (errorResponse.message) {
+        errorMessage = errorResponse.message;
+      }
+    } catch (e) {
+      console.error("Erro ao processar a resposta de erro:", e);
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -40,8 +49,6 @@ export async function getBooks() {
       "Content-Type": "application/json",
     },
   });
-
-  console.log("Response received:", response);
 
   if (!response.ok) {
     throw new Error("Erro ao buscar os livros.");
@@ -65,16 +72,16 @@ export async function getBookById(id) {
   return response.json();
 }
 
-export async function searchBooks(
+export async function searchBooks({
   query = "",
   genero_id = null,
-  ordem = "DESC"
-) {
+  ordem = "DESC",
+} = {}) {
   const url = new URL(API_BASE + "/livros");
 
   if (query) url.searchParams.append("q", query);
   if (genero_id) url.searchParams.append("genero_id", genero_id);
-  if (ordem && (ordem === "ASC" || ordem === "DESC")) {
+  if (ordem === "ASC" || ordem === "DESC") {
     url.searchParams.append("ordem", ordem);
   }
 
@@ -102,49 +109,6 @@ export async function deleteBook(id) {
 
   if (!response.ok) {
     let errorMessage = "Erro ao deletar o livro.";
-    try {
-      const errorResponse = await response.json();
-      if (errorResponse.message) {
-        errorMessage = errorResponse.message;
-      }
-    } catch (e) {
-      console.error("Erro ao processar a resposta de erro:", e);
-    }
-    throw new Error(errorMessage);
-  }
-
-  return response.json();
-}
-
-export async function updateBook(
-  id,
-  titulo,
-  autor,
-  genero_id,
-  preco,
-  editora_id,
-  descricao,
-  imagem_url
-) {
-  const response = await fetch(API_BASE + "/livros", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id,
-      titulo,
-      autor,
-      genero_id,
-      preco,
-      editora_id,
-      descricao,
-      imagem_url,
-    }),
-  });
-
-  if (!response.ok) {
-    let errorMessage = "Erro ao atualizar o livro.";
     try {
       const errorResponse = await response.json();
       if (errorResponse.message) {

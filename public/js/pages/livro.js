@@ -7,6 +7,13 @@ import {
 } from "../api/livro.js";
 
 import { getAllEditoras } from "../api/editora.js";
+import {
+  mapFormToBook,
+  validateBook,
+  preencherFormulario,
+  limparFormularioLivro,
+  mostrarModalSucesso,
+} from "../utils/livro.js";
 
 const modal = document.getElementById("modalCadastroLivro");
 const btnAbrirModal = document.querySelector(".btn-add-livro");
@@ -22,13 +29,11 @@ const modalConfirmarExclusao = document.getElementById(
 );
 const btnConfirmarExclusao = document.getElementById("btnConfirmarExclusao");
 const btnCancelarExclusao = document.getElementById("btnCancelarExclusao");
-const modalSucessoExclusao = document.getElementById("modalSucessoExclusao");
 
 let livroEmEdicaoId = null;
 let livroParaExcluirId = null;
 
-// Carregar as editoras quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   await carregarLivros();
   await carregarEditoras();
 });
@@ -39,27 +44,10 @@ function abrirModal() {
 
 function fecharModal() {
   modal.classList.add("hidden");
-  limparFormulario();
+  limparFormularioLivro();
   livroEmEdicaoId = null;
   btnSalvar.textContent = "SALVAR";
   modalTitulo.textContent = "Cadastro de Livros";
-}
-
-function limparFormulario() {
-  formLivro.reset();
-}
-
-function mostrarModalSucesso() {
-  const modalSucesso = document.getElementById("modalSucesso");
-  modalSucesso.classList.remove("hidden");
-
-  setTimeout(() => {
-    modalSucesso.classList.add("hidden");
-  }, 3000);
-
-  modalSucesso.addEventListener("click", () => {
-    modalSucesso.classList.add("hidden");
-  });
 }
 
 function abrirModalConfirmacaoExclusao(id) {
@@ -72,17 +60,6 @@ function fecharModalConfirmacaoExclusao() {
   livroParaExcluirId = null;
 }
 
-function mostrarModalSucessoExclusao() {
-  modalSucessoExclusao.classList.remove("hidden");
-  setTimeout(() => {
-    modalSucessoExclusao.classList.add("hidden");
-  }, 3000);
-
-  modalSucessoExclusao.addEventListener("click", () => {
-    modalSucessoExclusao.classList.add("hidden");
-  });
-}
-
 btnAbrirModal.addEventListener("click", abrirModal);
 btnFecharModal.addEventListener("click", fecharModal);
 btnLimpar.addEventListener("click", limparFormulario);
@@ -90,18 +67,16 @@ btnLimpar.addEventListener("click", limparFormulario);
 async function carregarEditoras() {
   try {
     const response = await getAllEditoras();
-    
+
     if (response.success) {
-      const editoraSelect = document.getElementById('editora');
-      
-      // Limpar opções existentes (exceto a primeira)
+      const editoraSelect = document.getElementById("editora");
+
       const firstOption = editoraSelect.options[0];
-      editoraSelect.innerHTML = '';
+      editoraSelect.innerHTML = "";
       editoraSelect.appendChild(firstOption);
-      
-      // Adicionar as editoras como opções
-      response.data.forEach(editora => {
-        const option = document.createElement('option');
+
+      response.data.forEach((editora) => {
+        const option = document.createElement("option");
         option.value = editora.id;
         option.textContent = editora.nome;
         editoraSelect.appendChild(option);
@@ -169,13 +144,7 @@ function adicionarEventosTabela() {
         const response = await getBookById(bookId);
         if (response.status === "success") {
           const livro = response.data;
-          document.getElementById("titulo").value = livro.titulo;
-          document.getElementById("autor").value = livro.autor;
-          document.getElementById("genero").value = livro.genero_id;
-          document.getElementById("preco").value = livro.preco;
-          document.getElementById("editora").value = livro.editora_id;
-          document.getElementById("descricao").value = livro.descricao;
-          document.getElementById("imagem_url").value = livro.imagem_url || "";
+          preencherFormulario(livro);
 
           livroEmEdicaoId = livro.id;
           btnSalvar.textContent = "ATUALIZAR";
@@ -203,37 +172,27 @@ function adicionarEventosTabela() {
 
 formLivro.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const formData = new FormData(formLivro);
+  const livro = mapFormToBook(formData);
 
-  const titulo = document.getElementById("titulo").value.trim();
-  const autor = document.getElementById("autor").value.trim();
-  const genero_id = document.getElementById("genero").value;
-  const preco = document.getElementById("preco").value.trim();
-  const editora_id = document.getElementById("editora").value;
-  const descricao = document.getElementById("descricao").value.trim();
-  const imagem_url = document.getElementById("imagem_url").value.trim();
+  if (livroEmEdicaoId) {
+    livro.id = livroEmEdicaoId;
+  }
+  console.log("📦 Livro montado:", livro);
 
-  if (!titulo || !autor || !genero_id || !preco || !editora_id || !descricao || !imagem_url) {
+  if (!validateBook(livro)) {
     alert("Preencha todos os campos obrigatórios!");
     return;
   }
 
   btnSalvar.classList.add("loading");
-  btnSalvar.innerHTML = livroEmEdicaoId ? "Atualizando..." : "Salvando...";
+  btnSalvar.innerHTML = livro.id ? "Atualizando..." : "Salvando...";
 
   try {
-    if (livroEmEdicaoId) {
-      await updateBook(
-        livroEmEdicaoId,
-        titulo,
-        autor,
-        genero_id,
-        preco,
-        editora_id,
-        descricao,
-        imagem_url
-      );
+    if (livro.id) {
+      await updateBook(livro);
     } else {
-      await createBook(titulo, autor, genero_id, preco, editora_id, descricao, imagem_url);
+      await createBook(livro);
     }
 
     await carregarLivros();
@@ -244,14 +203,7 @@ formLivro.addEventListener("submit", async (e) => {
     console.error(error);
   } finally {
     btnSalvar.classList.remove("loading");
-    btnSalvar.innerHTML = livroEmEdicaoId ? "ATUALIZAR" : "SALVAR";
-  }
-});
-
-document.addEventListener("readystatechange", () => {
-  if (document.readyState === "complete") {
-    carregarLivros();
-    carregarEditoras();
+    btnSalvar.innerHTML = livro.id ? "ATUALIZAR" : "SALVAR";
   }
 });
 
@@ -263,7 +215,7 @@ btnConfirmarExclusao.addEventListener("click", async () => {
   try {
     await deleteBook(livroParaExcluirId);
     await carregarLivros();
-    mostrarModalSucessoExclusao();
+    mostrarModalSucesso("modalSucessoExclusao");
   } catch (error) {
     alert("Erro ao excluir o livro: " + error.message);
   } finally {

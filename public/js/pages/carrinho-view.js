@@ -157,7 +157,6 @@ export function atualizarResumoCarrinho() {
     subtotal += preco * quantidade;
   });
 
-  // Cálculo do frete
   if (subtotal === 0) {
     textoFrete = "R$ 0,00";
     frete = 0;
@@ -171,7 +170,6 @@ export function atualizarResumoCarrinho() {
 
   const total = subtotal + frete;
 
-  // Atualiza o DOM
   subtotalEl.textContent = subtotal.toFixed(2).replace(".", ",");
   freteEl.textContent = textoFrete;
   totalEl.textContent = total.toFixed(2).replace(".", ",");

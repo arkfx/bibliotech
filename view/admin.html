@@ -24,7 +24,9 @@
       <nav class="main-nav">
         <ul class="main-nav-list">
           <li><a href="home.html" class="main-nav-link navegacao">Home</a></li>
-          <li><a href="generos.html" class="main-nav-link navegacao">Gêneros</a></li>
+          <li>
+            <a href="generos.html" class="main-nav-link navegacao">Gêneros</a>
+          </li>
           <li><a href="#" class="main-nav-link navegacao">Catálogo</a></li>
 
           <div class="dropdown">
@@ -91,8 +93,12 @@
           <h3 class="sidebar-title">Painel Administrativo</h3>
           <nav class="sidebar-nav">
             <ul class="sidebar-menu">
-              <li class="menu-item active" data-section="livros">Gerenciar Livros</li>
-              <li class="menu-item" data-section="generos">Gêneros/categorias</li>
+              <li class="menu-item active" data-section="livros">
+                Gerenciar Livros
+              </li>
+              <li class="menu-item" data-section="generos">
+                Gêneros/categorias
+              </li>
               <li class="menu-item" data-section="editoras">Editoras</li>
             </ul>
           </nav>
@@ -122,7 +128,7 @@
             <tbody></tbody>
           </table>
         </div>
-        
+
         <!-- Seção de Editoras -->
         <div class="admin-content hidden" id="section-editoras">
           <div class="admin-header">
@@ -162,6 +168,7 @@
               <input
                 type="text"
                 id="titulo"
+                name="titulo"
                 placeholder="Digite o título do livro"
               />
             </div>
@@ -174,6 +181,7 @@
               <input
                 type="text"
                 id="autor"
+                name="autor"
                 placeholder="Digite o autor do livro"
               />
             </div>
@@ -184,7 +192,7 @@
               <label for="genero">Gênero</label>
               <div class="input-with-icon">
                 <i class="icon genre-icon">🛡️</i>
-                <select id="genero" class="genero">
+                <select id="genero" name="genero_id" class="genero">
                   <option value="" selected disabled>Selecione o gênero</option>
                 </select>
               </div>
@@ -197,6 +205,7 @@
                 <input
                   type="text"
                   id="preco"
+                  name="preco"
                   placeholder="Digite o preço do livro"
                 />
               </div>
@@ -207,7 +216,7 @@
             <label for="editora">Editora</label>
             <div class="input-with-icon">
               <i class="icon publisher-icon">🏢</i>
-              <select id="editora">
+              <select id="editora" name="editora_id">
                 <option value="" selected disabled>Selecione a editora</option>
                 <!-- Editoras serão carregadas dinamicamente via JavaScript -->
               </select>
@@ -220,6 +229,7 @@
               <i class="icon description-icon">📝</i>
               <textarea
                 id="descricao"
+                name="descricao"
                 rows="4"
                 placeholder="Digite a descrição do livro"
               ></textarea>
@@ -317,8 +327,8 @@
         <span class="close-btn">&times;</span>
 
         <form class="form-editora">
-          <input type="hidden" id="editora-id">
-          
+          <input type="hidden" id="editora-id" />
+
           <div class="form-group">
             <label for="editora-nome">Nome da Editora</label>
             <div class="input-with-icon">
