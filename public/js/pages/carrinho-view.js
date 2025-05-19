@@ -13,6 +13,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const totalEl = document.getElementById("total");
   const freteEl = document.getElementById("frete");
 
+  if (!container || !subtotalEl || !totalEl || !freteEl) {
+    console.warn("Elementos do carrinho não encontrados. Script encerrado.");
+    return;
+  }
+
   userId = await obterUserId();
   console.log("User ID:", userId);
 
