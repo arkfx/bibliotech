@@ -10,6 +10,7 @@ class UsuarioController extends BaseController
 
     public function __construct(private PDO $pdo)
     {
+
         $this->repo = new UsuarioRepository($pdo);
     }
 

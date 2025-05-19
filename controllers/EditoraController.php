@@ -10,6 +10,7 @@ class EditoraController extends BaseController
 
     public function __construct(private PDO $pdo)
     {
+        session_start();
         $this->repo = new EditoraRepository($pdo);
         header('Content-Type: application/json');
     }
