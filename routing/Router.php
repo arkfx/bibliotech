@@ -32,10 +32,26 @@ class Router
     public function dispatch(string $requestUri, string $requestMethod, $pdo): void
     {
         $path = parse_url($requestUri, PHP_URL_PATH);
-        $basePath = '/bibliotech/public';
-        if (str_starts_with($path, $basePath)) {
-            $path = substr($path, strlen($basePath));
+        
+        // Handle multiple possible base paths
+        $possibleBasePaths = [
+            '/bibliotech/public',
+            '/bibliotech',
+            ''
+        ];
+        
+        foreach ($possibleBasePaths as $basePath) {
+            if ($basePath && str_starts_with($path, $basePath)) {
+                $path = substr($path, strlen($basePath));
+                break;
+            }
         }
+        
+        // Ensure path starts with /
+        if (!str_starts_with($path, '/')) {
+            $path = '/' . $path;
+        }
+
         $method = strtoupper($requestMethod);
 
         foreach ($this->routes as $route) {
