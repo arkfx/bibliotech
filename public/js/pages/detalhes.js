@@ -3,16 +3,16 @@ import { renderSkeletonDetalhes } from "../utils/renderBooks.js";
 import {
   adicionarLivroListaDesejos,
   removerLivroListaDesejos,
-  verificarLivroNaListaDesejos
+  verificarLivroNaListaDesejos,
 } from "../api/lista-desejos.js";
 import { obterUserId } from "../utils/auth-utils.js";
 import { mostrarModalPadrao } from "../utils/modal-utils.js";
 import "./carrinho.js";
 
 function selecionarOpcao(elemento) {
-  document.querySelectorAll(".opcao").forEach((btn) =>
-    btn.classList.remove("ativo")
-  );
+  document
+    .querySelectorAll(".opcao")
+    .forEach((btn) => btn.classList.remove("ativo"));
   elemento.classList.add("ativo");
 }
 
@@ -64,7 +64,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="preco">R$ ${livro.preco}</div>
 
         <div class="acoes-livro">
-          <button class="btn-comprar" data-titulo="${livro.titulo}">
+          <button class="btn-comprar" data-id="${livro.id}" data-titulo="${
+      livro.titulo
+    }">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
               viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -91,11 +93,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="secao-conteudo">
             <div class="info-item">
               <span class="info-label">Editora:</span>
-              <span class="editora">${livro.editora_nome || "Editora não informada."}</span>
+              <span class="editora">${
+                livro.editora_nome || "Editora não informada."
+              }</span>
             </div>
             <div class="info-item">
               <span class="info-label">Gênero:</span>
-              <span class="genero-nome">${livro.genero_nome || "Gênero não informado."}</span>
+              <span class="genero-nome">${
+                livro.genero_nome || "Gênero não informado."
+              }</span>
             </div>
           </div>
         </div>
@@ -104,7 +110,67 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.dispatchEvent(new Event("livrosRenderizados"));
 
+    // Botão COMPRAR (corrigido aqui!)
+    const btnComprar = document.querySelector(".btn-comprar");
+
+    if (btnComprar) {
+      btnComprar.addEventListener("click", async () => {
+        const userId = await obterUserId();
+
+        if (!userId) {
+          mostrarModalPadrao(
+            "🔒",
+            "Login necessário",
+            "Você precisa estar logado para comprar.",
+            "login.html",
+            "Ir para o Login"
+          );
+          return;
+        }
+
+        btnComprar.disabled = true;
+        const textoOriginal = btnComprar.innerText;
+        btnComprar.innerHTML = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="9" cy="21" r="1"></circle>
+    <circle cx="20" cy="21" r="1"></circle>
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+  </svg>
+  ${textoOriginal} <span class="spinner"></span>`;
+
+        btnComprar.classList.add("btn-loading");
+
+        try {
+          const { addBookToCart } = await import("../api/carrinho.js");
+          const res = await addBookToCart(livro.id, 1);
+
+          if (res.status === "success") {
+            mostrarModalPadrao(
+              "✅🛒",
+              "Sucesso",
+              `O livro "${livro.titulo}" foi adicionado ao carrinho.`,
+              "carrinho.html",
+              "Ir para o carrinho"
+            );
+          } else {
+            throw new Error(res.message || "Erro ao adicionar ao carrinho.");
+          }
+        } catch (err) {
+          console.error("Erro ao adicionar ao carrinho:", err);
+          mostrarModalPadrao("❌", "Erro", "Erro ao adicionar ao carrinho.");
+        } finally {
+          btnComprar.disabled = false;
+          btnComprar.classList.remove("btn-loading");
+          btnComprar.innerHTML = textoOriginal;
+        }
+      });
+    }
+
+    // Botão Lista de Desejos
     const btnDesejo = document.querySelector(".btn-desejo");
+
     if (!btnDesejo) return;
 
     const usuarioId = await obterUserId();
@@ -139,7 +205,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (res.status === "success") {
           estaNaLista = false;
           atualizarTexto();
-          mostrarModalPadrao("🗑️", "Removido", "Livro removido da lista de desejos.");
+          mostrarModalPadrao(
+            "🗑️",
+            "Removido",
+            "Livro removido da lista de desejos."
+          );
         } else {
           mostrarModalPadrao("❌", "Erro", "Não foi possível remover o livro.");
         }
@@ -148,13 +218,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (res.status === "success") {
           estaNaLista = true;
           atualizarTexto();
-          mostrarModalPadrao("💙", "Adicionado", "Livro adicionado à lista de desejos!");
+          mostrarModalPadrao(
+            "💙",
+            "Adicionado",
+            "Livro adicionado à lista de desejos!"
+          );
         } else {
-          mostrarModalPadrao("❌", "Erro", res.message || "Erro ao adicionar o livro.");
+          mostrarModalPadrao(
+            "❌",
+            "Erro",
+            res.message || "Erro ao adicionar o livro."
+          );
         }
       }
     });
-
   } catch (error) {
     console.error("Erro ao buscar os detalhes do livro:", error);
     container.innerHTML =
