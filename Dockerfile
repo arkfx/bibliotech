@@ -30,12 +30,33 @@ RUN a2enmod rewrite
 # Copy application files from the current directory (where Dockerfile is) to the container
 COPY . /var/www/html/
 
-# Configure Apache DirectoryIndex to serve view/home.html by default when accessing the root
-# Also, ensure AllowOverride All is set for the DocumentRoot to process .htaccess files
-RUN sed -i '/<Directory \/var\/www\/html>/a \    AllowOverride All' /etc/apache2/apache2.conf && \
-    sed -i '/DocumentRoot \/var\/www\/html/a \    DirectoryIndex view/home.html index.php index.html' /etc/apache2/sites-available/000-default.conf
-
-
+# Create a custom virtual host configuration
+RUN echo '<VirtualHost *:80>\n\
+    ServerAdmin webmaster@localhost\n\
+    DocumentRoot /var/www/html\n\
+    DirectoryIndex view/home.html\n\
+    \n\
+    <Directory /var/www/html>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    \n\
+    # Explicit alias for each HTML file\n\
+    AliasMatch "^/([^/]+\.html)$" "/var/www/html/view/$1"\n\
+    \n\
+    # Alias for the public directory\n\
+    Alias /public /var/www/html/public\n\
+    <Directory /var/www/html/public>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    \n\
+    # Define custom error handling\n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Set permissions for Apache if necessary.
 # Apache runs as www-data. Session files and any upload/cache directories need to be writable.
