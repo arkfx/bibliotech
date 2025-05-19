@@ -17,7 +17,7 @@ export async function login(email, senha) {
 }
 
 export async function cadastrarUsuario(nome, email, senha) {
-  const response = await fetch(API_BASE + "/usuario", {
+  const response = await fetch(API_BASE + "/usuarios", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
