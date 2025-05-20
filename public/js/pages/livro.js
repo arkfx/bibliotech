@@ -127,9 +127,9 @@ async function carregarLivros() {
           <td>R$ ${livro.preco}</td>
           <td><img src="${livro.imagem_url}" alt="${livro.titulo}" style="height: 50px;" /></td>
           <td>
-            <button class="btn visualizar">Visualizar</button>
-            <button class="btn editar">Editar</button>
-            <button class="btn excluir">Excluir</button>
+            <button class="btn visualizar btn-loading">Visualizar</button>
+            <button class="btn editar btn-loading">Editar</button>
+            <button class="btn excluir btn-loading">Excluir</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -225,7 +225,6 @@ formLivro.addEventListener("submit", async (e) => {
   }
 
   btnSalvar.classList.add("loading");
-  btnSalvar.innerHTML = livroEmEdicaoId ? "Atualizando..." : "Salvando...";
 
   try {
     if (livroEmEdicaoId) {
@@ -259,7 +258,6 @@ formLivro.addEventListener("submit", async (e) => {
     console.error(error);
   } finally {
     btnSalvar.classList.remove("loading");
-    btnSalvar.innerHTML = livroEmEdicaoId ? "ATUALIZAR" : "SALVAR";
   }
 });
 
@@ -273,7 +271,7 @@ document.addEventListener("readystatechange", () => {
 btnConfirmarExclusao.addEventListener("click", async () => {
   if (!livroParaExcluirId) return;
 
-  btnConfirmarExclusao.classList.add("loading");
+  btnConfirmarExclusao.classList.add("loading"); 
 
   try {
     await deleteBook(livroParaExcluirId);

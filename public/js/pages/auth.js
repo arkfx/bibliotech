@@ -4,7 +4,6 @@ const loginForm = document.getElementById("login-form");
 const cadastroForm = document.getElementById("cadastro-form");
 const errorMessage = document.getElementById("error-message");
 const successMessage = document.getElementById("success-message");
-const loadingSpinner = document.querySelector(".loading-spinner");
 
 const urlParams = new URLSearchParams(window.location.search);
 const cadastroSuccess = urlParams.get("cadastro");
@@ -38,10 +37,9 @@ if (loginForm) {
     const senha = document.getElementById("senha").value.trim();
     const loginButton = document.getElementById("btn-login");
 
-    loginButton.disabled = true;
-    loadingSpinner.style.display = "inline-block";
-
     try {
+      loginButton.disabled = true;
+      loginButton.classList.add("loading");
       const response = await login(email, senha);
       if (response.status === "success") {
         window.location.href = "home.html";
@@ -61,7 +59,7 @@ if (loginForm) {
       errorMessage.style.display = "block";
     } finally {
       loginButton.disabled = false;
-      loadingSpinner.style.display = "none";
+      loginButton.classList.remove("loading");
     }
   });
 }
@@ -87,10 +85,9 @@ if (cadastroForm) {
       return;
     }
 
-    cadastroButton.disabled = true;
-    loadingSpinner.style.display = "inline-block";
-
     try {
+      cadastroButton.disabled = true;
+      cadastroButton.classList.add("loading");
       const response = await cadastrarUsuario(nome, email, senha);
       if (response.status === "success") {
         window.location.href = "login.html?cadastro=success";
@@ -109,7 +106,7 @@ if (cadastroForm) {
       errorMessage.style.display = "block";
     } finally {
       cadastroButton.disabled = false;
-      loadingSpinner.style.display = "none";
+      cadastroButton.classList.remove("loading");
     }
   });
 }
