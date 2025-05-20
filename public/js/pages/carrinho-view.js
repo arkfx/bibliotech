@@ -4,6 +4,7 @@ import {
   removerDoCarrinho,
   atualizarQuantidadeNoServidor,
 } from "../api/carrinho.js";
+import { finalizarPedido } from "../api/pedido.js";
 
 let userId = null;
 
@@ -178,4 +179,26 @@ export function atualizarResumoCarrinho() {
   subtotalEl.textContent = subtotal.toFixed(2).replace(".", ",");
   freteEl.textContent = textoFrete;
   totalEl.textContent = total.toFixed(2).replace(".", ",");
+}
+
+const btnFinalizar = document.getElementById("btnFinalizar");
+
+if (btnFinalizar) {
+  btnFinalizar.addEventListener("click", async () => {
+    try {
+      const res = await finalizarPedido(); // POST /pedido/finalizar
+
+      if (res.status !== "success") {
+        throw new Error(res.message || "Erro ao finalizar pedido.");
+      }
+
+      const pedidoId = res.pedido_id;
+      localStorage.setItem("pedidoIdFinalizado", pedidoId);
+
+      window.location.href = "finalizar.html";
+    } catch (error) {
+      alert("Erro ao finalizar pedido: " + error.message);
+      console.error("Erro ao finalizar pedido:", error);
+    }
+  });
 }
