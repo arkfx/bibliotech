@@ -58,14 +58,21 @@ label {
   color: #0a4b78;
 }
 
-input[type="text"],
-input[type="email"],
-select {
+/* Estilo exclusivo da tela de finalização */
+.checkout-page .input-finalizacao {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
+  background-color: #f9f9f9;
+  font-weight: 500;
+}
+
+.checkout-page .input-finalizacao:focus {
+  outline: none;
+  border-color: #005fa3;
+  box-shadow: 0 0 0 2px rgba(0, 119, 204, 0.2);
 }
 
 input:focus,

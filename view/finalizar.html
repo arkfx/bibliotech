@@ -11,22 +11,27 @@
   <body>
     <header class="header">
       <a href="home.html" class="logo heading-primary">BiblioTech</a>
+
       <div class="mobile-nav-toggle">
         <span class="hamburger">&#9776;</span>
       </div>
+
       <nav class="main-nav">
         <ul class="main-nav-list">
+          <!-- Select para filtrar por gêneros -->
           <li>
-            <select id="filter-genres" class="filter-genres genero">
+            <select id="filter-genres" class="filter-genres">
               <option value="">Todos os Gêneros</option>
             </select>
           </li>
+
           <li><input type="text" placeholder="Pesquisar Livro..." /></li>
           <li><button class="btn">Buscar</button></li>
           <li>
             <a href="generos.html" class="main-nav-link navegacao">Gêneros</a>
           </li>
           <li><a href="#" class="main-nav-link navegacao">Catálogo</a></li>
+
           <li>
             <a href="carrinho.html" id="icart" class="main-nav-link cart-icon">
               <svg
@@ -48,6 +53,49 @@
               </svg>
             </a>
           </li>
+
+          <!-- Botões visíveis apenas se o admin estiver logado -->
+          <li id="btnPainelAdmin" style="display: none">
+            <a href="admin.html" class="main-nav-link">Painel Admin.</a>
+          </li>
+
+          <div class="dropdown">
+            <button class="dropdown-toggle profile-button" id="btnPerfil">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="icon-profile"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </button>
+            <div class="dropdown-menu">
+              <a href="perfil.html" class="dropdown-item" id="btnPerfil"
+                >Meu Perfil</a
+              >
+              <a href="#" class="dropdown-item" id="btnLogout">Logout</a>
+            </div>
+          </div>
+
+          <!-- Botões visíveis quando o admin NÃO estiver logado -->
+          <li id="btnLogin">
+            <a href="login.html" class="main-nav-link nav-cta login">Login</a>
+          </li>
+          <li id="btnCadastro">
+            <a
+              href="cadastro-usuario.html"
+              class="main-nav-link nav-cta cadastro"
+              >Cadastro</a
+            >
+          </li>
         </ul>
       </nav>
     </header>
@@ -61,25 +109,54 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="endereco">Endereço</label>
-                <input type="text" id="endereco" name="endereco" required />
+                <input
+                  type="text"
+                  id="endereco"
+                  name="endereco"
+                  class="input-finalizacao"
+                  required
+                />
               </div>
               <div class="form-group">
                 <label for="numero">Número</label>
-                <input type="text" id="numero" name="numero" required />
+                <input
+                  type="text"
+                  id="numero"
+                  name="numero"
+                  class="input-finalizacao"
+                  required
+                />
               </div>
             </div>
             <div class="form-group">
               <label for="complemento">Complemento</label>
-              <input type="text" id="complemento" name="complemento" />
+              <input
+                type="text"
+                id="complemento"
+                name="complemento"
+                class="input-finalizacao"
+              />
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label for="bairro">Bairro</label>
-                <input type="text" id="bairro" name="bairro" required />
+                <input
+                  type="text"
+                  id="bairro"
+                  name="bairro"
+                  class="input-finalizacao"
+                  required
+                />
               </div>
               <div class="form-group">
                 <label for="cidade">Cidade</label>
-                <input type="text" id="cidade" name="cidade" required />
+                <input
+                  type="text"
+                  id="cidade"
+                  name="cidade"
+                  class="input-finalizacao"
+                  required
+                />
               </div>
               <div class="form-group">
                 <label for="estado">Estado</label>
@@ -88,6 +165,7 @@
                   id="estado"
                   name="estado"
                   maxlength="2"
+                  class="input-finalizacao"
                   required
                 />
               </div>
@@ -120,27 +198,50 @@
             <div id="cartao-form" class="payment-form active">
               <div class="form-group">
                 <label for="card-number">Número do Cartão</label>
-                <input type="text" id="card-number" maxlength="19" required />
+                <input
+                  type="text"
+                  id="card-number"
+                  maxlength="19"
+                  class="input-finalizacao"
+                  required
+                />
               </div>
               <div class="form-row">
                 <div class="form-group">
                   <label for="card-name">Nome no Cartão</label>
-                  <input type="text" id="card-name" required />
+                  <input
+                    type="text"
+                    id="card-name"
+                    class="input-finalizacao"
+                    required
+                  />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
                   <label for="card-expiry">Validade (MM/AA)</label>
-                  <input type="text" id="card-expiry" maxlength="5" required />
+                  <input
+                    type="text"
+                    id="card-expiry"
+                    maxlength="5"
+                    class="input-finalizacao"
+                    required
+                  />
                 </div>
                 <div class="form-group">
                   <label for="card-cvv">CVV</label>
-                  <input type="text" id="card-cvv" maxlength="3" required />
+                  <input
+                    type="text"
+                    id="card-cvv"
+                    maxlength="3"
+                    class="input-finalizacao"
+                    required
+                  />
                 </div>
               </div>
               <div class="form-group">
                 <label for="parcelas">Parcelas</label>
-                <select id="parcelas"></select>
+                <select id="parcelas" class="input-finalizacao"></select>
               </div>
             </div>
 
@@ -186,6 +287,7 @@
 
     <footer>© 2025 - Todos os direitos reservados.</footer>
 
+    <script type="module" src="../public/js/pages/search-books.js"></script>
     <script type="module" src="../public/js/status.js"></script>
     <script type="module" src="../public/js/profile-menu.js"></script>
     <script type="module" src="../public/js/pages/pedido.js"></script>
