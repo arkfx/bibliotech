@@ -1,26 +1,23 @@
-export function setupMenuToggle() {
+export function setupMenuToggle(callback) {
     const menuItems = document.querySelectorAll(".menu-item");
-    const sections = document.querySelectorAll(".profile-content");
-  
-    if (!menuItems.length || !sections.length) return;
-  
+    
     menuItems.forEach(item => {
-      item.addEventListener("click", function() {
-        // Remove classe 'active' de todos os itens
-        menuItems.forEach(i => i.classList.remove("active"));
+      item.addEventListener("click", async function() {
+        const sectionId = this.dataset.section;
         
-        // Adiciona classe 'active' apenas no item clicado
+        // Ativação visual do menu
+        menuItems.forEach(i => i.classList.remove("active"));
         this.classList.add("active");
         
-        sections.forEach(section => {
-          section.classList.add("hidden");
+        // Controle de seções
+        document.querySelectorAll(".profile-content").forEach(s => {
+          s.classList.add("hidden");
         });
+        document.getElementById(`section-${sectionId}`).classList.remove("hidden");
         
-        // Mostra apenas a seção correspondente
-        const sectionId = `section-${this.dataset.section}`;
-        const activeSection = document.getElementById(sectionId);
-        if (activeSection) {
-          activeSection.classList.remove("hidden");
+        // Callback para inicialização sob demanda
+        if (typeof callback === 'function') {
+          await callback(sectionId);
         }
       });
     });
