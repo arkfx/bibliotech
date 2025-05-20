@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu Perfil - BiblioTech</title>
+    <link rel="icon" href="../public/images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="../public/css/main.css" />
+    <link rel="stylesheet" href="../public/css/page/perfil.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <a href="home.html" class="logo heading-primary">BiblioTech</a>
+
+      <div class="mobile-nav-toggle">
+        <span class="hamburger">&#9776;</span>
+      </div>
+
+      <nav class="main-nav">
+        <ul class="main-nav-list">
+          <!-- Select para filtrar por gêneros -->
+          <li>
+            <select id="filter-genres" class="filter-genres">
+              <option value="">Todos os Gêneros</option>
+            </select>
+          </li>
+
+          <li><input type="text" placeholder="Pesquisar Livro..." /></li>
+          <li><button class="btn">Buscar</button></li>
+          <li>
+            <a href="generos.html" class="main-nav-link navegacao">Gêneros</a>
+          </li>
+          <li><a href="#" class="main-nav-link navegacao">Catálogo</a></li>
+
+          <li>
+            <a href="carrinho.html" id="icart" class="main-nav-link cart-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path
+                  d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                ></path>
+              </svg>
+            </a>
+          </li>
+
+          <!-- Botão de perfil com dropdown -->
+          <div class="dropdown">
+            <button class="dropdown-toggle profile-button" id="btnPerfil">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="icon-profile"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </button>
+            <div class="dropdown-menu">
+              <a href="perfil.html" class="dropdown-item" id="btnPerfil">Meu Perfil</a>
+              <a href="#" class="dropdown-item" id="btnLogout">Logout</a>
+            </div>
+          </div>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+      <div class="perfil-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="user-info">
+            <div class="user-avatar">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <h3 class="user-name">Olá, Usuario123</h3>
+          </div>
+          
+          <nav class="sidebar-nav">
+            <h3 class="sidebar-title">Meu Perfil</h3>
+            <ul class="sidebar-menu">
+              <li class="menu-item active" data-section="dados-pessoais">
+                Dados Pessoais
+              </li>
+              <li class="menu-item" data-section="pedidos">
+                Meus Pedidos
+              </li>
+              <li class="menu-item" data-section="enderecos">
+                Meu Endereço
+              </li>
+              <li class="menu-item" data-section="favoritos">
+                Lista de Desejos
+              </li>
+              <li class="menu-item" data-section="seguranca">
+                Segurança
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        <!-- Seção de Dados Pessoais -->
+        <div class="profile-content" id="section-dados-pessoais">
+          <h2 class="heading-admin">Dados Pessoais</h2>
+          <div class="profile-card">
+            <form class="profile-form">
+              <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <div class="input-with-icon">
+                  <i class="icon user-icon">👤</i>
+                  <input type="text" id="nome" name="nome" value="Nome do Usuário" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <div class="input-with-icon">
+                    <i class="icon email-icon">✉️</i>
+                    <input type="email" id="email" name="email" value="usuario@email.com" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="telefone">Telefone</label>
+                  <div class="input-with-icon">
+                    <i class="icon phone-icon">📱</i>
+                    <input type="tel" id="telefone" name="telefone" value="(00) 00000-0000" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="data_nascimento">Data de Nascimento</label>
+                  <div class="input-with-icon">
+                    <i class="icon calendar-icon">🗓️</i>
+                    <input type="date" id="data_nascimento" name="data_nascimento" value="1990-01-01" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="cpf">CPF</label>
+                  <div class="input-with-icon">
+                    <i class="icon document-icon">📄</i>
+                    <input type="text" id="cpf" name="cpf" value="000.000.000-00" />
+                  </div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Seção de Pedidos -->
+        <div class="profile-content hidden" id="section-pedidos">
+          <h2 class="heading-admin">Meus Pedidos</h2>
+          <div class="profile-card">
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+              <h3>Nenhum pedido realizado</h3>
+              <p>Seus pedidos aparecerão aqui quando você fizer compras em nossa loja.</p>
+              <a href="home.html" class="btn">Explorar Livros</a>
+            </div>
+
+            <!-- Modelo de pedido (visível quando houver pedidos) -->
+            <div class="order-list hidden">
+              <div class="order-item">
+                <div class="order-header">
+                  <div class="order-info">
+                    <span class="order-id">Pedido #12345</span>
+                    <span class="order-date">19/05/2025</span>
+                  </div>
+                  <div class="order-status approved">Entregue</div>
+                </div>
+                <div class="order-books">
+                  <div class="order-book">
+                    <img src="../public/images/livros/livro-exemplo.jpg" alt="Capa do Livro" class="order-book-cover">
+                    <div class="order-book-info">
+                      <h4>O Nome do Livro</h4>
+                      <p>Autor do Livro</p>
+                      <div class="order-book-price">R$ 39,90</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="order-footer">
+                  <div class="order-total">Total: <strong>R$ 39,90</strong></div>
+                  <button class="btn btn-small">Ver Detalhes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de Endereços -->
+        <div class="profile-content hidden" id="section-enderecos">
+          <h2 class="heading-admin">Meus Endereços</h2>
+          <div class="profile-card">
+            <div class="address-list">
+              <!-- Endereço Exemplo -->
+              <div class="address-item">
+                <div class="address-header">
+                  <h3>Endereço Principal</h3>
+                  <div class="address-actions">
+                    <button class="btn-icon edit-address">✏️</button>
+                    <button class="btn-icon delete-address">🗑️</button>
+                  </div>
+                </div>
+                <div class="address-details">
+                  <p><strong>Nome:</strong> Casa</p>
+                  <p><strong>CEP:</strong> 00000-000</p>
+                  <p><strong>Endereço:</strong> Rua Exemplo, 123</p>
+                  <p><strong>Complemento:</strong> Apto 101</p>
+                  <p><strong>Cidade:</strong> São Paulo - SP</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de Lista de Desejos -->
+        <div class="profile-content hidden" id="section-favoritos">
+          <h2 class="heading-admin">Lista de Desejos</h2>
+          <div class="profile-card">
+            <div class="wishlist-grid">
+              <!-- Exemplo de item na lista de desejos -->
+              <div class="wishlist-item">
+                <!-- livros desejados estarao aqui -->
+              </div>
+              
+              <!-- Estado vazio quando não há itens -->
+              <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <h3>Sua lista de desejos está vazia</h3>
+                <p>Adicione livros à sua lista para encontrá-los facilmente mais tarde.</p>
+                <a href="home.html" class="btn">Explorar Livros</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de Segurança -->
+        <div class="profile-content hidden" id="section-seguranca">
+          <h2 class="heading-admin">Segurança</h2>
+          <div class="profile-card">
+            <form class="security-form">
+              <div class="form-group">
+                <label for="senha_atual">Senha Atual</label>
+                <div class="input-with-icon">
+                  <i class="icon lock-icon">🔒</i>
+                  <input type="password" id="senha_atual" name="senha_atual" placeholder="Digite sua senha atual" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="nova_senha">Nova Senha</label>
+                <div class="input-with-icon">
+                  <i class="icon lock-icon">🔒</i>
+                  <input type="password" id="nova_senha" name="nova_senha" placeholder="Digite sua nova senha" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="confirmar_senha">Confirmar Nova Senha</label>
+                <div class="input-with-icon">
+                  <i class="icon lock-icon">🔒</i>
+                  <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Confirme sua nova senha" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Alterar Senha</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer>© 2025 - Todos os direitos reservados.</footer>
+
+    <!-- Scripts -->
+    <script src="../public/js/navigation.js"></script>
+    <script type="module" src="../public/js/status.js"></script>
+    <script type="module" src="../public/js/profile-menu.js"></script>
+    <script type="module" src="../public/js/pages/search-books.js"></script>
+    <script type="module" src="../public/js/pages/perfil.js"></script>
+  </body>
+</html>
