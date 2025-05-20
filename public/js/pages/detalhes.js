@@ -64,18 +64,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="preco">R$ ${livro.preco}</div>
 
         <div class="acoes-livro">
-          <button class="btn-comprar" data-id="${livro.id}" data-titulo="${
-      livro.titulo
-    }">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="9" cy="21" r="1"></circle>
-              <circle cx="20" cy="21" r="1"></circle>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-            </svg>
-            Comprar
-          </button>
+          <button class="btn btn-comprar btn-loading" data-id="${livro.id}" data-titulo="${livro.titulo}">
+  <span class="btn-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+    </svg>
+  </span>
+  Comprar
+</button>
           <button class="btn-desejo" data-id="${livro.id}">
             💙 Salvar na Lista de Desejos
           </button>
@@ -109,64 +109,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
 
     document.dispatchEvent(new Event("livrosRenderizados"));
-
-    // Botão COMPRAR (corrigido aqui!)
-    const btnComprar = document.querySelector(".btn-comprar");
-
-    if (btnComprar) {
-      btnComprar.addEventListener("click", async () => {
-        const userId = await obterUserId();
-
-        if (!userId) {
-          mostrarModalPadrao(
-            "🔒",
-            "Login necessário",
-            "Você precisa estar logado para comprar.",
-            "login.html",
-            "Ir para o Login"
-          );
-          return;
-        }
-
-        btnComprar.disabled = true;
-        const textoOriginal = btnComprar.innerText;
-        btnComprar.innerHTML = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="9" cy="21" r="1"></circle>
-    <circle cx="20" cy="21" r="1"></circle>
-    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-  </svg>
-  ${textoOriginal} <span class="spinner"></span>`;
-
-        btnComprar.classList.add("btn-loading");
-
-        try {
-          const { addBookToCart } = await import("../api/carrinho.js");
-          const res = await addBookToCart(livro.id, 1);
-
-          if (res.status === "success") {
-            mostrarModalPadrao(
-              "✅🛒",
-              "Sucesso",
-              `O livro "${livro.titulo}" foi adicionado ao carrinho.`,
-              "carrinho.html",
-              "Ir para o carrinho"
-            );
-          } else {
-            throw new Error(res.message || "Erro ao adicionar ao carrinho.");
-          }
-        } catch (err) {
-          console.error("Erro ao adicionar ao carrinho:", err);
-          mostrarModalPadrao("❌", "Erro", "Erro ao adicionar ao carrinho.");
-        } finally {
-          btnComprar.disabled = false;
-          btnComprar.classList.remove("btn-loading");
-          btnComprar.innerHTML = textoOriginal;
-        }
-      });
-    }
 
     // Botão Lista de Desejos
     const btnDesejo = document.querySelector(".btn-desejo");

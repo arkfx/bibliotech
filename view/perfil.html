@@ -183,7 +183,7 @@
                 </div>
               </div>
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <button type="submit" class="btn btn-primary btn-loading">Salvar Alterações</button>
               </div>
             </form>
           </div>
@@ -323,11 +323,22 @@
     <!-- Rodapé -->
     <footer>© 2025 - Todos os direitos reservados.</footer>
 
+    <div id="cadastroModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-icon"></div>
+        <h2 class="modal-title" id="modal-title"></h2>
+        <p class="modal-message" id="modal-message">
+        </p>
+        <button class="modal-close" id="modal-close"></button>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="../public/js/navigation.js"></script>
     <script type="module" src="../public/js/status.js"></script>
     <script type="module" src="../public/js/profile-menu.js"></script>
     <script type="module" src="../public/js/pages/search-books.js"></script>
     <script type="module" src="../public/js/pages/perfil.js"></script>
+    <script type="module" src="../public/js/pages/search-books.js"></script>
   </body>
 </html>

@@ -137,6 +137,7 @@
 }
 
 .input-with-icon .icon {
+  font-style: normal;
   padding: 1.2rem;
   font-size: 1.6rem;
   background-color: #f5f5f5;

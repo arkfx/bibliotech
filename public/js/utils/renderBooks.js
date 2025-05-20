@@ -20,7 +20,7 @@ export function renderBooks(container, livros) {
           </h3>
           <p>${livro.autor}</p>
           <strong>R$ ${livro.preco}</strong>   
-          <button class="btn-comprar" data-id="${livro.id}" data-titulo="${livro.titulo}">
+          <button class="btn-comprar btn-loading" data-id="${livro.id}" data-titulo="${livro.titulo}">
             <svg class="icon-cart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <circle cx="9" cy="21" r="1"></circle>
               <circle cx="20" cy="21" r="1"></circle>

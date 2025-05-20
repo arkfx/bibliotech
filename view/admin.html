@@ -269,7 +269,7 @@
 
           <div class="form-actions">
             <button type="button" class="btn limpar">LIMPAR CAMPOS</button>
-            <button type="submit" class="btn salvar" id="btnSalvarLivro">
+            <button type="submit" class="btn salvar btn-loading" id="btnSalvarLivro">
               SALVAR
             </button>
           </div>
@@ -283,21 +283,6 @@
       </div>
     </div>
 
-    <div id="modalSpinner" class="hidden">
-      <div class="modal-loading-content">
-        <div class="spinner"></div>
-        <p>Salvando dados...</p>
-      </div>
-    </div>
-    <div id="modalLoadingBarra" class="modal hidden">
-      <div class="modal-content" style="max-width: 300px; text-align: center">
-        <p>Processando...</p>
-        <div class="loading-bar">
-          <div class="bar"></div>
-        </div>
-      </div>
-    </div>
-
     <div id="modalConfirmarExclusao" class="modal hidden">
       <div class="modal-content">
         <h2>Confirmar Exclusão</h2>
@@ -306,7 +291,7 @@
           class="form-actions"
           style="justify-content: center; margin-top: 2rem"
         >
-          <button id="btnConfirmarExclusao" class="btn excluir">
+          <button id="btnConfirmarExclusao" class="btn excluir btn-loading">
             Sim, excluir
           </button>
           <button id="btnCancelarExclusao" class="btn limpar">Cancelar</button>
@@ -344,7 +329,7 @@
 
           <div class="form-buttons">
             <button type="button" class="btn-cancel">Cancelar</button>
-            <button type="submit" class="btn-save">Salvar</button>
+            <button type="submit" class="btn-save btn-loading">Salvar</button>
           </div>
         </form>
       </div>
