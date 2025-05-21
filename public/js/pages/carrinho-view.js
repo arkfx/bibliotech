@@ -185,6 +185,8 @@ const btnFinalizar = document.getElementById("btnFinalizar");
 
 if (btnFinalizar) {
   btnFinalizar.addEventListener("click", async () => {
+    btnFinalizar.disabled = true; // Desabilita o botão para evitar múltiplos cliques
+    btnFinalizar.classList.add("loading");
     try {
       const res = await finalizarPedido(); // POST /pedido/finalizar
 
@@ -199,6 +201,9 @@ if (btnFinalizar) {
     } catch (error) {
       alert("Erro ao finalizar pedido: " + error.message);
       console.error("Erro ao finalizar pedido:", error);
+    } finally {
+      btnFinalizar.disabled = false; // Reabilita o botão
+      btnFinalizar.classList.remove("loading"); // Remove a classe de loading
     }
   });
 }
