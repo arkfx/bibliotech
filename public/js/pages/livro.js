@@ -27,8 +27,7 @@ const modalSucessoExclusao = document.getElementById("modalSucessoExclusao");
 let livroEmEdicaoId = null;
 let livroParaExcluirId = null;
 
-// Carregar as editoras quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   await carregarLivros();
   await carregarEditoras();
 });
@@ -90,18 +89,18 @@ btnLimpar.addEventListener("click", limparFormulario);
 async function carregarEditoras() {
   try {
     const response = await getAllEditoras();
-    
+
     if (response.success) {
-      const editoraSelect = document.getElementById('editora');
-      
+      const editoraSelect = document.getElementById("editora");
+
       // Limpar opções existentes (exceto a primeira)
       const firstOption = editoraSelect.options[0];
-      editoraSelect.innerHTML = '';
+      editoraSelect.innerHTML = "";
       editoraSelect.appendChild(firstOption);
-      
+
       // Adicionar as editoras como opções
-      response.data.forEach(editora => {
-        const option = document.createElement('option');
+      response.data.forEach((editora) => {
+        const option = document.createElement("option");
         option.value = editora.id;
         option.textContent = editora.nome;
         editoraSelect.appendChild(option);
@@ -128,9 +127,9 @@ async function carregarLivros() {
           <td>R$ ${livro.preco}</td>
           <td><img src="${livro.imagem_url}" alt="${livro.titulo}" style="height: 50px;" /></td>
           <td>
-            <button class="btn visualizar">Visualizar</button>
-            <button class="btn editar">Editar</button>
-            <button class="btn excluir">Excluir</button>
+            <button class="btn visualizar btn-loading">Visualizar</button>
+            <button class="btn editar btn-loading">Editar</button>
+            <button class="btn excluir btn-loading">Excluir</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -196,7 +195,7 @@ function adicionarEventosTabela() {
     button.addEventListener("click", (e) => {
       const row = e.target.closest("tr");
       const bookId = row.querySelector("td").textContent.trim();
-      window.location.href = `detalhes-livro.html?id=${bookId}`;
+      window.location.href = `/bibliotech/view/detalhes-livro.html?id=${bookId}`;
     });
   });
 }
@@ -212,28 +211,43 @@ formLivro.addEventListener("submit", async (e) => {
   const descricao = document.getElementById("descricao").value.trim();
   const imagem_url = document.getElementById("imagem_url").value.trim();
 
-  if (!titulo || !autor || !genero_id || !preco || !editora_id || !descricao || !imagem_url) {
+  if (
+    !titulo ||
+    !autor ||
+    !genero_id ||
+    !preco ||
+    !editora_id ||
+    !descricao ||
+    !imagem_url
+  ) {
     alert("Preencha todos os campos obrigatórios!");
     return;
   }
 
   btnSalvar.classList.add("loading");
-  btnSalvar.innerHTML = livroEmEdicaoId ? "Atualizando..." : "Salvando...";
 
   try {
     if (livroEmEdicaoId) {
-      await updateBook(
-        livroEmEdicaoId,
+      await updateBook({
+        id: livroEmEdicaoId,
         titulo,
         autor,
-        genero_id,
-        preco,
-        editora_id,
+        genero_id: parseInt(genero_id),
+        preco: parseFloat(preco),
+        editora_id: parseInt(editora_id),
         descricao,
-        imagem_url
-      );
+        imagem_url,
+      });
     } else {
-      await createBook(titulo, autor, genero_id, preco, editora_id, descricao, imagem_url);
+      await createBook({
+        titulo,
+        autor,
+        genero_id: parseInt(genero_id),
+        preco: parseFloat(preco),
+        editora_id: parseInt(editora_id),
+        descricao,
+        imagem_url,
+      });
     }
 
     await carregarLivros();
@@ -244,7 +258,6 @@ formLivro.addEventListener("submit", async (e) => {
     console.error(error);
   } finally {
     btnSalvar.classList.remove("loading");
-    btnSalvar.innerHTML = livroEmEdicaoId ? "ATUALIZAR" : "SALVAR";
   }
 });
 
@@ -258,7 +271,7 @@ document.addEventListener("readystatechange", () => {
 btnConfirmarExclusao.addEventListener("click", async () => {
   if (!livroParaExcluirId) return;
 
-  btnConfirmarExclusao.classList.add("loading");
+  btnConfirmarExclusao.classList.add("loading"); 
 
   try {
     await deleteBook(livroParaExcluirId);

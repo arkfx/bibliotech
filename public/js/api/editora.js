@@ -1,11 +1,7 @@
 import { API_BASE } from "../config.js";
 
-/**
- * Fetch all publishers
- * @returns {Promise} Promise with publishers data
- */
 export async function getAllEditoras() {
-  const response = await fetch(API_BASE + "/editora.php", {
+  const response = await fetch(API_BASE + "/editoras", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -19,13 +15,8 @@ export async function getAllEditoras() {
   return response.json();
 }
 
-/**
- * Get a publisher by ID
- * @param {number} id - Publisher ID
- * @returns {Promise} Promise with publisher data
- */
 export async function getEditoraById(id) {
-  const response = await fetch(API_BASE + `/editora.php?id=${id}`, {
+  const response = await fetch(API_BASE + `/editoras/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -39,13 +30,8 @@ export async function getEditoraById(id) {
   return response.json();
 }
 
-/**
- * Create a new publisher
- * @param {string} nome - Publisher name
- * @returns {Promise} Promise with creation result
- */
 export async function createEditora(nome) {
-  const response = await fetch(API_BASE + "/editora.php", {
+  const response = await fetch(API_BASE + "/editoras", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -60,14 +46,8 @@ export async function createEditora(nome) {
   return response.json();
 }
 
-/**
- * Update a publisher
- * @param {number} id - Publisher ID
- * @param {string} nome - New publisher name
- * @returns {Promise} Promise with update result
- */
 export async function updateEditora(id, nome) {
-  const response = await fetch(API_BASE + "/editora.php", {
+  const response = await fetch(API_BASE + "/editoras", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -82,13 +62,8 @@ export async function updateEditora(id, nome) {
   return response.json();
 }
 
-/**
- * Delete a publisher
- * @param {number} id - Publisher ID to delete
- * @returns {Promise} Promise with deletion result
- */
 export async function deleteEditora(id) {
-  const response = await fetch(API_BASE + "/editora.php", {
+  const response = await fetch(API_BASE + `/editoras/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -110,4 +85,4 @@ export async function deleteEditora(id) {
   }
 
   return response.json();
-} 
+}

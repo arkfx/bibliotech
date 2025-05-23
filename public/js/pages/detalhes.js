@@ -3,16 +3,16 @@ import { renderSkeletonDetalhes } from "../utils/renderBooks.js";
 import {
   adicionarLivroListaDesejos,
   removerLivroListaDesejos,
-  verificarLivroNaListaDesejos
+  verificarLivroNaListaDesejos,
 } from "../api/lista-desejos.js";
 import { obterUserId } from "../utils/auth-utils.js";
 import { mostrarModalPadrao } from "../utils/modal-utils.js";
 import "./carrinho.js";
 
 function selecionarOpcao(elemento) {
-  document.querySelectorAll(".opcao").forEach((btn) =>
-    btn.classList.remove("ativo")
-  );
+  document
+    .querySelectorAll(".opcao")
+    .forEach((btn) => btn.classList.remove("ativo"));
   elemento.classList.add("ativo");
 }
 
@@ -64,16 +64,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="preco">R$ ${livro.preco}</div>
 
         <div class="acoes-livro">
-          <button class="btn-comprar" data-titulo="${livro.titulo}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-              viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="9" cy="21" r="1"></circle>
-              <circle cx="20" cy="21" r="1"></circle>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-            </svg>
-            Comprar
-          </button>
+          <button class="btn btn-comprar btn-loading" data-id="${livro.id}" data-titulo="${livro.titulo}">
+  <span class="btn-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+    </svg>
+  </span>
+  Comprar
+</button>
           <button class="btn-desejo" data-id="${livro.id}">
             💙 Salvar na Lista de Desejos
           </button>
@@ -91,11 +93,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="secao-conteudo">
             <div class="info-item">
               <span class="info-label">Editora:</span>
-              <span class="editora">${livro.editora_nome || "Editora não informada."}</span>
+              <span class="editora">${
+                livro.editora_nome || "Editora não informada."
+              }</span>
             </div>
             <div class="info-item">
               <span class="info-label">Gênero:</span>
-              <span class="genero-nome">${livro.genero_nome || "Gênero não informado."}</span>
+              <span class="genero-nome">${
+                livro.genero_nome || "Gênero não informado."
+              }</span>
             </div>
           </div>
         </div>
@@ -104,7 +110,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.dispatchEvent(new Event("livrosRenderizados"));
 
+    // Botão Lista de Desejos
     const btnDesejo = document.querySelector(".btn-desejo");
+
     if (!btnDesejo) return;
 
     const usuarioId = await obterUserId();
@@ -139,7 +147,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (res.status === "success") {
           estaNaLista = false;
           atualizarTexto();
-          mostrarModalPadrao("🗑️", "Removido", "Livro removido da lista de desejos.");
+          mostrarModalPadrao(
+            "🗑️",
+            "Removido",
+            "Livro removido da lista de desejos."
+          );
         } else {
           mostrarModalPadrao("❌", "Erro", "Não foi possível remover o livro.");
         }
@@ -148,13 +160,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (res.status === "success") {
           estaNaLista = true;
           atualizarTexto();
-          mostrarModalPadrao("💙", "Adicionado", "Livro adicionado à lista de desejos!");
+          mostrarModalPadrao(
+            "💙",
+            "Adicionado",
+            "Livro adicionado à lista de desejos!"
+          );
         } else {
-          mostrarModalPadrao("❌", "Erro", res.message || "Erro ao adicionar o livro.");
+          mostrarModalPadrao(
+            "❌",
+            "Erro",
+            res.message || "Erro ao adicionar o livro."
+          );
         }
       }
     });
-
   } catch (error) {
     console.error("Erro ao buscar os detalhes do livro:", error);
     container.innerHTML =

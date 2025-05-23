@@ -13,6 +13,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const totalEl = document.getElementById("total");
   const freteEl = document.getElementById("frete");
 
+  if (!container || !subtotalEl || !totalEl || !freteEl) {
+    console.warn("Elementos do carrinho não encontrados. Script encerrado.");
+    return;
+  }
+
   userId = await obterUserId();
   console.log("User ID:", userId);
 
@@ -157,7 +162,6 @@ export function atualizarResumoCarrinho() {
     subtotal += preco * quantidade;
   });
 
-  // Cálculo do frete
   if (subtotal === 0) {
     textoFrete = "R$ 0,00";
     frete = 0;
@@ -171,7 +175,6 @@ export function atualizarResumoCarrinho() {
 
   const total = subtotal + frete;
 
-  // Atualiza o DOM
   subtotalEl.textContent = subtotal.toFixed(2).replace(".", ",");
   freteEl.textContent = textoFrete;
   totalEl.textContent = total.toFixed(2).replace(".", ",");

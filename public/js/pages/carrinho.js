@@ -1,33 +1,8 @@
 import { addBookToCart } from "../api/carrinho.js";
 import { obterUserId } from "../utils/auth-utils.js";
+import { mostrarModalPadrao } from "../utils/modal-utils.js";
 import { removerDoCarrinho } from "../api/carrinho.js";
 import { atualizarResumoCarrinho } from "./carrinho-view.js";
-
-function abrirModal(emoji, titulo, mensagem) {
-  const modal = document.getElementById("cadastroModal");
-  const modalTitle = document.getElementById("modal-title");
-  const modalMessage = document.getElementById("modal-message");
-  const modalIcon = modal.querySelector(".modal-icon");
-  const modalClose = modal.querySelector("#modal-close");
-
-  modalIcon.textContent = emoji;
-  modalTitle.textContent = titulo;
-  modalMessage.textContent = mensagem;
-  modal.style.display = "flex";
-
-  // Configura o botão com base na mensagem
-  if (mensagem === "Você precisa estar logado para comprar.") {
-    modalClose.textContent = "Ir para Login";
-    modalClose.onclick = () => {
-      window.location.href = "login.html";
-    };
-  } else {
-    modalClose.textContent = "Ir para o Carrinho";
-    modalClose.onclick = () => {
-      window.location.href = "carrinho.html";
-    };
-  }
-}
 
 async function prepararEventosCarrinho() {
   const userId = await obterUserId();
@@ -39,39 +14,41 @@ async function prepararEventosCarrinho() {
     const handler = async (e) => {
       const btn = e.currentTarget;
       const titulo = btn.dataset.titulo;
+      const livroId = parseInt(btn.dataset.id);
 
       if (!userId) {
-        abrirModal(
+        mostrarModalPadrao(
           "🔒",
           "Login necessário",
-          "Você precisa estar logado para comprar."
+          "Você precisa estar logado para comprar.",
+          "login.html",
+          "Fazer login"
         );
         return;
       }
 
       btn.disabled = true;
-      const textoOriginal = btn.innerHTML;
-      btn.classList.add("btn-loading");
-      btn.innerHTML = `${textoOriginal} <span class="loading-spinner"></span>`;
-
+      btn.classList.add("loading");
       try {
-        await addBookToCart(titulo, userId, 1);
-        abrirModal(
+        await addBookToCart(livroId, 1); // ✅ Removido userId
+        //modal 
+        mostrarModalPadrao(
           "✅🛒",
           "Sucesso",
-          `O livro "${titulo}" foi adicionado ao carrinho.`
+          `O livro "${titulo}" foi adicionado ao carrinho.`,
+          "carrinho.html",
+          "Ir para o carrinho"
         );
       } catch (err) {
         console.error("Erro ao adicionar ao carrinho:", err);
-        abrirModal(
+        mostrarModalPadrao(
           "❌",
           "Erro",
-          `Não foi possível adicionar o livro "${titulo}".`
+          "Erro ao adicionar ao carrinho."
         );
       } finally {
         btn.disabled = false;
-        btn.classList.remove("btn-loading");
-        btn.innerHTML = textoOriginal;
+        btn.classList.remove("loading");
       }
     };
 
