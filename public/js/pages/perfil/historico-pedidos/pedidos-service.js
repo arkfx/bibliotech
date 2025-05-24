@@ -130,52 +130,18 @@ function preencherTabela(pedidos) {
         
         console.log("Itens do pedido:", itens);
         
-        // Calcular subtotal, frete e total com segurança
-        let subtotal = 0;
-        try {
-          if (typeof pedido.subtotal === 'number') {
-            subtotal = pedido.subtotal;
-          } else if (itens.length > 0) {
-            subtotal = itens.reduce((acc, item) => {
-              const preco = parseFloat(item.preco_unitario || item.preco || 0);
-              const quantidade = parseInt(item.quantidade || 1);
-              return acc + (preco * quantidade);
-            }, 0);
-          }
-        } catch (e) {
-          console.error("Erro ao calcular subtotal:", e);
-        }
-        
-        let frete = 0;
-        try {
-          if (subtotal > 0 && subtotal <= 100) {
-            frete = 24.99; // Frete de R$ 24,99 para compras até R$ 100
-          }
-          // Se subtotal > 100, frete permanece 0 (grátis)
-        } catch (e) {
-          console.error("Erro ao calcular frete:", e);
-        }
-        
+        let frete = 24.99;
+
         let total = 0;
-        try {
-          if (typeof pedido.total === 'number') {
-            // Se o pedido já tem um total definido, use-o
-            total = pedido.total;
-          } else {
-            // Senão, calcule o total somando o subtotal + frete
-            total = subtotal + frete;
-            
-            // Verificação adicional para garantir que o frete de 24.99 seja adicionado
-            if (subtotal > 0 && subtotal <= 100) {
-              // Garanta que o frete seja exatamente 24.99 para pedidos até R$100
-              total = subtotal + 24.99;
-            }
-          }
-          
-          if (isNaN(total)) total = 0;
-        } catch (e) {
-          console.error("Erro ao calcular total:", e);
+        if (typeof pedido.total === 'number') {
+          total = pedido.total;
+        } else {
+          total = 0;
         }
+
+        // Subtotal é sempre o total menos o frete
+        let subtotal = total - frete;
+        if (subtotal < 0) subtotal = 0;
         
         // Código de rastreio
         const rastreio = pedido.rastreio || pedido.codigo_rastreio || "";
@@ -268,7 +234,6 @@ function preencherTabela(pedidos) {
                 </div>
               </div>
             ` : ""}
-            <button class="btn btn-small ver-detalhes" data-pedido-id="${pedidoId}">Ver Detalhes</button>
           </div>
         </div>
       `}).join("")}
