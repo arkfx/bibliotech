@@ -35,16 +35,6 @@ class PedidoController extends BaseController
         }
 
         $usuarioId = $_SESSION['userId'];
-
-        $pendente = $this->pedidoRepository->buscarPedidoPendenteDoUsuario($usuarioId);
-
-        if ($pendente) {
-            return $this->response(400, [
-                'status' => 'error',
-                'message' => 'Você já tem um pedido pendente. Aguarde o processamento antes de fazer outro.'
-            ]);
-        }
-
         $carrinho = $this->carrinhoRepository->listarPorUsuario($usuarioId);
 
         if (empty($carrinho)) {
@@ -54,15 +44,12 @@ class PedidoController extends BaseController
             ]);
         }
 
-        $total = 0;
+        $total = 24.99; // Valor fixo de frete
         $itensPedido = [];
 
         foreach ($carrinho as $item) {
-            // Verifica se está acessando como array
             $livroId = is_array($item) ? $item['livro_id'] : $item->livro_id;
             $quantidade = is_array($item) ? $item['quantidade'] : $item->quantidade;
-
-            // Busca o livro no repositório
             $livro = $this->livroRepository->findById($livroId);
 
             if (!$livro) {
@@ -71,10 +58,8 @@ class PedidoController extends BaseController
                     'message' => "Livro com ID $livroId não encontrado."
                 ]);
             }
-
             $subtotal = $livro->preco * $quantidade;
             $total += $subtotal;
-
             $itensPedido[] = new PedidoItem([
                 'livro_id' => $livroId,
                 'quantidade' => $quantidade,
@@ -85,7 +70,7 @@ class PedidoController extends BaseController
         $pedido = new Pedido([
             'usuario_id' => $usuarioId,
             'total' => $total,
-            'status' => 'pendente'
+            'status' => 'confirmado'
         ]);
 
         $pedidoId = $this->pedidoRepository->criar($pedido);
@@ -99,7 +84,7 @@ class PedidoController extends BaseController
 
         return $this->response(200, [
             'status' => 'success',
-            'message' => 'Pedido finalizado com sucesso!',
+            'message' => 'Pedido finalizado e confirmado com sucesso!',
             'pedido_id' => $pedidoId
         ]);
     }
