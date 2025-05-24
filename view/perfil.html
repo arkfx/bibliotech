@@ -266,7 +266,7 @@
                 <label for="senha_atual">Senha Atual</label>
                 <div class="input-with-icon">
                   <i class="icon lock-icon">🔒</i>
-                  <input type="password" id="senha_atual" name="senha_atual" placeholder="Digite sua senha atual" />
+                  <input type="password" id="senha_atual" name="senha_atual" placeholder="Digite sua senha atual" minlength="6" maxlength="24" required/>
                 </div>
               </div>
 
@@ -274,7 +274,7 @@
                 <label for="nova_senha">Nova Senha</label>
                 <div class="input-with-icon">
                   <i class="icon lock-icon">🔒</i>
-                  <input type="password" id="nova_senha" name="nova_senha" placeholder="Digite sua nova senha" />
+                  <input type="password" id="nova_senha" name="nova_senha" placeholder="Digite sua nova senha" minlength="6" maxlength="24" required/>
                 </div>
               </div>
 
@@ -282,12 +282,12 @@
                 <label for="confirmar_senha">Confirmar Nova Senha</label>
                 <div class="input-with-icon">
                   <i class="icon lock-icon">🔒</i>
-                  <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Confirme sua nova senha" />
+                  <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Confirme sua nova senha" minlength="6" maxlength="24" required/>
                 </div>
               </div>
 
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                <button type="submit" class="btn btn-primary btn-loading">Alterar Senha</button>
               </div>
             </form>
           </div>

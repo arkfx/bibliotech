@@ -72,4 +72,17 @@ class UsuarioRepository extends BaseRepository
     
         return $stmt->execute();
     }
+
+    public function alterarSenha(int $id, string $novaSenha): bool
+    {
+        $sql = "UPDATE usuario SET senha = :senha WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        
+        $hashed = password_hash($novaSenha, PASSWORD_BCRYPT);
+        
+        $stmt->bindValue(':senha', $hashed);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        
+        return $stmt->execute();
+    }
 }

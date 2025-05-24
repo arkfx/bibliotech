@@ -15,6 +15,37 @@
   }
 }
 
+/* Estilo para o estado de carregamento */
+.profile-card.loading {
+  min-height: 300px;
+  position: relative;
+}
+
+.profile-card.loading form {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
 /* Estilos para a seção de pedidos */
 .order-list {
