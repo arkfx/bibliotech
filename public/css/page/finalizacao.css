@@ -168,7 +168,10 @@ h2 {
 
 /* Botões */
 .btn-confirmar {
-  display: block;
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px; 
   width: 100%;
   padding: 12px;
   background-color: #0a4b78;
