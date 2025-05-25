@@ -20,6 +20,15 @@ class PedidoItemRepository extends BaseRepository
         ]);
     }
 
+    
+    public function buscarPorPedido(int $pedidoId): array
+    {
+        $stmt = $this->conn->prepare('SELECT * FROM pedido_itens WHERE pedido_id = :pedido_id');
+        $stmt->execute(['pedido_id' => $pedidoId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function listarPorPedido(int $pedidoId): array
     {
         $stmt = $this->conn->prepare("SELECT * FROM pedido_itens WHERE pedido_id = :pedido_id");

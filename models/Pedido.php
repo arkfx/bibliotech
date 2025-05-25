@@ -6,6 +6,7 @@ class Pedido
     public float $total;
     public string $status;
     public string $criado_em;
+    public array $itens = [];
 
     public function __construct(array $data)
     {
@@ -18,12 +19,16 @@ class Pedido
 
     public function toArray(): array
     {
-        return [
+        $arr = [
             'id' => $this->id,
             'usuario_id' => $this->usuario_id,
             'total' => $this->total,
             'status' => $this->status,
             'criado_em' => $this->criado_em
         ];
+        if (isset($this->itens)) {
+            $arr['itens'] = $this->itens;
+        }
+        return $arr;
     }
 }

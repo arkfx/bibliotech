@@ -133,6 +133,17 @@ class PedidoController extends BaseController
         $usuarioId = $_SESSION['userId'];
         $pedidos = $this->pedidoRepository->buscarPorUsuario($usuarioId);
 
+        // Para cada pedido, busque os itens/livros
+        foreach ($pedidos as &$pedido) {
+            $pedidoId = is_object($pedido) ? $pedido->id : $pedido['id'];
+            $itens = $this->itemRepository->buscarPorPedido($pedidoId);
+            if (is_object($pedido)) {
+                $pedido->itens = $itens;
+            } else {
+                $pedido['itens'] = $itens;
+            }
+        }
+
         return $this->response(200, [
             'status' => 'success',
             'data' => array_map(fn($p) => $p->toArray(), $pedidos)
