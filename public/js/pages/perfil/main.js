@@ -34,6 +34,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Carrega a seção padrão (Dados Pessoais)
+  // Verifica se há parâmetro de seção na URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const secaoUrl = urlParams.get('section');
+  
+  // Se há parâmetro de seção válido, navega para ela
+  if (secaoUrl && secoes[secaoUrl]) {
+    const menuItem = document.querySelector(`.menu-item[data-section="${secaoUrl}"]`);
+    if (menuItem) {
+      menuItem.click();
+      return;
+    }
+  }
+
+  // Caso contrário, carrega a seção padrão (Dados Pessoais)
   document.querySelector('.menu-item[data-section="dados-pessoais"]').click();
 });
