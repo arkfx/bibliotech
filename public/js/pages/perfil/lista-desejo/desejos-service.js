@@ -70,15 +70,22 @@ async function renderListaDesejos(container, livros, emptyState) {
       ${livros.map(livro => `
         <div class="book-card" data-id="${livro.id}">
           <div class="book-cover">
-            <a href="livro.html?id=${livro.id}" class="book-cover-link">
+            <a href="detalhes-livro.html?id=${livro.id}" class="book-cover-link">
               <img src="${livro.imagem_url || '/bibliotech/public/images/placeholder-book.png'}" alt="${livro.titulo}">
             </a>
           </div>
           <div class="book-info">
-            <h3><a href="livro.html?id=${livro.id}">${livro.titulo}</a></h3>
+            <h3><a href="detalhes-livro.html?id=${livro.id}">${livro.titulo}</a></h3>
             <p>${livro.autor}</p>
             <strong>R$ ${Number(livro.preco).toFixed(2).replace('.', ',')}</strong>
-            <button class="btn-comprar">Comprar</button>
+            <button class="btn-comprar btn-loading" data-id="${livro.id}" data-titulo="${livro.titulo}">
+              <svg class="icon-cart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+              Comprar
+            </button>
             <button class="btn-favorito salvo" type="button" data-id="${livro.id}">💙</button>
           </div>
         </div>
@@ -86,6 +93,9 @@ async function renderListaDesejos(container, livros, emptyState) {
     </div>
   `;
 
+  const event = new Event("livrosRenderizados");
+  document.dispatchEvent(event);
+  
   const favoritos = await carregarFavoritosGlobais();
   configurarBotoesFavoritos(favoritos, "#section-favoritos .btn-favorito");
 
