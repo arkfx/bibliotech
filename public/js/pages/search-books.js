@@ -1,5 +1,10 @@
 import { searchBooks } from "../api/livro.js";
 import { renderBooks, renderSkeletons } from "../utils/renderBooks.js";
+import {
+  carregarListaDesejos,
+  configurarBotoesFavoritos,
+} from "../utils/wishlist-utils.js";
+import { carregarGeneros } from "./genero.js"; // ajuste o caminho se necessário
 
 const searchInput = document.querySelector(".main-nav-list input");
 const searchButton = document.querySelector(".main-nav-list button");
@@ -11,13 +16,6 @@ const modalTitle = document.getElementById("modal-title");
 const modalMessage = document.getElementById("modal-message");
 const modalClose = document.getElementById("modal-close");
 
-function abrirModal(titulo, mensagem) {
-  modalTitle.textContent = titulo;
-  modalMessage.textContent = mensagem;
-  modal.style.display = "flex";
-}
-
-// Função para fechar o modal
 function fecharModal() {
   modal.style.display = "none";
 }
@@ -30,17 +28,17 @@ if (searchButton) {
 } else {
   console.warn("Elemento 'searchButton' não encontrado no DOM.");
 }
-// Eventos para fechar o modal
+
 if (modalClose) {
   modalClose.addEventListener("click", fecharModal);
 } else {
   console.warn("Elemento 'modalClose' não encontrado no DOM.");
 }
+
 window.addEventListener("click", (e) => {
   if (e.target === modal) fecharModal();
 });
 
-// Atualiza o título da seção com base na busca
 function atualizarTitulo(query, generoId) {
   let titulo = "Livros em destaque";
 
@@ -57,23 +55,25 @@ function atualizarTitulo(query, generoId) {
   sectionTitle.textContent = titulo;
 }
 
-// Função para buscar livros
 async function buscarLivros() {
   const query = searchInput.value.trim();
-  const generoId = genreFilter.value;
+  const generoId = genreFilter.value ? parseInt(genreFilter.value) : null;
 
   atualizarTitulo(query, generoId);
   renderSkeletons(gridContainer);
 
   try {
-    const response = await searchBooks(query, generoId);
+    const response = await searchBooks({
+      query,
+      genero_id: generoId,
+    });
+
     if (response.status === "success") {
-      renderBooks(gridContainer, response.data, (tituloLivro) => {
-        abrirModal(
-          "Aviso de Compra",
-          `O livro "${tituloLivro}" ainda não pode ser comprado. Esta funcionalidade está em desenvolvimento.`
-        );
-      });
+      const livros = response.data;
+      renderBooks(gridContainer, livros);
+
+      const favoritos = await carregarListaDesejos();
+      configurarBotoesFavoritos(favoritos, ".btn-favorito");
     } else {
       gridContainer.innerHTML = `<p>${response.message}</p>`;
     }
@@ -84,7 +84,6 @@ async function buscarLivros() {
   }
 }
 
-// Configura os eventos do slider de preço
 function setupPriceSlider() {
   const minSlider = document.getElementById("price-min");
   const maxSlider = document.getElementById("price-max");
@@ -118,7 +117,6 @@ function aplicarFiltroDePreco(reset = false) {
   const minPrice = reset ? 0 : parseInt(minSlider.value);
   const maxPrice = reset ? 200 : parseInt(maxSlider.value);
 
-  //atualiza os valores dos sliders e os números exibidos
   if (reset) {
     minSlider.value = 0;
     maxSlider.value = 200;
@@ -126,7 +124,6 @@ function aplicarFiltroDePreco(reset = false) {
   minValue.textContent = minPrice;
   maxValue.textContent = maxPrice;
 
-  //filtra os livros com base no preço
   const bookCards = document.querySelectorAll(".book-card");
   bookCards.forEach((card) => {
     const priceText = card
@@ -139,21 +136,18 @@ function aplicarFiltroDePreco(reset = false) {
       price >= minPrice && price <= maxPrice ? "flex" : reset ? "flex" : "none";
   });
 }
-// cria e mostra o filtro de preço
+
 function showPriceFilter() {
-  // Verifica se o gênero selecionado é "Todos os Gêneros"
   if (genreFilter.value === "" && searchInput.value.trim() === "") {
-    // Remove o filtro de preço se ele já estiver visível
     const existingSidebar = document.querySelector(".price-filter-sidebar");
     if (existingSidebar) {
       existingSidebar.remove();
       const container = document.querySelector(".container");
       container.classList.remove("with-sidebar");
     }
-    return; // Não exibe o filtro de preço
+    return;
   }
 
-  // Verifica se o filtro já foi criado
   if (document.querySelector(".price-filter-sidebar")) return;
 
   const sidebar = document.createElement("div");
@@ -175,11 +169,13 @@ function showPriceFilter() {
   `;
 
   const container = document.querySelector(".container");
-  container.classList.add("with-sidebar");
-  container.insertBefore(
-    sidebar,
-    container.querySelector(".heading-secondary").nextSibling
-  );
+  if (container) {
+    container.classList.add("with-sidebar");
+    container.insertBefore(
+      sidebar,
+      container.querySelector(".heading-secondary")?.nextSibling || null
+    );
+  }
 
   setupPriceSlider();
 
@@ -191,16 +187,71 @@ function showPriceFilter() {
     .addEventListener("click", () => aplicarFiltroDePreco(true));
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  searchButton.addEventListener("click", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await carregarGeneros("filter-genres");
+
+  const params = new URLSearchParams(window.location.search);
+  const termoBusca = params.get("search");
+  const generoId = params.get("genero_id")
+    ? parseInt(params.get("genero_id"))
+    : null;
+
+  if (termoBusca) {
+    searchInput.value = termoBusca;
+  }
+
+  if (
+    generoId !== null &&
+    genreFilter.querySelector(`option[value="${generoId}"]`)
+  ) {
+    genreFilter.value = generoId;
+  }
+
+  if (termoBusca || generoId) {
     showPriceFilter();
     buscarLivros();
+  }
+
+  searchButton.addEventListener("click", () => {
+    const termo = searchInput.value.trim();
+    const genero = genreFilter.value;
+    const path = window.location.pathname;
+
+    if (path.includes("home.html")) {
+      const url = new URL(window.location.href);
+      if (termo) url.searchParams.set("search", termo);
+      else url.searchParams.delete("search");
+
+      if (genero) url.searchParams.set("genero_id", genero);
+      else url.searchParams.delete("genero_id");
+
+      window.history.pushState({}, "", url.toString());
+
+      showPriceFilter();
+      buscarLivros();
+    } else {
+      const basePath = path.substring(0, path.lastIndexOf("/") + 1);
+      const url = new URL(basePath + "home.html", window.location.origin);
+      if (termo) url.searchParams.set("search", termo);
+      if (genero) url.searchParams.set("genero_id", genero);
+
+      document.querySelector("main")?.classList.add("blur-loading");
+
+      const overlay = document.createElement("div");
+      overlay.className = "loading-overlay";
+      overlay.innerHTML = `<div>Carregando...</div>`;
+      document.body.appendChild(overlay);
+
+      setTimeout(() => {
+        window.location.replace(url.toString());
+      }, 100);
+    }
   });
 
   searchInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
-      showPriceFilter();
-      buscarLivros();
+      e.preventDefault();
+      searchButton.click();
     }
   });
 });

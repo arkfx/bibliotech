@@ -5,10 +5,10 @@
 
 | Feature                                                                        | Autor     | Revisor   | Concluído |
 | ------------------------------------------------------------------------------ | --------- | --------- | --------- |
-| Criar página para visualização e edição de informações pessoais     | Ítalo |Guilherme| ❌
-| Criar página para exibição do histórico de pedidos                       | Marcos    |Ítalo | ❌
-| Implementar funcionalidade de alteração de senha com validação  | Luiz      |Marcos |  ❌
-| Criar tela de compra finalizada com resumo do pedido | Jhennifer |Luiz | ❌
-| Criar tela para finalizar a compra        |  Guilherme   |Jhennifer | ❌
+| Criar página para visualização e edição de informações pessoais     | Ítalo |Guilherme| ✅
+| Criar página para exibição do histórico de pedidos                       | Marcos    |Ítalo | ✅
+| Criar página para exibição da lista de desejos | Jhennifer      |Luiz|  ✅
+| Criar tela de compra finalizada com resumo do pedido | Luiz |Jhennifer| ✅
+| Criar tela para finalizar a compra        |  Guilherme   |Marcos | ✅
 
 ---

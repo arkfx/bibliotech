@@ -355,6 +355,7 @@
   font-weight: 700;
   color: #111;
   margin-bottom: 3.2rem;
+  margin-top: 2.0rem;
 }
 
 .book-card {
@@ -486,11 +487,6 @@
   fill: none;
 }
 
-.btn-comprar.btn-loading {
-  position: relative;
-  pointer-events: none;
-  opacity: 0.7;
-}
 
 /* BOTÃO CARRINHO */
 .book-info .btn-carrinho {
@@ -514,25 +510,34 @@
   background-color: #005077;
 }
 
-.loading-spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  animation: spinRotate 1s linear infinite;
-  display: inline-block;
-  vertical-align: middle;
+.btn-loading {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem; /* Espaço entre o texto e o spinner */
 }
 
-@keyframes spinRotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
+.btn-loading.loading {
+  pointer-events: none; /* Desabilita cliques */
+}
+
+.btn-loading.loading::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 3px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
     transform: rotate(360deg);
   }
 }
+
 
 /* RODAPÉ */
 footer {

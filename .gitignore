@@ -12,6 +12,7 @@
 .vscode/
 .idea/
 .cursor/
+.cursorignore
 *.sublime-project
 *.sublime-workspace
 
