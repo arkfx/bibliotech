@@ -84,8 +84,8 @@ document
       const res = await finalizarPedido(); 
 
       if (res.status === "success" && res.pedido_id) {
-        alert(`Pedido #${res.pedido_id} confirmado com sucesso!`);
-        window.location.href = "perfil.html#historico-pedidos";
+        // Redirecionar para página de pedido finalizado
+        window.location.href = `pedido-finalizado.html?id=${res.pedido_id}`;
       } else {
         throw new Error(res.message || "Erro ao confirmar o pedido. Tente novamente.");
       }
