@@ -233,19 +233,15 @@
             </div>
           </div>
         </div>
-
-        <!-- Seção de Lista de Desejos -->
-        <div class="profile-content hidden" id="section-favoritos">
-          <h2 class="heading-admin">Lista de Desejos</h2>
-          <div class="profile-card">
-            <div class="wishlist-grid">
-              <!-- Exemplo de item na lista de desejos -->
-              <div class="wishlist-item">
-                <!-- livros desejados estarao aqui -->
-              </div>
-              
-              <!-- Estado vazio quando não há itens -->
-              <div class="empty-state">
+          <!-- Seção de Lista de Desejos -->
+          <div class="profile-content hidden" id="section-favoritos">
+            <h2 class="heading-admin">Lista de Desejos</h2>
+            <div class="profile-card">
+              <!-- Lista de livros da wishlist (JS insere aqui) -->
+              <div class="wishlist-list"></div>
+                
+              <!-- Estado vazio (visível só se lista estiver vazia) -->
+              <div class="empty-state hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
@@ -255,7 +251,6 @@
               </div>
             </div>
           </div>
-        </div>
 
         <!-- Seção de Segurança -->
         <div class="profile-content hidden" id="section-seguranca">
