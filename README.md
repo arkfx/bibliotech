@@ -311,3 +311,18 @@ _Requisitos_:
 [Acesse o relatório](relatorios/iteracao-3.md)
 
 ---
+
+### Iteração 4 - Biblioteca do Usuário e Leitor de eBooks
+
+_Valor_: Permitir que os usuários acessem e leiam os livros digitais que adquiriram, além de gerenciar sua biblioteca pessoal.
+
+_Objetivo_: Como usuário, desejo acessar minha biblioteca de livros comprados, organizar e buscar títulos, e ler meus eBooks diretamente na plataforma, para ter uma experiência de leitura digital completa e integrada.
+
+Requisitos:
+
+- RF09 – Biblioteca do Usuário
+- RF10 – Leitor de eBooks
+
+[Acesse o relatório](relatorios/iteracao-4.md)
+
+---
