@@ -2,6 +2,7 @@ import { initPersonalInfo } from './dados-pessoais/index.js';
 import { setupMenuToggle } from './shared/menu-toggle.js';
 import { initOrderHistory } from './historico-pedidos/index.js';
 import { initSecurityForm } from './seguranca/index.js';
+import { initWishlist } from './lista-desejo/index.js';
 
 //Objeto para gerenciar seções
 // AVISO: Para adicionar novas seções (ex.: Lista de Desejos, Pedidos), siga o padrão abaixo:
@@ -21,6 +22,10 @@ const secoes = {
   'seguranca': {
     inicializada: false,
     init: initSecurityForm
+  },
+  'favoritos': {
+    inicializada: false,
+    init: initWishlist
   },
 };
 
