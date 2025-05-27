@@ -59,3 +59,20 @@ export async function updateUsuario(userId, usuario) {
     };
   }
 }
+
+export async function alterarSenhaUsuario(userId, senhaAtual, novaSenha) {
+  try {
+    const response = await fetch(`${API_BASE}/usuarios/${userId}/senha`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        senha_atual: senhaAtual,
+        nova_senha: novaSenha,
+      }),
+    });
+    return await response.json();
+  } catch (error) {
+    return { status: "error", message: "Erro ao conectar ao servidor." };
+  }
+}

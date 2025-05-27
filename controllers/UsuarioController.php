@@ -125,4 +125,43 @@ class UsuarioController extends BaseController
             return $this->response(500, ['status' => 'error', 'message' => 'Erro ao atualizar usuário: ' . $e->getMessage()]);
         }
     }
+
+#[Route('/usuarios/{id}/senha', 'PUT')]
+public function alterarSenha(int $id)
+{
+    try {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $usuario = $this->repo->findById($id);
+
+        if (!$usuario) {
+            return $this->response(404, ['status' => 'error', 'message' => 'Usuário não encontrado.']);
+        }
+
+        if (
+        !isset($data['senha_atual'], $data['nova_senha']) ||
+        trim($data['senha_atual']) === '' ||
+        trim($data['nova_senha']) === ''
+        ) {
+            return $this->response(400, ['status' => 'error', 'message' => 'Dados incompletos.']);
+        }
+        
+        if (!password_verify($data['senha_atual'], $usuario->senha)) {
+            return $this->response(401, ['status' => 'error', 'message' => 'Senha atual incorreta.']);
+        }
+
+        if (strlen($data['nova_senha']) < 6) {
+            return $this->response(400, ['status' => 'error', 'message' => 'A nova senha deve ter no mínimo 6 caracteres.']);
+        }
+
+        $sucesso = $this->repo->alterarSenha($id, $data['nova_senha']);
+
+        if ($sucesso) {
+            return $this->response(200, ['status' => 'success', 'message' => 'Senha alterada com sucesso.']);
+        }
+
+        return $this->response(500, ['status' => 'error', 'message' => 'Erro ao alterar senha.']);
+    } catch (Exception $e) {
+        return $this->response(500, ['status' => 'error', 'message' => 'Erro interno.']);
+    }
+}
 }

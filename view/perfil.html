@@ -118,9 +118,7 @@
               <li class="menu-item active" data-section="dados-pessoais">
                 Dados Pessoais
               </li>
-              <li class="menu-item" data-section="pedidos">
-                Meus Pedidos
-              </li>
+              <li class="menu-item" data-section="historico-pedidos">Meus Pedidos</li>
               <li class="menu-item" data-section="enderecos">
                 Meu Endereço
               </li>
@@ -190,10 +188,14 @@
         </div>
 
         <!-- Seção de Pedidos -->
-        <div class="profile-content hidden" id="section-pedidos">
+        <div class="profile-content hidden" id="section-historico-pedidos">
           <h2 class="heading-admin">Meus Pedidos</h2>
           <div class="profile-card">
-            <div class="empty-state">
+            <!-- Lista de pedidos -->
+            <div class="order-list"></div>
+
+            <!-- Estado vazio -->
+            <div class="empty-state hidden">
               <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                 <line x1="8" y1="21" x2="16" y2="21"></line>
@@ -203,36 +205,9 @@
               <p>Seus pedidos aparecerão aqui quando você fizer compras em nossa loja.</p>
               <a href="home.html" class="btn">Explorar Livros</a>
             </div>
-
-            <!-- Modelo de pedido (visível quando houver pedidos) -->
-            <div class="order-list hidden">
-              <div class="order-item">
-                <div class="order-header">
-                  <div class="order-info">
-                    <span class="order-id">Pedido #12345</span>
-                    <span class="order-date">19/05/2025</span>
-                  </div>
-                  <div class="order-status approved">Entregue</div>
-                </div>
-                <div class="order-books">
-                  <div class="order-book">
-                    <img src="../public/images/livros/livro-exemplo.jpg" alt="Capa do Livro" class="order-book-cover">
-                    <div class="order-book-info">
-                      <h4>O Nome do Livro</h4>
-                      <p>Autor do Livro</p>
-                      <div class="order-book-price">R$ 39,90</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="order-footer">
-                  <div class="order-total">Total: <strong>R$ 39,90</strong></div>
-                  <button class="btn btn-small">Ver Detalhes</button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-
+                  
         <!-- Seção de Endereços -->
         <div class="profile-content hidden" id="section-enderecos">
           <h2 class="heading-admin">Meus Endereços</h2>
@@ -291,7 +266,7 @@
                 <label for="senha_atual">Senha Atual</label>
                 <div class="input-with-icon">
                   <i class="icon lock-icon">🔒</i>
-                  <input type="password" id="senha_atual" name="senha_atual" placeholder="Digite sua senha atual" />
+                  <input type="password" id="senha_atual" name="senha_atual" placeholder="Digite sua senha atual" minlength="6" maxlength="24" required/>
                 </div>
               </div>
 
@@ -299,7 +274,7 @@
                 <label for="nova_senha">Nova Senha</label>
                 <div class="input-with-icon">
                   <i class="icon lock-icon">🔒</i>
-                  <input type="password" id="nova_senha" name="nova_senha" placeholder="Digite sua nova senha" />
+                  <input type="password" id="nova_senha" name="nova_senha" placeholder="Digite sua nova senha" minlength="6" maxlength="24" required/>
                 </div>
               </div>
 
@@ -307,12 +282,12 @@
                 <label for="confirmar_senha">Confirmar Nova Senha</label>
                 <div class="input-with-icon">
                   <i class="icon lock-icon">🔒</i>
-                  <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Confirme sua nova senha" />
+                  <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Confirme sua nova senha" minlength="6" maxlength="24" required/>
                 </div>
               </div>
 
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                <button type="submit" class="btn btn-primary btn-loading">Alterar Senha</button>
               </div>
             </form>
           </div>
