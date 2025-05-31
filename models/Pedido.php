@@ -7,6 +7,7 @@ class Pedido
     public string $status;
     public string $criado_em;
     public array $itens = [];
+    public float $valor_frete = 0.0;
 
     public function __construct(array $data)
     {
@@ -14,6 +15,7 @@ class Pedido
         $this->usuario_id = (int) ($data['usuario_id'] ?? 0);
         $this->total = (float) ($data['total'] ?? 0);
         $this->status = $data['status'] ?? 'pendente';
+        $this->valor_frete = (float) ($data['valor_frete'] ?? 0.0);
         $this->criado_em = $data['criado_em'] ?? date('Y-m-d H:i:s');
     }
 
@@ -24,6 +26,7 @@ class Pedido
             'usuario_id' => $this->usuario_id,
             'total' => $this->total,
             'status' => $this->status,
+            'valor_frete' => $this->valor_frete,
             'criado_em' => $this->criado_em
         ];
         if (isset($this->itens)) {

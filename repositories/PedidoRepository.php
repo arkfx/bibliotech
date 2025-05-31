@@ -8,14 +8,15 @@ class PedidoRepository extends BaseRepository
     public function criar(Pedido $pedido): int
     {
         $stmt = $this->conn->prepare(
-            "INSERT INTO pedidos (usuario_id, total, status, criado_em)
-             VALUES (:usuario_id, :total, :status, :criado_em)"
+            "INSERT INTO pedidos (usuario_id, total, status, valor_frete,  criado_em)
+             VALUES (:usuario_id, :total, :status, :valor_frete, :criado_em)"
         );
 
         $stmt->execute([
             ':usuario_id' => $pedido->usuario_id,
             ':total' => $pedido->total,
             ':status' => $pedido->status,
+            ':valor_frete' => $pedido->valor_frete,
             ':criado_em' => $pedido->criado_em,
         ]);
 
@@ -50,26 +51,55 @@ class PedidoRepository extends BaseRepository
         SELECT 
             p.id AS pedido_id,
             p.usuario_id,
-            p.total,
+            p.total,      
+            p.valor_frete,
             p.status,
             p.criado_em,
             i.id AS item_id,
             i.livro_id,
             i.quantidade,
             i.preco_unitario,
+            i.tipo AS item_tipo,
             l.titulo,
             l.imagem_url
         FROM pedidos p
         INNER JOIN pedido_itens i ON p.id = i.pedido_id
         INNER JOIN livros l ON l.id = i.livro_id
         WHERE p.id = :pedido_id
-    ";
+";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':pedido_id' => $pedidoId]);
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $result ?: null;
+        if (!$rows) {
+        return null;
+    }
+
+    $pedidoCompleto = [
+        'pedido_id' => $rows[0]['pedido_id'],
+        'usuario_id' => $rows[0]['usuario_id'],
+        'total' => (float)$rows[0]['total'],
+        'valor_frete' => (float)$rows[0]['valor_frete'], 
+        'status' => $rows[0]['status'],
+        'criado_em' => $rows[0]['criado_em'],
+        'itens' => []
+    ];
+
+    foreach ($rows as $row) {
+        $pedidoCompleto['itens'][] = [
+            'item_id' => $row['item_id'],
+            'livro_id' => $row['livro_id'],
+            'quantidade' => (int)$row['quantidade'],
+            'preco_unitario' => (float)$row['preco_unitario'],
+            'item_tipo' => $row['item_tipo'],
+            'titulo' => $row['titulo'],
+            'imagem_url' => $row['imagem_url'],
+            
+        ];
+    }
+
+        return $pedidoCompleto;
     }
 
     public function buscarPedidoPendenteDoUsuario(int $usuarioId): ?Pedido

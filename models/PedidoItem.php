@@ -6,6 +6,7 @@ class PedidoItem
     public int $livro_id;
     public int $quantidade;
     public float $preco_unitario;
+    public string $tipo;
 
     public function __construct(array $data)
     {
@@ -14,6 +15,7 @@ class PedidoItem
         $this->livro_id = (int) ($data['livro_id'] ?? 0);
         $this->quantidade = (int) ($data['quantidade'] ?? 1);
         $this->preco_unitario = (float) ($data['preco_unitario'] ?? 0);
+        $this->tipo = $data['tipo'] ?? 'fisico'; 
     }
 
     public function toArray(): array
@@ -23,7 +25,8 @@ class PedidoItem
             'pedido_id' => $this->pedido_id,
             'livro_id' => $this->livro_id,
             'quantidade' => $this->quantidade,
-            'preco_unitario' => $this->preco_unitario
+            'preco_unitario' => $this->preco_unitario,
+            'tipo' => $this->tipo
         ];
     }
 }
