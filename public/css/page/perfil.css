@@ -517,6 +517,8 @@
 .empty-state .btn {
   display: inline-block;
   margin: 0 auto;
+  text-decoration: none;
+  background-color: #004d88;
 }
 
 /* Classes utilitárias */

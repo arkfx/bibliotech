@@ -28,11 +28,12 @@ class BibliotecaRepository extends BaseRepository
      */
     public function listarPorUsuario($usuarioId)
     {
-        $sql = "SELECT l.*, b.data_adquirido
+        $sql = "SELECT l.*, b.data_adquirido, g.nome AS nome_genero 
                 FROM biblioteca b
                 JOIN livros l ON b.livro_id = l.id
+                LEFT JOIN generos g ON l.genero_id = g.id
                 WHERE b.usuario_id = :usuario_id
-                ORDER BY b.data_adquirido DESC";
+                ORDER BY b.data_adquirido ASC";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':usuario_id', $usuarioId, PDO::PARAM_INT);
         $stmt->execute();

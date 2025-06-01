@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BiblioTech</title>
+    <title>Minha Biblioteca - BiblioTech</title>
     <link rel="icon" href="../public/images/favicon.png" type="image/x-icon" />
     <link rel="stylesheet" href="../public/css/main.css" />
+    <link rel="stylesheet" href="../public/css/page/biblioteca.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap"
       rel="stylesheet"
@@ -87,8 +88,12 @@
               </svg>
             </button>
             <div class="dropdown-menu">
-              <a href="perfil.html" class="dropdown-item" id="btnPerfil">Meu Perfil</a>
-              <a href="biblioteca.html" class="dropdown-item" id="btnBiblioteca">Biblioteca</a>
+              <a href="perfil.html" class="dropdown-item" id="btnPerfil"
+                >Meu Perfil</a
+              >
+              <a href="biblioteca.html" class="dropdown-item" id="btnBiblioteca"
+                >Biblioteca</a
+              >
               <a href="#" class="dropdown-item" id="btnLogout">Logout</a>
             </div>
           </div>
@@ -108,38 +113,114 @@
       </nav>
     </header>
 
-    <!-- Destaques -->
     <main class="main-content">
-      <section class="section-hero">
-        <div class="container">
-          <h2 class="heading-secondary">Livros em destaque</h2>
-
-          <div class="grid grid--4-cols">
-            <!-- Livro -->
+      <section class="biblioteca-container">
+        <div class="biblioteca-header">
+          <h1 class="heading-primary">Minha Biblioteca</h1>
+          <div class="biblioteca-filtros">
+            <div class="tabs-container">
+              <button class="tab-button active" data-filter="todos">
+                Todos
+              </button>
+              <button class="tab-button" data-filter="lendo">Lendo</button>
+              <button class="tab-button" data-filter="recentes">
+                Recentes
+              </button>
+            </div>
           </div>
         </div>
+
+        <!-- Catálogo completo -->
+        <section class="biblioteca-secao" id="catalogo-completo">
+          <h2 class="heading-secondary">Meu Catálogo</h2>
+
+          <!-- Filtros adicionais -->
+          <div class="filtros-adicionais">
+            <div class="search-container">
+              <input
+                type="text"
+                id="biblioteca-search"
+                placeholder="Buscar na biblioteca..."
+              />
+              <button class="btn-search">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+            <div class="sort-container">
+              <select id="sort-books" class="sort-select">
+                <option value="data_adicao_asc">
+                  Data de Adição (Mais Antigos)
+                </option>
+                <option value="data_adicao_desc">
+                  Data de Adição (Mais Recentes)
+                </option>
+                <option value="titulo_asc">Título (A-Z)</option>
+                <option value="genero_asc">Gênero (A-Z)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Lista de livros do catálogo -->
+          <div class="books-catalog">
+            <!-- Livros serão inseridos dinamicamente via JavaScript -->
+          </div>
+
+          <!-- Estado vazio -->
+            <div class="empty-state hidden" id="empty-library">
+                <div class="empty-state-content">
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="64"
+                    height="64"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    >
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path
+                        d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                    ></path>
+                    </svg>
+                    <h3>Sua biblioteca está vazia</h3>
+                    <p>
+                    Você ainda não tem livros na sua biblioteca. Explore nosso
+                    catálogo e compre seu primeiro livro!
+                    </p>
+                    <a href="home.html" class="btn btn-primary">Explorar Catálogo</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de livros adicionados recentemente -->
+        <section class="biblioteca-secao" id="adicionados-recentemente">
+          <h2 class="heading-secondary">Adicionados Recentemente</h2>
+          <div class="books-grid">
+            <!-- Livros serão inseridos dinamicamente via JavaScript -->
+          </div>
+        </section>
+
+        <!-- Seção de livros que o usuário está lendo -->
+        <section class="biblioteca-secao" id="continuar-lendo">
+          <h2 class="heading-secondary">Continue Lendo</h2>
+          <div class="livros-lendo">
+            <!-- Livros serão inseridos dinamicamente via JavaScript -->
+          </div>
+        </section>
+
+        
       </section>
     </main>
+
     <!-- Rodapé -->
     <footer>© 2025 - Todos os direitos reservados.</footer>
-
-    <!-- Modal de Aviso -->
-    <div id="cadastroModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-icon"></div>
-        <h2 class="modal-title" id="modal-title">Função Indisponível</h2>
-        <p class="modal-message" id="modal-message">
-          O sistema de cadastro ainda está em desenvolvimento e não está
-          disponível no momento. Por favor, tente novamente mais tarde.
-        </p>
-        <button class="modal-close" id="modal-close">Ir para o carrinho</button>
-      </div>
-    </div>
 
     <script src="../public/js/navigation.js"></script>
     <script type="module" src="../public/js/status.js"></script>
     <script type="module" src="../public/js/profile-menu.js"></script>
-    <script type="module" src="../public/js/pages/home.js"></script>
+    <script type="module" src="../public/js/pages/biblioteca.js"></script>
     <script type="module" src="../public/js/pages/search-books.js"></script>
     <script type="module" src="../public/js/pages/genero.js"></script>
     <script type="module" src="../public/js/pages/carrinho.js"></script>
