@@ -6,9 +6,9 @@
 | Feature                                                                        | Autor     | Revisor   | Concluído |
 | ------------------------------------------------------------------------------ | --------- | --------- | --------- |
 | Criar página da Biblioteca do Usuário com exibição dos livros adquiridos     | Ítalo |Jhennifer| ❌
-| Implementar funcionalidades de ordenação de livros na biblioteca                       | Jhennifer    |Ítalo | ❌
-| Implementar busca e filtragem de livros na biblioteca (categoria, status de leitura) | Marcos      |Guilherme|  ❌
+| Implementar busca textual e filtragem por gênero na seção 'Meu Catálogo' da Biblioteca. | Jhennifer    |Ítalo | ❌
+| Implementar ordenação em 'Meu Catálogo', popular seção 'Adicionados Recentemente' e a aba de visualização 'Recentes' | Marcos      |Guilherme|  ❌
 | Desenvolver o leitor de eBooks integrado para a plataforma | Guilherme |Luiz| ❌
-| Implementar navegação por capítulos/páginas e funcionalidade de retornar à última página lida no leitor        |  Luiz   |Marcos | ❌
+| Implementar aba 'Lendo' na Biblioteca, funcionalidade retornar à última página lida no leitor, e integração Biblioteca-Leitor. |  Luiz   |Marcos | ❌
 
 ---

@@ -78,121 +78,6 @@
   gap: 3rem;
 }
 
-/* Continue Lendo - Layout horizontal com cards */
-.livros-lendo {
-  display: flex;
-  gap: 2rem;
-  overflow-x: auto;
-  padding: 1rem 0.5rem;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-}
-
-.livros-lendo::-webkit-scrollbar {
-  height: 8px;
-}
-
-.livros-lendo::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 8px;
-}
-
-.livros-lendo::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 8px;
-}
-
-.livros-lendo::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
-}
-
-/* Card de livro que está lendo */
-.lendo-card {
-  flex: 0 0 35rem;
-  display: flex;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.lendo-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.lendo-card .book-cover {
-  flex: 0 0 12rem;
-  background-color: #f0f0f0;
-  object-fit: cover;
-  height: 18rem;
-}
-
-.lendo-card .book-info {
-  flex: 1;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.lendo-card .book-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.8rem;
-}
-
-.lendo-card .book-author {
-  font-size: 1.4rem;
-  color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.lendo-card .progress-container {
-  margin-top: auto;
-}
-
-.lendo-card .progress-info {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.8rem;
-  font-size: 1.3rem;
-  color: #666;
-}
-
-.lendo-card .progress-bar {
-  width: 100%;
-  height: 0.8rem;
-  background-color: #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.lendo-card .progress-fill {
-  height: 100%;
-  background-color: #004d88;
-  border-radius: 4px;
-}
-
-.lendo-card .btn-continue {
-  margin-top: 1.5rem;
-  padding: 1rem 0;
-  width: 100%;
-  text-align: center;
-  background-color: #004d88;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.lendo-card .btn-continue:hover {
-  background-color: #003b6f;
-}
-
 /* Card de livro padrão */
 .book-card {
   background-color: #fff;
@@ -254,11 +139,6 @@
   transform: scale(1.1);
 }
 
-.book-card .book-details {
-  padding: 1.5rem;
-  display: flex; 
-  flex-direction: column; 
-}
 
 .book-card .book-title {
   font-size: 1.6rem;
@@ -268,13 +148,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3; /* Melhora a legibilidade */
+  line-height: 1.3; 
 }
 
 .book-card .book-author {
   font-size: 1.4rem;
   color: #666;
-  margin-bottom: 0.8rem; /* Espaço abaixo do autor */
+  margin-bottom: 0.8rem; 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -298,28 +178,18 @@
 
 .book-card .book-meta {
   display: flex;
-  justify-content: space-between; /* Se houver mais itens no futuro */
+  justify-content: space-between; 
   align-items: center;
-  margin-top: auto; /* Empurra o meta para o final do card se .book-info for flex column */
-  padding-top: 0.8rem; /* Espaço acima da data */
-  border-top: 1px solid #f0f0f0; /* Linha sutil acima da data */
+  margin-top: auto; 
+  padding-top: 0.8rem; 
+  border-top: 1px solid #f0f0f0; 
 }
 
-.book-card .book-date { /* Estilização para a data */
+.book-card .book-date {
   font-size: 1.2rem;
   color: #777;
 }
 
-.book-card .book-rating {
-  display: flex;
-  align-items: center;
-  font-size: 1.3rem;
-  color: #f3a847;
-}
-
-.book-card .book-rating i {
-  margin-right: 0.3rem;
-}
 
 /* Catálogo completo */
 #catalogo-completo {
@@ -329,7 +199,8 @@
 /* Filtros adicionais */
 .filtros-adicionais {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; 
+  align-items: center;
   margin-bottom: 3rem;
   flex-wrap: wrap;
   gap: 2rem;
@@ -337,8 +208,8 @@
 
 .search-container {
   display: flex;
-  flex: 1;
   max-width: 40rem;
+  flex-grow: 1; 
 }
 
 .search-container input {
@@ -369,9 +240,16 @@
   background-color: #003b6f;
 }
 
+/* Estilo para o container do filtro de gênero */
+.filter-genre-container {
+  display: flex;
+  align-items: center;
+}
+
 .sort-container {
   display: flex;
   align-items: center;
+  margin-left: auto; 
 }
 
 .sort-select {
@@ -382,6 +260,7 @@
   color: #333;
   background-color: #fff;
   cursor: pointer;
+  min-width: 20rem; 
 }
 
 .sort-select:focus {
@@ -397,42 +276,6 @@
   margin-bottom: 4rem;
 }
 
-/* Paginação */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  margin-top: 4rem;
-}
-
-.pagination-button {
-  padding: 1rem 2rem;
-  border: none;
-  background-color: #f0f0f0;
-  border-radius: 6px;
-  font-size: 1.5rem;
-  color: #555;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.pagination-button:hover:not(:disabled) {
-  background-color: #e0e0e0;
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-indicator {
-  font-size: 1.5rem;
-  color: #555;
-}
 
 /* Estado vazio */
 .empty-state {
@@ -507,18 +350,11 @@
     gap: 2rem;
   }
   
-  .livros-lendo {
-    gap: 1.5rem;
-  }
-  
-  .lendo-card {
-    flex: 0 0 30rem;
-  }
-  
   .filtros-adicionais {
     flex-direction: column;
+    align-items: stretch;
   }
-  
+
   .search-container {
     max-width: 100%;
   }
@@ -537,26 +373,5 @@
   .books-catalog {
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
-  }
-  
-  .lendo-card {
-    flex: 0 0 100%;
-  }
-  
-  .lendo-card .book-cover {
-    flex: 0 0 10rem;
-  }
-  
-  .pagination {
-    gap: 1rem;
-  }
-  
-  .pagination-button {
-    padding: 0.8rem 1.5rem;
-    font-size: 1.4rem;
-  }
-  
-  .page-indicator {
-    font-size: 1.4rem;
   }
 }
