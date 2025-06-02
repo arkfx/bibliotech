@@ -12,20 +12,21 @@ class LivroRepository extends BaseRepository
         }
 
         $sql = "INSERT INTO livros (
-                    titulo, autor, genero_id, preco, editora_id, descricao, imagem_url, created_at, updated_at
+                    titulo, autor, genero_id, preco, editora_id, descricao, imagem_url, pdf_url, created_at, updated_at
                 ) VALUES (
-                    :titulo, :autor, :genero_id, :preco, :editora_id, :descricao, :imagem_url, NOW(), NOW()
+                    :titulo, :autor, :genero_id, :preco, :editora_id, :descricao, :imagem_url, :pdf_url, NOW(), NOW()
                 )";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([
-            ':titulo' => $livro->titulo,
-            ':autor' => $livro->autor,
-            ':genero_id' => $livro->genero_id,
-            ':preco' => $livro->preco,
+            ':titulo'     => $livro->titulo,
+            ':autor'      => $livro->autor,
+            ':genero_id'  => $livro->genero_id,
+            ':preco'      => $livro->preco,
             ':editora_id' => $livro->editora_id,
-            ':descricao' => $livro->descricao,
-            ':imagem_url' => $livro->imagem_url
+            ':descricao'  => $livro->descricao,
+            ':imagem_url' => $livro->imagem_url,
+            ':pdf_url'    => $livro->pdf_url,
         ]);
 
         $livro->id = $this->conn->lastInsertId();
@@ -36,20 +37,21 @@ class LivroRepository extends BaseRepository
     {
         $sql = "UPDATE livros 
                 SET titulo = :titulo, autor = :autor, genero_id = :genero_id, preco = :preco,
-                    editora_id = :editora_id, descricao = :descricao, imagem_url = :imagem_url, 
-                    updated_at = NOW()
+                    editora_id = :editora_id, descricao = :descricao, imagem_url = :imagem_url,
+                    pdf_url = :pdf_url, updated_at = NOW()
                 WHERE id = :id";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([
-            ':id' => $livro->id,
-            ':titulo' => $livro->titulo,
-            ':autor' => $livro->autor,
-            ':genero_id' => $livro->genero_id,
-            ':preco' => $livro->preco,
+            ':id'         => $livro->id,
+            ':titulo'     => $livro->titulo,
+            ':autor'      => $livro->autor,
+            ':genero_id'  => $livro->genero_id,
+            ':preco'      => $livro->preco,
             ':editora_id' => $livro->editora_id,
-            ':descricao' => $livro->descricao,
-            ':imagem_url' => $livro->imagem_url
+            ':descricao'  => $livro->descricao,
+            ':imagem_url' => $livro->imagem_url,
+            ':pdf_url'    => $livro->pdf_url,
         ]);
 
         return $livro;
@@ -80,7 +82,7 @@ class LivroRepository extends BaseRepository
         INNER JOIN editoras ON livros.editora_id = editoras.id
         WHERE livros.id = :id
         LIMIT 1
-    ";
+        ";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':id', (int)$id, PDO::PARAM_INT);
@@ -103,6 +105,7 @@ class LivroRepository extends BaseRepository
             'editora_nome' => $data['editora_nome'],
             'descricao'    => $data['descricao'],
             'imagem_url'   => $data['imagem_url'],
+            'pdf_url'      => $data['pdf_url'],
             'created_at'   => $data['created_at'],
             'updated_at'   => $data['updated_at'],
         ]);

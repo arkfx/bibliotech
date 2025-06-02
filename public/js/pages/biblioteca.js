@@ -1,4 +1,7 @@
-import { getLivrosDaBiblioteca } from "../api/biblioteca.js";
+import {
+  getLivrosDaBiblioteca,
+  getLinkDoLivroNaBiblioteca,
+} from "../api/biblioteca.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -17,10 +20,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Renderiza o catálogo completo
     renderizarLivros(livros, booksCatalog);
-
   } catch (error) {
     console.error("Erro ao carregar biblioteca:", error);
-    alert("Ocorreu um erro ao carregar sua biblioteca. Por favor, tente novamente mais tarde.");
+    alert(
+      "Ocorreu um erro ao carregar sua biblioteca. Por favor, tente novamente mais tarde."
+    );
   }
 });
 
@@ -34,7 +38,7 @@ function renderizarLivros(livros, container) {
     return;
   }
 
-  livros.forEach(livro => {
+  livros.forEach((livro) => {
     const livroElement = criarElementoLivro(livro);
     container.appendChild(livroElement);
   });
@@ -47,7 +51,7 @@ function criarElementoLivro(livro) {
 
   const capaUrl = livro.imagem_url;
   const dataFormatada = formatarData(livro.data_adquirido);
-  const nomeGenero = livro.nome_genero || 'Gênero não informado'; 
+  const nomeGenero = livro.nome_genero || "Gênero não informado";
 
   livroElement.innerHTML = `
     <div class="book-cover-container">
@@ -60,14 +64,31 @@ function criarElementoLivro(livro) {
       <div class="book-meta">
         <span class="book-date">Adicionado em ${dataFormatada}</span>
       </div>
+      <button class="ler-livro-btn" data-id="${livro.id}">Ler</button>
     </div>
   `;
+
+  // Adiciona evento ao botão
+  const botaoLer = livroElement.querySelector(".ler-livro-btn");
+  botaoLer.addEventListener("click", () => {
+    window.location.href = `/bibliotech/view/leitor.html?id=${livro.id}`;
+  });
 
   return livroElement;
 }
 
 function formatarData(dataString) {
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
   const date = new Date(dataString);
-  return date.toLocaleDateString('pt-BR', options);
+  return date.toLocaleDateString("pt-BR", options);
+}
+
+async function abrirPdfDoLivro(livroId) {
+  try {
+    const pdfUrl = await getLinkDoLivroNaBiblioteca(livroId);
+    window.open(pdfUrl, "_blank");
+  } catch (err) {
+    console.error("Erro ao abrir o livro:", err);
+    alert("Erro ao abrir o livro: " + err.message);
+  }
 }

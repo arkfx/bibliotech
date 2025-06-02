@@ -11,6 +11,7 @@ class Livro
     public $editora_nome;
     public $descricao;
     public $imagem_url;
+    public $pdf_url;
     public $created_at;
     public $updated_at;
 
@@ -26,6 +27,7 @@ class Livro
         $this->editora_nome = $data['editora_nome'] ?? null;
         $this->descricao = $data['descricao'] ?? '';
         $this->imagem_url = $data['imagem_url'] ?? '';
+        $this->pdf_url = $data['pdf_url'] ?? '';
         $this->created_at = $data['created_at'] ?? null;
         $this->updated_at = $data['updated_at'] ?? null;
     }
@@ -43,6 +45,7 @@ class Livro
             'editora_nome' => $this->editora_nome,
             'descricao' => $this->descricao,
             'imagem_url' => $this->imagem_url,
+            'pdf_url' => $this->pdf_url, // ← AQUI
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
