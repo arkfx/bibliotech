@@ -82,13 +82,3 @@ function formatarData(dataString) {
   const date = new Date(dataString);
   return date.toLocaleDateString("pt-BR", options);
 }
-
-async function abrirPdfDoLivro(livroId) {
-  try {
-    const pdfUrl = await getLinkDoLivroNaBiblioteca(livroId);
-    window.open(pdfUrl, "_blank");
-  } catch (err) {
-    console.error("Erro ao abrir o livro:", err);
-    alert("Erro ao abrir o livro: " + err.message);
-  }
-}
