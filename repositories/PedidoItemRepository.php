@@ -8,8 +8,8 @@ class PedidoItemRepository extends BaseRepository
     public function criar(PedidoItem $item): bool
     {
         $stmt = $this->conn->prepare(
-            "INSERT INTO pedido_itens (pedido_id, livro_id, quantidade, preco_unitario)
-             VALUES (:pedido_id, :livro_id, :quantidade, :preco_unitario)"
+            "INSERT INTO pedido_itens (pedido_id, livro_id, quantidade, preco_unitario, tipo)
+             VALUES (:pedido_id, :livro_id, :quantidade, :preco_unitario, :tipo)"
         );
 
         return $stmt->execute([
@@ -17,6 +17,7 @@ class PedidoItemRepository extends BaseRepository
             ':livro_id' => $item->livro_id,
             ':quantidade' => $item->quantidade,
             ':preco_unitario' => $item->preco_unitario,
+            ':tipo' => $item->tipo,
         ]);
     }
 

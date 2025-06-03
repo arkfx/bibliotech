@@ -1,4 +1,4 @@
-import { buscarPedidoCompletoPorId, buscarPedidosDoUsuario } from "../../../api/pedido.js";
+import {buscarPedidosDoUsuario } from "../../../api/pedido.js";
 import { getBookById } from "../../../api/livro.js";
 // Declare a função skeleton antes de usá-la
 export function renderSkeletonPedidos() {
@@ -95,8 +95,7 @@ function preencherTabela(pedidos) {
   container.innerHTML = `
     <div class="order-list">
       ${pedidos.map(pedido => {
-        // Log detalhado do pedido
-        console.log("Processando pedido:", pedido.id, JSON.stringify(pedido));
+        //console.log("Processando pedido:", pedido.id, JSON.stringify(pedido));
         
         // ID do pedido - pode vir de várias propriedades
         const pedidoId = pedido.id || pedido.pedido_id || "";
@@ -128,17 +127,13 @@ function preencherTabela(pedidos) {
           itens = pedido.livros;
         }
         
-        console.log("Itens do pedido:", itens);
+        //console.log("Itens do pedido:", itens);
         
-        let frete = 24.99;
+        const valorFreteApi = parseFloat(pedido.valor_frete);
+        const totalPedidoApi = parseFloat(pedido.total);
 
-        let total = 0;
-        if (typeof pedido.total === 'number') {
-          total = pedido.total;
-        } else {
-          total = 0;
-        }
-
+        const frete = !isNaN(valorFreteApi) ? valorFreteApi : 0;
+        const total = !isNaN(totalPedidoApi) ? totalPedidoApi : 0; 
         // Subtotal é sempre o total menos o frete
         let subtotal = total - frete;
         if (subtotal < 0) subtotal = 0;
@@ -186,6 +181,8 @@ function preencherTabela(pedidos) {
                   }
                   
                   const quantidade = parseInt(item.quantidade || 1);
+                  const tipoItem = item.tipo || "Não especificado"; // Pega o tipo do item
+                  const tipoFormatado = tipoItem.toLowerCase() === 'ebook' ? 'E-book' : 'Físico';
                   
                   return `
                   <div class="order-book">
@@ -193,6 +190,7 @@ function preencherTabela(pedidos) {
                     <div class="order-book-info">
                       <h4>${titulo}</h4>
                       <p>${autor}</p>
+                      <p class="order-book-type">Tipo: ${tipoFormatado}</p> 
                       <div class="order-book-price">
                         R$ ${precoFormatado}
                         <span class="order-quantity">x${quantidade}</span>
@@ -240,29 +238,6 @@ function preencherTabela(pedidos) {
     </div>
   `;
 
-  // Adiciona evento para "Ver Detalhes"
-  container.querySelectorAll(".ver-detalhes").forEach(btn => {
-    btn.addEventListener("click", async (e) => {
-      try {
-        const pedidoId = btn.dataset.pedidoId;
-        // Mostra o skeleton enquanto carrega
-        renderSkeletonPedidos();
-        
-        const resposta = await buscarPedidoCompletoPorId(pedidoId);
-        if (resposta.status === "success") {
-          // Normaliza os dados - pode vir como array ou objeto único
-          const dados = Array.isArray(resposta.data) ? resposta.data : [resposta.data];
-          preencherTabela(dados);
-        } else {
-          console.error("Erro na resposta da API:", resposta);
-          container.innerHTML = `<p>Erro ao carregar detalhes do pedido.</p>`;
-        }
-      } catch (error) {
-        console.error("Erro ao carregar detalhes do pedido:", error);
-        container.innerHTML = `<p>Erro ao carregar detalhes do pedido.</p>`;
-      }
-    });
-  });
 }
 
 async function obterDetalhesLivro(livroId) {

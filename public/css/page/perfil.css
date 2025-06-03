@@ -147,7 +147,7 @@
 }
 
 .order-book-info p {
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.3rem 0;
   color: #666;
   font-size: 1.4rem;
 }
@@ -517,6 +517,8 @@
 .empty-state .btn {
   display: inline-block;
   margin: 0 auto;
+  text-decoration: none;
+  background-color: #004d88;
 }
 
 /* Classes utilitárias */

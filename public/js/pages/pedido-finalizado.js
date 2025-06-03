@@ -12,6 +12,7 @@ const pedidoData = document.getElementById("pedido-data");
 const pedidoStatus = document.getElementById("pedido-status");
 const orderItemsList = document.getElementById("order-items-list");
 const subtotalValue = document.getElementById("subtotal-value");
+const freteValue = document.getElementById("frete-value");
 const totalValue = document.getElementById("total-value");
 const timelineConfirmado = document.getElementById("timeline-confirmado");
 
@@ -53,6 +54,9 @@ function obterPedidoIdDaUrl() {
 async function carregarDadosPedido(pedidoId) {
     try {
         const response = await buscarPedidoCompletoPorId(pedidoId);
+
+        console.log("Resposta da API (buscarPedidoCompletoPorId):", JSON.stringify(response, null, 2));
+
         
         if (response.status === "success" && response.data) {
             processarDadosPedido(response.data);
@@ -66,27 +70,29 @@ async function carregarDadosPedido(pedidoId) {
     }
 }
 
-function processarDadosPedido(dadosPedido) {
-    if (!dadosPedido || dadosPedido.length === 0) {
-        mostrarErro();
+function processarDadosPedido(dadosPedidoApi) {
+    if (!dadosPedidoApi || !dadosPedidoApi.pedido_id) { 
+        mostrarErro("Dados do pedido inválidos ou não encontrados.");
         return;
     }
 
-    // O primeiro item contém os dados do pedido
-    const pedidoInfo = dadosPedido[0];
+    const pedidoInfoGeral = dadosPedidoApi; 
+    let itensDoPedido = dadosPedidoApi.itens;  
+
+    if (!Array.isArray(itensDoPedido)) {
+        console.warn("Itens do pedido não são um array ou estão ausentes. Tratando como lista vazia.", itensDoPedido);
+        itensDoPedido = []; 
+    }
     
-    // Preencher informações básicas do pedido
-    preencherInformacoesPedido(pedidoInfo);
+    preencherInformacoesPedido(pedidoInfoGeral);
     
-    // Processar e exibir itens do pedido
-    const itensProcessados = processarItensPedido(dadosPedido);
+    const itensProcessados = processarItensPedido(itensDoPedido); 
     exibirItensPedido(itensProcessados);
     
-    // Calcular e exibir totais
-    calcularEExibirTotais(itensProcessados, pedidoInfo.total);
+    // pedidoInfoGeral agora tem 'valor_frete' e 'total' diretamente
+    calcularEExibirTotais(itensProcessados, pedidoInfoGeral); 
     
-    // Configurar timeline
-    configurarTimeline(pedidoInfo.criado_em);
+    configurarTimeline(pedidoInfoGeral.criado_em);
 }
 
 function preencherInformacoesPedido(pedidoInfo) {
@@ -100,24 +106,18 @@ function preencherInformacoesPedido(pedidoInfo) {
     pedidoStatus.className = `value status-badge status-${pedidoInfo.status}`;
 }
 
-function processarItensPedido(dadosPedido) {
-    const itensMap = new Map();
-    
-    dadosPedido.forEach(item => {
-        const livroId = item.livro_id;
-        if (!itensMap.has(livroId)) {
-            itensMap.set(livroId, {
-                livro_id: livroId,
-                titulo: item.titulo,
-                imagem_url: item.imagem_url,
-                quantidade: item.quantidade,
-                preco_unitario: parseFloat(item.preco_unitario),
-                total: parseFloat(item.preco_unitario) * item.quantidade
-            });
-        }
+function processarItensPedido(dadosApiItens) {
+    return dadosApiItens.map(apiItem => {
+        return {
+            livro_id: apiItem.livro_id,
+            titulo: apiItem.titulo,
+            imagem_url: apiItem.imagem_url,
+            quantidade: apiItem.quantidade,
+            preco_unitario: parseFloat(apiItem.preco_unitario),
+            tipo: apiItem.item_tipo, 
+            total: parseFloat(apiItem.preco_unitario) * apiItem.quantidade
+        };
     });
-    
-    return Array.from(itensMap.values());
 }
 
 function exibirItensPedido(itens) {
@@ -134,6 +134,8 @@ function criarElementoItem(item) {
     div.className = "order-item";
     
     const imagemUrl = item.imagem_url;
+
+    const tipoFormatado = item.tipo === "ebook" ? "E-book" : "Físico";
     
     div.innerHTML = `
         <div class="order-item-image">
@@ -149,7 +151,7 @@ function criarElementoItem(item) {
                 <span>Preço unitário: ${formatarPreco(item.preco_unitario)}</span>
             </div>
             <div class="order-item-info-row">
-                <span></span>
+                <span>Tipo: ${tipoFormatado}</span>
                 <span class="order-item-price">Total: ${formatarPreco(item.total)}</span>
             </div>
         </div>
@@ -158,12 +160,19 @@ function criarElementoItem(item) {
     return div;
 }
 
-function calcularEExibirTotais(itens, totalPedido) {
-    const subtotal = itens.reduce((acc, item) => acc + item.total, 0);
-    const frete = 24.99; // Valor fixo conforme o sistema
+function calcularEExibirTotais(itens, pedidoInfoGeral) {
+    const subtotal = itens.reduce((acc, item) => acc + (item.total || 0), 0); 
     
-    subtotalValue.textContent = formatarPreco(subtotal);
-    totalValue.textContent = formatarPreco(totalPedido);
+    // const frete = parseFloat(pedidoInfoGeral.valor_frete) || 0; // Linha original
+    const totalDoPedidoDaApi = parseFloat(pedidoInfoGeral.total) || 0;
+
+    // Calcular o frete como a diferença entre o total da API e o subtotal dos itens
+    // Garante que o frete não seja negativo caso haja alguma inconsistência.
+    const freteCalculado = Math.max(0, totalDoPedidoDaApi - subtotal);
+
+    if (subtotalValue) subtotalValue.textContent = formatarPreco(subtotal);
+    if (freteValue) freteValue.textContent = formatarPreco(freteCalculado); // Usar o frete calculado
+    if (totalValue) totalValue.textContent = formatarPreco(totalDoPedidoDaApi);
 }
 
 function configurarTimeline(criadoEm) {

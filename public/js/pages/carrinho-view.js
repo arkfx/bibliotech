@@ -6,7 +6,6 @@ import {
 } from "../api/carrinho.js";
 import { mostrarModalPadrao } from "../utils/modal-utils.js";
 
-let userId = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.getElementById("cart-items-container");
@@ -19,18 +18,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  userId = await obterUserId();
+  const userId = await obterUserId();
   console.log("User ID:", userId);
 
   if (!userId) {
     container.innerHTML =
       "<p class='error-msg'>Você precisa estar logado para ver o carrinho.</p>";
+    subtotalEl.textContent = "0,00";
+    freteEl.textContent = "R$ 0,00";
+    totalEl.textContent = "0,00";
     return;
   }
 
   try {
     console.log("Buscando carrinho...");
-    const data = await getCarrinhoDoUsuario(userId);
+    const data = await getCarrinhoDoUsuario(); 
 
     if (data.status !== "success") {
       throw new Error(data.message);
@@ -52,26 +54,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     livros.forEach((livro) => {
       const item = document.createElement("div");
       item.classList.add("cart-item");
+      item.dataset.livroId = livro.livro_id;
+      item.dataset.livroTipo = livro.tipo; 
       item.innerHTML = `
         <div class="livro-info">
           <img src="${livro.imagem_url}" alt="${livro.titulo}">
           <div class="livro-detalhes">
             <h3 class="livro-titulo">
-  <a class="book-cover-link" href="detalhes-livro.html?id=${livro.livro_id}">
-    ${livro.titulo}
-  </a>
-</h3>
-          <p class="livro-autor">por ${livro.autor || "Autor desconhecido"}</p>
+              <a class="book-cover-link" href="detalhes-livro.html?id=${livro.livro_id}">
+                ${livro.titulo}
+              </a>
+            </h3>
+            <p class="livro-autor">por ${livro.autor || "Autor desconhecido"}</p>
             <p class="livro-preco">R$ ${livro.preco}</p>
+            <p class="livro-tipo">Tipo: ${livro.tipo === 'ebook' ? 'E-book' : 'Físico'}</p> 
           </div>
         </div>
         <div class="cart-actions">
           <button class="btn-menor">-</button>
           <span>${livro.quantidade}</span>
           <button class="btn-maior">+</button>
-          <button class="btn-remover" data-livro-id="${
-            livro.livro_id
-          }">🗑️</button>
+          <button class="btn-remover" data-livro-id="${livro.livro_id}" data-livro-tipo="${livro.tipo}">🗑️</button>
         </div>
       `;
 
@@ -79,14 +82,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       const btnMaior = item.querySelector(".btn-maior");
       const quantidadeSpan = item.querySelector(".cart-actions span");
 
+      if (livro.tipo === 'ebook') {
+        btnMaior.disabled = true;
+        btnMenor.disabled = true; // E-books geralmente não podem ter quantidade < 1 no carrinho
+      }
+
       const removerBtn = item.querySelector(".btn-remover");
       removerBtn.addEventListener("click", async () => {
         const livroId = removerBtn.getAttribute("data-livro-id");
+        const tipoLivro = removerBtn.getAttribute("data-livro-tipo"); 
 
         if (!confirm("Deseja remover este item do carrinho?")) return;
 
         try {
-          await removerDoCarrinho(livroId, userId);
+          await removerDoCarrinho(livroId, tipoLivro); // Passa o tipo correto
           item.remove();
           atualizarResumoCarrinho();
         } catch (err) {
@@ -100,25 +109,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         quantidade++;
         quantidadeSpan.textContent = quantidade;
 
-        await atualizarQuantidadeNoServidor(livro.livro_id, quantidade, userId);
+        await atualizarQuantidadeNoServidor(livro.livro_id, quantidade, livro.tipo); 
         atualizarResumoCarrinho();
       });
 
       btnMenor.addEventListener("click", async () => {
         let quantidade = parseInt(quantidadeSpan.textContent);
-        const livroId = livro.livro_id;
 
         if (quantidade > 1) {
           quantidade--;
           quantidadeSpan.textContent = quantidade;
 
-          await atualizarQuantidadeNoServidor(livroId, quantidade, userId);
+          await atualizarQuantidadeNoServidor(livro.livro_id, quantidade, livro.tipo); 
           atualizarResumoCarrinho();
         } else {
           if (!confirm("Deseja remover este item do carrinho?")) return;
 
           try {
-            await removerDoCarrinho(livroId, userId);
+            await removerDoCarrinho(livro.livro_id, livro.tipo); 
             item.remove();
             atualizarResumoCarrinho();
           } catch (err) {
@@ -148,8 +156,17 @@ export function atualizarResumoCarrinho() {
   let subtotal = 0;
   let frete = 0;
   let textoFrete = "";
+  let contemItemFisico = false; 
+
 
   const itens = container.querySelectorAll(".cart-item");
+
+  if (itens.length === 0) {
+    subtotalEl.textContent = "0,00";
+    freteEl.textContent = "R$ 0,00";
+    totalEl.textContent = "0,00";
+    return;
+  }
 
   itens.forEach((item) => {
     const precoTexto =
@@ -160,15 +177,21 @@ export function atualizarResumoCarrinho() {
       item.querySelector(".cart-actions span")?.textContent || "1"
     );
 
+    const tipoLivro = item.dataset.livroTipo;
+
+    if (tipoLivro === 'fisico') {
+      contemItemFisico = true;
+    }
+
     subtotal += preco * quantidade;
   });
   
-  if (subtotal === 0) {
-    textoFrete = "R$ 0,00";
-    frete = 0;
-  } else {
+  if (subtotal > 0 && contemItemFisico) {
     frete = 24.99; 
     textoFrete = `R$ ${frete.toFixed(2).replace(".", ",")}`;
+  } else {
+    frete = 0;
+    textoFrete = "R$ 0,00";
   }
 
   const total = subtotal + frete;
@@ -182,7 +205,6 @@ const btnFinalizar = document.getElementById("btnFinalizar");
 
 if (btnFinalizar) {
   btnFinalizar.addEventListener("click", async () => {
-    // Verificar se o carrinho não está vazio antes de redirecionar
     const container = document.getElementById("cart-items-container");
     let itemCount = 0;
     if (container) {
@@ -195,9 +217,11 @@ if (btnFinalizar) {
         "⚠️",
         "Carrinho Vazio",
         "Seu carrinho está vazio. Adicione itens antes de finalizar.",
-        "carrinho.html"
+        null,
+        "OK" 
       );
+      return; 
     }
-    window.location.href = "finalizar.html";
+    window.location.href = "finalizar.html"; 
   });
 }

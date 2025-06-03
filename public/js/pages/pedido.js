@@ -39,6 +39,7 @@ async function carregarResumoDoCarrinho() {
     const itensCarrinho = carrinhoData.data;
     orderItemsContainer.innerHTML = ""; // Limpa o container antes de adicionar novos itens
     let subtotalCalculado = 0;
+    let contemItemFisico = false;
 
     itensCarrinho.forEach((item) => {
       const itemHTML = `
@@ -47,16 +48,27 @@ async function carregarResumoDoCarrinho() {
           <div class="item-info">
             <h3>${item.titulo}</h3>
             <p>Quantidade: ${item.quantidade}</p>
+            <p>Tipo: ${item.tipo === 'ebook' ? 'E-book' : 'Físico'}</p>
             <p>Preço unitário: R$ ${parseFloat(item.preco).toFixed(2).replace(".", ",")}</p>
           </div>
         </div>
       `;
       orderItemsContainer.insertAdjacentHTML("beforeend", itemHTML);
       subtotalCalculado += parseFloat(item.preco) * item.quantidade;
+
+      if (item.tipo === 'fisico') {
+        contemItemFisico = true;
+      }
     });
 
-    let freteCalculado = 24.99;
-    let textoFrete = "R$ 24,99"; 
+    let freteCalculado = 0;
+    let textoFrete = "R$ 0,00"; 
+
+    if (subtotalCalculado > 0 && contemItemFisico) {
+      freteCalculado = 24.99;
+      textoFrete = "R$ 24,99";
+    }
+
     const totalCalculado = subtotalCalculado + freteCalculado;
 
     subtotalEl.textContent = subtotalCalculado.toFixed(2).replace(".", ",");
