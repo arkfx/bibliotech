@@ -71,7 +71,7 @@ function criarElementoLivro(livro) {
   // Adiciona evento ao botão
   const botaoLer = livroElement.querySelector(".ler-livro-btn");
   botaoLer.addEventListener("click", () => {
-    window.location.href = `/bibliotech/view/leitor.html?id=${livro.id}`;
+    window.location.href = `leitor.html?id=${livro.id}`;
   });
 
   return livroElement;
