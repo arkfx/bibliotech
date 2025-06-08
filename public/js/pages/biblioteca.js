@@ -37,10 +37,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     ordenarEExibirLivros(sortSelect.value);
     
     // Renderizar livros recentes (últimos 4 livros adicionados)
-    const livrosRecentes = [...todosLivros]
-      .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido))
-      .slice(0, 4);
-      
+    const agora = new Date();
+    const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
+
+    const livrosRecentes = todosLivros
+      .filter(livro => {
+        const dataAdquirido = new Date(livro.data_adquirido);
+        return dataAdquirido >= tresDiasAtras;
+      })
+      .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
+
     renderizarLivros(livrosRecentes, recentesGrid);
     
     // Configurar eventos para filtros e tabs
@@ -48,7 +54,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   } catch (error) {
     console.error("Erro ao carregar biblioteca:", error);
-    alert("Ocorreu um erro ao carregar sua biblioteca. Por favor, tente novamente mais tarde.");
+    alert(
+      "Ocorreu um erro ao carregar sua biblioteca. Por favor, tente novamente mais tarde."
+    );
   }
 });
 
@@ -107,6 +115,19 @@ function configurarEventos() {
         catalogo.style.display = "block";
         recentes.style.display = "block";
         lendo.style.display = "block";
+
+        // Mostrar apenas livros adicionados nos últimos 3 dias em "Adicionados Recentemente"
+        const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
+        const agora = new Date();
+        const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
+
+        const livrosRecentes = todosLivros.filter(livro => {
+          const dataAdquirido = new Date(livro.data_adquirido);
+          // Considera apenas livros adquiridos a partir de 3 dias atrás (inclusive hoje)
+          return dataAdquirido >= tresDiasAtras;
+        }).sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
+
+        renderizarLivros(livrosRecentes, recentesGrid);
       } else if (filtroAtual === "recentes") {
         catalogo.style.display = "none";
         recentes.style.display = "block";
@@ -200,7 +221,7 @@ function renderizarLivros(livros, container) {
     return;
   }
 
-  livros.forEach(livro => {
+  livros.forEach((livro) => {
     const livroElement = criarElementoLivro(livro);
     container.appendChild(livroElement);
   });
@@ -213,7 +234,7 @@ function criarElementoLivro(livro) {
 
   const capaUrl = livro.imagem_url || "../public/images/placeholder-book.png";
   const dataFormatada = formatarData(livro.data_adquirido);
-  const nomeGenero = livro.nome_genero || 'Gênero não informado'; 
+  const nomeGenero = livro.nome_genero || "Gênero não informado";
 
   livroElement.innerHTML = `
     <div class="book-cover-container">
@@ -230,8 +251,15 @@ function criarElementoLivro(livro) {
       <div class="book-meta">
         <span class="book-date">Adicionado em ${dataFormatada}</span>
       </div>
+      <button class="ler-livro-btn" data-id="${livro.id}">Ler</button>
     </div>
   `;
+
+  // Adiciona evento ao botão
+  const botaoLer = livroElement.querySelector(".ler-livro-btn");
+  botaoLer.addEventListener("click", () => {
+    window.location.href = `leitor.html?id=${livro.id}`;
+  });
 
   return livroElement;
 }

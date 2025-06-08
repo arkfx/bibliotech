@@ -53,4 +53,25 @@ class BibliotecaRepository extends BaseRepository
         $stmt->execute();
         return $stmt->fetchColumn() > 0;
     }
+
+    public function buscarLivroDaBiblioteca(int $usuarioId, int $livroId): ?Livro
+    {
+        $sql = "
+        SELECT l.*
+        FROM biblioteca b
+        INNER JOIN livros l ON b.livro_id = l.id
+        WHERE b.usuario_id = :usuarioId AND b.livro_id = :livroId
+        LIMIT 1
+    ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            ':usuarioId' => $usuarioId,
+            ':livroId' => $livroId
+        ]);
+
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $data ? new Livro($data) : null;
+    }
 }
