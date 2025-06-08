@@ -1,28 +1,194 @@
 import { getLivrosDaBiblioteca } from "../api/biblioteca.js";
+import { carregarGeneros } from "./genero.js";
+
+// Armazenar os livros para não precisar buscar do servidor a cada ordenação
+let todosLivros = [];
+let livrosVisiveisAtualmente = [];
+let filtroAtual = 'todos';
+let termoBusca = '';
+let generoFiltro = '';
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const booksCatalog = document.querySelector(".books-catalog");
     const emptyState = document.getElementById("empty-library");
-
+    const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
+    const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
+    
+    // Carregar os gêneros para o filtro
+    await carregarGeneros("filter-biblioteca-genres");
+    
+    // Carregar livros da biblioteca
     const response = await getLivrosDaBiblioteca();
-    const livros = response.data || [];
-
-    if (livros.length === 0) {
+    todosLivros = response.data || [];
+    
+    if (todosLivros.length === 0) {
       emptyState.classList.remove("hidden");
+      document.getElementById("adicionados-recentemente").style.display = "none";
+      document.getElementById("continuar-lendo").style.display = "none";
       return;
     } else {
       emptyState.classList.add("hidden");
+      livrosVisiveisAtualmente = [...todosLivros];
     }
 
-    // Renderiza o catálogo completo
-    renderizarLivros(livros, booksCatalog);
+    // Renderiza o catálogo completo com ordenação padrão
+    const sortSelect = document.getElementById("sort-books");
+    ordenarEExibirLivros(sortSelect.value);
+    
+    // Renderizar livros recentes (últimos 4 livros adicionados)
+    const livrosRecentes = [...todosLivros]
+      .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido))
+      .slice(0, 4);
+      
+    renderizarLivros(livrosRecentes, recentesGrid);
+    
+    // Configurar eventos para filtros e tabs
+    configurarEventos();
 
   } catch (error) {
     console.error("Erro ao carregar biblioteca:", error);
     alert("Ocorreu um erro ao carregar sua biblioteca. Por favor, tente novamente mais tarde.");
   }
 });
+
+function configurarEventos() {
+  // Ordenação
+  const sortSelect = document.getElementById("sort-books");
+  sortSelect.addEventListener("change", () => {
+    ordenarEExibirLivros(sortSelect.value);
+  });
+  
+  // Busca
+  const searchInput = document.getElementById("biblioteca-search");
+  const searchButton = document.querySelector(".btn-search");
+  
+  searchButton.addEventListener("click", () => {
+    termoBusca = searchInput.value.trim().toLowerCase();
+    aplicarFiltrosEExibir();
+  });
+  
+  searchInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      termoBusca = searchInput.value.trim().toLowerCase();
+      aplicarFiltrosEExibir();
+    }
+  });
+  
+  // Filtro de gênero
+  const generoSelect = document.getElementById("filter-biblioteca-genres");
+  generoSelect.addEventListener("change", () => {
+    generoFiltro = generoSelect.value;
+    aplicarFiltrosEExibir();
+  });
+  
+  // Tabs
+  const tabs = document.querySelectorAll(".tab-button");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      // Remover classe 'active' de todos os tabs
+      tabs.forEach(t => t.classList.remove("active"));
+      
+      // Adicionar classe 'active' ao tab clicado
+      tab.classList.add("active");
+      
+      // Atualizar filtro atual
+      filtroAtual = tab.getAttribute("data-filter");
+      
+      // Aplicar filtro
+      aplicarFiltrosEExibir();
+      
+      // Mostrar/esconder seções baseado no tab selecionado
+      const catalogo = document.getElementById("catalogo-completo");
+      const recentes = document.getElementById("adicionados-recentemente");
+      const lendo = document.getElementById("continuar-lendo");
+      
+      if (filtroAtual === "todos") {
+        catalogo.style.display = "block";
+        recentes.style.display = "block";
+        lendo.style.display = "block";
+      } else if (filtroAtual === "recentes") {
+        catalogo.style.display = "none";
+        recentes.style.display = "block";
+        lendo.style.display = "none";
+        
+        // Atualizar a exibição de recentes para mostrar mais livros
+        const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
+        const livrosRecentes = [...todosLivros]
+          .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
+        renderizarLivros(livrosRecentes, recentesGrid);
+      } else if (filtroAtual === "lendo") {
+        catalogo.style.display = "none";
+        recentes.style.display = "none";
+        lendo.style.display = "block";
+      }
+    });
+  });
+}
+
+function aplicarFiltrosEExibir() {
+  // Filtrar por termo de busca e gênero
+  let livrosFiltrados = todosLivros;
+  
+  // Aplicar filtro de texto
+  if (termoBusca) {
+    livrosFiltrados = livrosFiltrados.filter(livro => 
+      livro.titulo.toLowerCase().includes(termoBusca) || 
+      livro.autor.toLowerCase().includes(termoBusca)
+    );
+  }
+  
+  // Aplicar filtro de gênero
+  if (generoFiltro) {
+    livrosFiltrados = livrosFiltrados.filter(livro => 
+      livro.genero_id.toString() === generoFiltro
+    );
+  }
+  
+  livrosVisiveisAtualmente = livrosFiltrados;
+  
+  // Ordenar e exibir resultados
+  const sortSelect = document.getElementById("sort-books");
+  ordenarEExibirLivros(sortSelect.value);
+  
+  // Exibir mensagem se não houver resultados
+  const booksCatalog = document.querySelector(".books-catalog");
+  const emptyState = document.getElementById("empty-library");
+  
+  if (livrosVisiveisAtualmente.length === 0) {
+    booksCatalog.innerHTML = "";
+    emptyState.classList.remove("hidden");
+    emptyState.querySelector("h3").textContent = "Nenhum livro encontrado";
+    emptyState.querySelector("p").textContent = "Tente ajustar seus filtros para encontrar livros na sua biblioteca.";
+  } else {
+    emptyState.classList.add("hidden");
+  }
+}
+
+function ordenarEExibirLivros(criterio) {
+  const booksCatalog = document.querySelector(".books-catalog");
+  let livrosOrdenados = [...livrosVisiveisAtualmente];
+  
+  switch (criterio) {
+    case "data_adicao_asc":
+      livrosOrdenados.sort((a, b) => new Date(a.data_adquirido) - new Date(b.data_adquirido));
+      break;
+    case "data_adicao_desc":
+      livrosOrdenados.sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
+      break;
+    case "titulo_asc":
+      livrosOrdenados.sort((a, b) => a.titulo.localeCompare(b.titulo));
+      break;
+    case "genero_asc":
+      livrosOrdenados.sort((a, b) => (a.nome_genero || "").localeCompare(b.nome_genero || ""));
+      break;
+    default:
+      // Ordenação padrão por data mais recente
+      livrosOrdenados.sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
+  }
+  
+  renderizarLivros(livrosOrdenados, booksCatalog);
+}
 
 function renderizarLivros(livros, container) {
   if (!container) return;
@@ -45,16 +211,20 @@ function criarElementoLivro(livro) {
   livroElement.className = "book-card";
   livroElement.dataset.id = livro.id;
 
-  const capaUrl = livro.imagem_url;
+  const capaUrl = livro.imagem_url || "../public/images/placeholder-book.png";
   const dataFormatada = formatarData(livro.data_adquirido);
   const nomeGenero = livro.nome_genero || 'Gênero não informado'; 
 
   livroElement.innerHTML = `
     <div class="book-cover-container">
-      <img src="${capaUrl}" alt="Capa do livro ${livro.titulo}" class="book-cover" />
+      <a href="leitor.html?id=${livro.id}" class="book-cover-link">
+        <img src="${capaUrl}" alt="Capa do livro ${livro.titulo}" class="book-cover" />
+      </a>
     </div>
     <div class="book-info">
-      <h3 class="book-title">${livro.titulo}</h3>
+      <h3 class="book-title">
+        <a href="leitor.html?id=${livro.id}">${livro.titulo}</a>
+      </h3>
       <p class="book-genre">${nomeGenero}</p>
       <p class="book-author">${livro.autor}</p>
       <div class="book-meta">
@@ -67,7 +237,12 @@ function criarElementoLivro(livro) {
 }
 
 function formatarData(dataString) {
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-  const date = new Date(dataString);
-  return date.toLocaleDateString('pt-BR', options);
+  if (!dataString) return "data desconhecida";
+  
+  const data = new Date(dataString);
+  return data.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
 }
