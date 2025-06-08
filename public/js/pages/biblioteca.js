@@ -107,21 +107,34 @@ function configurarEventos() {
 
         const livrosRecentes = todosLivros.filter(livro => {
           const dataAdquirido = new Date(livro.data_adquirido);
-          // Considera apenas livros adquiridos a partir de 3 dias atrás (inclusive hoje)
           return dataAdquirido >= tresDiasAtras;
         }).sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
 
-        renderizarLivros(livrosRecentes, recentesGrid);
+        renderizarLivros(
+          livrosRecentes,
+          recentesGrid,
+          "Nenhum livro encontrado."
+        );
       } else if (filtroAtual === "recentes") {
         catalogo.style.display = "none";
         recentes.style.display = "block";
         lendo.style.display = "none";
-        
-        // Atualizar a exibição de recentes para mostrar mais livros
+
+        // Mostrar apenas livros adicionados nos últimos 3 dias também na aba "Recentes"
         const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
-        const livrosRecentes = [...todosLivros]
-          .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
-        renderizarLivros(livrosRecentes, recentesGrid);
+        const agora = new Date();
+        const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
+
+        const livrosRecentes = todosLivros.filter(livro => {
+          const dataAdquirido = new Date(livro.data_adquirido);
+          return dataAdquirido >= tresDiasAtras;
+        }).sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
+
+        renderizarLivros(
+          livrosRecentes,
+          recentesGrid,
+          "Nenhum livro encontrado."
+        );
       } else if (filtroAtual === "lendo") {
         catalogo.style.display = "none";
         recentes.style.display = "none";
