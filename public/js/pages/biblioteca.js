@@ -67,22 +67,6 @@ function configurarEventos() {
     ordenarEExibirLivros(sortSelect.value);
   });
   
-  // Busca
-  const searchInput = document.getElementById("biblioteca-search");
-  const searchButton = document.querySelector(".btn-search");
-  
-  searchButton.addEventListener("click", () => {
-    termoBusca = searchInput.value.trim().toLowerCase();
-    aplicarFiltrosEExibir();
-  });
-  
-  searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      termoBusca = searchInput.value.trim().toLowerCase();
-      aplicarFiltrosEExibir();
-    }
-  });
-  
   // Filtro de gênero
   const generoSelect = document.getElementById("filter-biblioteca-genres");
   generoSelect.addEventListener("change", () => {
@@ -211,13 +195,13 @@ function ordenarEExibirLivros(criterio) {
   renderizarLivros(livrosOrdenados, booksCatalog);
 }
 
-function renderizarLivros(livros, container) {
+function renderizarLivros(livros, container, mensagemVazio = "Nenhum livro encontrado.") {
   if (!container) return;
 
   container.innerHTML = "";
 
   if (livros.length === 0) {
-    container.innerHTML = `<p class="empty-message">Nenhum livro encontrado.</p>`;
+    container.innerHTML = `<p class="empty-message">${mensagemVazio}</p>`;
     return;
   }
 
