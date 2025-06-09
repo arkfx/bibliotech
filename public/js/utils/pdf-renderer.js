@@ -9,6 +9,7 @@ export class PDFOperatorRenderer {
 
   /**
    * Analyzes PDF page for images and applies theme-appropriate rendering
+   * Note: Page 1 is always rendered in light theme by the PDF viewer to avoid mask reversion issues
    */
   async analyzeAndRenderPage(page, canvas, viewport, theme = 'light') {
     this.currentTheme = theme;
@@ -28,7 +29,7 @@ export class PDFOperatorRenderer {
       if (theme === 'dark') {
         await this.renderWithDarkTheme(page, renderContext);
       } else {
-        // Standard rendering for light theme
+        // Standard rendering for light theme (including page 1 regardless of selected theme)
         await page.render(renderContext).promise;
       }
       

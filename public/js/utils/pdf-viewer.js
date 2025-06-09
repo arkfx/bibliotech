@@ -568,9 +568,12 @@ export class PDFViewer {
     this.pageRendering = true;
     
     try {
+      // Always use light theme for page 1 to avoid mask reversion issues
+      const effectiveTheme = (num === 1) ? 'light' : this.currentTheme;
+      
       const cachedImage = this.cache.getCachedPage(this.currentPDFId, num, this.scale);
       
-      if (cachedImage && this.currentTheme === 'light') {
+      if (cachedImage && effectiveTheme === 'light') {
         this.ctx.putImageData(cachedImage, 0, 0);
         this.pageRendering = false;
         
@@ -602,10 +605,10 @@ export class PDFViewer {
         page, 
         this.canvas, 
         finalViewport, 
-        this.currentTheme
+        effectiveTheme
       );
       
-      if (this.currentTheme === 'light') {
+      if (effectiveTheme === 'light') {
         const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
         this.cache.cacheRenderedPage(this.currentPDFId, num, imageData, this.scale);
       }
@@ -645,10 +648,24 @@ export class PDFViewer {
             preloadCanvas.height = viewport.height;
             preloadCanvas.width = viewport.width;
             
-            await page.render({
-              canvasContext: preloadCtx,
-              viewport: viewport
-            }).promise;
+            // Use light theme for page 1, otherwise use current theme
+            const effectiveTheme = (nextPageNum === 1) ? 'light' : this.currentTheme;
+            
+            if (effectiveTheme === 'light') {
+              // Standard rendering for light theme (including page 1)
+              await page.render({
+                canvasContext: preloadCtx,
+                viewport: viewport
+              }).promise;
+            } else {
+              // Use theme renderer for dark theme (but not page 1)
+              await this.textRenderer.analyzeAndRenderPage(
+                page, 
+                preloadCanvas, 
+                viewport, 
+                effectiveTheme
+              );
+            }
             
             const imageData = preloadCtx.getImageData(0, 0, preloadCanvas.width, preloadCanvas.height);
             this.cache.cacheRenderedPage(this.currentPDFId, nextPageNum, imageData, this.scale);
