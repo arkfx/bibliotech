@@ -1,5 +1,8 @@
 RewriteEngine On
 
+# Set proper MIME type for JavaScript modules
+AddType application/javascript .js
+
 # Serve static files directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
