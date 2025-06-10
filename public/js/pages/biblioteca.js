@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     todosLivros = response.data || [];
     livrosVisiveisAtualmente = [...todosLivros];
 
+    popularFiltroDeGeneros();
     configurarEventos();
 
     // Lógica inicial de exibição
@@ -182,6 +183,34 @@ function atualizarEstadoVazio() {
     // Cenário 3: Existem livros para exibir.
     emptyState.classList.add("hidden");
   }
+}
+
+function popularFiltroDeGeneros() {
+  const generoSelect = document.getElementById("biblioteca-genre-filter");
+  if (!generoSelect) return;
+
+  const generosUnicos = new Map();
+  todosLivros.forEach(livro => {
+    if (livro.genero_id && livro.nome_genero) {
+      generosUnicos.set(livro.genero_id, livro.nome_genero);
+    }
+  });
+
+  const generosOrdenados = [...generosUnicos.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+
+  generoSelect.innerHTML = "";
+  
+  const todosOption = document.createElement("option");
+  todosOption.value = ""; 
+  todosOption.textContent = "Todos os Gêneros";
+  generoSelect.appendChild(todosOption);
+
+  generosOrdenados.forEach(([id, nome]) => {
+    const option = document.createElement("option");
+    option.value = id;
+    option.textContent = nome;
+    generoSelect.appendChild(option);
+  });
 }
 
 function ordenarEExibirLivros(criterio) {
