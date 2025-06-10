@@ -6,8 +6,6 @@ import {
   getLinkDoLivroNaBiblioteca,
 } from "../api/biblioteca.js";
 
-import { PDFCache } from "../utils/pdf-cache.js";
-import { ProgressTracker } from "../utils/progress-tracker.js";
 import { PDFViewer } from "../utils/pdf-viewer.js";
 
 // Application initialization
@@ -138,5 +136,12 @@ window.addEventListener('resize', () => {
 window.addEventListener('load', () => {
   if (window.pdfViewer && window.pdfViewer.cache) {
     window.pdfViewer.cache.clearExpiredCache();
+  }
+});
+
+// Clean up reading session on page unload
+window.addEventListener('beforeunload', () => {
+  if (window.pdfViewer && window.pdfViewer.cleanup) {
+    window.pdfViewer.cleanup();
   }
 });
