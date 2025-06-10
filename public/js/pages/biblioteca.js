@@ -1,7 +1,6 @@
 import { getLivrosDaBiblioteca } from "../api/biblioteca.js";
 import { carregarGeneros } from "./genero.js";
 
-// Armazenar os livros para não precisar buscar do servidor a cada ordenação
 let todosLivros = [];
 let livrosVisiveisAtualmente = [];
 let filtroAtual = 'todos';
@@ -11,7 +10,6 @@ let generoFiltro = '';
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const booksCatalog = document.querySelector(".books-catalog");
-    const emptyState = document.getElementById("empty-library");
     const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
     const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
     
@@ -21,59 +19,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Carregar livros da biblioteca
     const response = await getLivrosDaBiblioteca();
     todosLivros = response.data || [];
-    
-    if (todosLivros.length === 0) {
-      emptyState.classList.remove("hidden");
-      document.getElementById("adicionados-recentemente").style.display = "none";
-      document.getElementById("continuar-lendo").style.display = "none";
-      return;
-    } else {
-      emptyState.classList.add("hidden");
-      livrosVisiveisAtualmente = [...todosLivros];
-    }
+    livrosVisiveisAtualmente = [...todosLivros];
 
-    // Renderiza o catálogo completo com ordenação padrão
-    const sortSelect = document.getElementById("sort-books");
-    ordenarEExibirLivros(sortSelect.value);
-    
-    // Renderizar livros recentes (últimos 4 livros adicionados)
-    const agora = new Date();
-    const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
-
-    const livrosRecentes = todosLivros
-      .filter(livro => {
-        const dataAdquirido = new Date(livro.data_adquirido);
-        return dataAdquirido >= tresDiasAtras;
-      })
-      .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
-
-    renderizarLivros(livrosRecentes, recentesGrid);
-    
-    // Configurar eventos para filtros e tabs
     configurarEventos();
+
+    // Lógica inicial de exibição
+    if (todosLivros.length > 0) {
+      const sortSelect = document.getElementById("sort-books");
+      ordenarEExibirLivros(sortSelect.value);
+      
+      // Renderizar livros recentes (últimos 4 livros adicionados)
+      const livrosRecentes = obterLivrosRecentes();
+      renderizarLivros(livrosRecentes, recentesGrid);
+    }
+    
+    atualizarEstadoVazio();
 
   } catch (error) {
     console.error("Erro ao carregar biblioteca:", error);
-    alert(
-      "Ocorreu um erro ao carregar sua biblioteca. Por favor, tente novamente mais tarde."
-    );
+    const booksCatalog = document.querySelector(".books-catalog");
+    if(booksCatalog) booksCatalog.innerHTML = "<p>Ocorreu um erro ao carregar sua biblioteca. Tente novamente mais tarde.</p>";
   }
 });
 
 function configurarEventos() {
-  // Ordenação
+  // Listener do campo de busca textual
+  const searchInput = document.getElementById("biblioteca-search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      termoBusca = e.target.value.toLowerCase();
+      aplicarFiltrosEExibir();
+    });
+  }
+  
+  // Listener do filtro de gênero
+  const generoSelect = document.getElementById("biblioteca-genre-filter");
+  if (generoSelect) {
+    generoSelect.addEventListener("change", () => {
+      generoFiltro = generoSelect.value;
+      aplicarFiltrosEExibir();
+    });
+  }
+
+  // Listener da ordenação
   const sortSelect = document.getElementById("sort-books");
-  sortSelect.addEventListener("change", () => {
-    ordenarEExibirLivros(sortSelect.value);
-  });
-  
-  // Filtro de gênero
-  const generoSelect = document.getElementById("filter-biblioteca-genres");
-  generoSelect.addEventListener("change", () => {
-    generoFiltro = generoSelect.value;
-    aplicarFiltrosEExibir();
-  });
-  
+  if (sortSelect) {
+    sortSelect.addEventListener("change", () => {
+      ordenarEExibirLivros(sortSelect.value);
+    });
+  }
+
   // Tabs
   const tabs = document.querySelectorAll(".tab-button");
   tabs.forEach(tab => {
@@ -102,14 +97,7 @@ function configurarEventos() {
 
         // Mostrar apenas livros adicionados nos últimos 3 dias em "Adicionados Recentemente"
         const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
-        const agora = new Date();
-        const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
-
-        const livrosRecentes = todosLivros.filter(livro => {
-          const dataAdquirido = new Date(livro.data_adquirido);
-          return dataAdquirido >= tresDiasAtras;
-        }).sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
-
+        const livrosRecentes = obterLivrosRecentes();
         renderizarLivros(
           livrosRecentes,
           recentesGrid,
@@ -122,14 +110,7 @@ function configurarEventos() {
 
         // Mostrar apenas livros adicionados nos últimos 3 dias também na aba "Recentes"
         const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
-        const agora = new Date();
-        const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
-
-        const livrosRecentes = todosLivros.filter(livro => {
-          const dataAdquirido = new Date(livro.data_adquirido);
-          return dataAdquirido >= tresDiasAtras;
-        }).sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
-
+        const livrosRecentes = obterLivrosRecentes();
         renderizarLivros(
           livrosRecentes,
           recentesGrid,
@@ -169,22 +150,41 @@ function aplicarFiltrosEExibir() {
   const sortSelect = document.getElementById("sort-books");
   ordenarEExibirLivros(sortSelect.value);
   
-  // Exibir mensagem se não houver resultados
-  const booksCatalog = document.querySelector(".books-catalog");
+  atualizarEstadoVazio();
+}
+
+function atualizarEstadoVazio() {
   const emptyState = document.getElementById("empty-library");
-  
-  if (livrosVisiveisAtualmente.length === 0) {
-    booksCatalog.innerHTML = "";
+  const booksCatalog = document.querySelector(".books-catalog");
+
+  if (!emptyState || !booksCatalog) return;
+
+  // Cenário 1: Biblioteca vazia desde o início.
+  if (todosLivros.length === 0) {
     emptyState.classList.remove("hidden");
-    emptyState.querySelector("h3").textContent = "Nenhum livro encontrado";
-    emptyState.querySelector("p").textContent = "Tente ajustar seus filtros para encontrar livros na sua biblioteca.";
+    booksCatalog.innerHTML = "";
+    emptyState.querySelector("h3").textContent = "Sua biblioteca está vazia";
+    emptyState.querySelector("p").textContent = "Você ainda não tem livros na sua biblioteca. Explore nosso catálogo e compre seu primeiro livro!";
+    const btnExplorar = emptyState.querySelector(".btn-primary");
+    if (btnExplorar) btnExplorar.style.display = 'inline-block';
+    return;
+  }
+
+  // Cenário 2: Biblioteca tem livros, mas o filtro não encontrou nenhum.
+  if (livrosVisiveisAtualmente.length === 0) {
+    emptyState.classList.remove("hidden");
+    booksCatalog.innerHTML = "";
+    emptyState.querySelector("h3").textContent = "Nenhum resultado encontrado";
+    emptyState.querySelector("p").textContent = "Tente usar outros termos na busca ou limpar os filtros.";
+    const btnExplorar = emptyState.querySelector(".btn-primary");
+    if (btnExplorar) btnExplorar.style.display = 'none';
   } else {
+    // Cenário 3: Existem livros para exibir.
     emptyState.classList.add("hidden");
   }
 }
 
 function ordenarEExibirLivros(criterio) {
-  const booksCatalog = document.querySelector(".books-catalog");
   let livrosOrdenados = [...livrosVisiveisAtualmente];
   
   switch (criterio) {
@@ -205,6 +205,7 @@ function ordenarEExibirLivros(criterio) {
       livrosOrdenados.sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
   }
   
+  const booksCatalog = document.querySelector(".books-catalog");
   renderizarLivros(livrosOrdenados, booksCatalog);
 }
 
@@ -270,4 +271,12 @@ function formatarData(dataString) {
     month: '2-digit',
     year: 'numeric'
   });
+}
+
+function obterLivrosRecentes(dias = 3) {
+  const agora = new Date();
+  const limite = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - dias);
+  return todosLivros
+    .filter(livro => new Date(livro.data_adquirido) >= limite)
+    .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
 }
