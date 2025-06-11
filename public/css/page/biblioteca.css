@@ -109,6 +109,35 @@
   transform: scale(1.05);
 }
 
+.progress-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.progress-bar {
+  height: 4px;
+  background: #e74c3c;
+  border-radius: 2px;
+  flex-grow: 1;
+  max-width: 100px;
+}
+
+.progress-text {
+  font-weight: bold;
+  min-width: 30px;
+}
+
 .book-card .book-actions {
   position: absolute;
   top: 1rem;
@@ -188,6 +217,12 @@
 .book-card .book-date {
   font-size: 1.2rem;
   color: #777;
+}
+
+.book-card .book-progress {
+  font-size: 1.2rem;
+  color: #004d88;
+  font-weight: 500;
 }
 
 

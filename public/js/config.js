@@ -1,4 +1,4 @@
-const getBaseUrl = () => {
+export const getBaseUrl = () => {
   const origin = window.location.origin;
   const path = window.location.pathname;
 

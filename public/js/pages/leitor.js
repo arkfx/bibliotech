@@ -12,6 +12,7 @@ import { PDFViewer } from "../utils/pdf-viewer.js";
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const livroId = params.get("id");
+  const targetPage = params.get("page"); // Get target page from URL if available
 
   if (!livroId) {
     showError("ID do livro não encontrado.");
@@ -23,6 +24,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   // Make globally available for window resize handler
   window.pdfViewer = pdfViewer;
+  
+  // Store target page for later navigation
+  if (targetPage && parseInt(targetPage) > 1) {
+    window.targetPage = parseInt(targetPage);
+    console.log('Target page from URL:', window.targetPage);
+  }
 
   try {
     // Load book data
@@ -43,6 +50,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Wait for PDF.js to be available
     await waitForPDFJS();
     await pdfViewer.loadPDF(pdfUrl);
+    
+    // Navigation to target page will now be handled by the reading session after it's fully initialized
     
   } catch (err) {
     console.error("Erro ao carregar leitor:", err);

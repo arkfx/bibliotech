@@ -2616,21 +2616,6 @@
   }
 }
 
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  .performance-indicator {
-    transition: opacity var(--md-duration-short) ease;
-  }
-  
-  .performance-spinner {
-    animation: none;
-  }
-  
-  .performance-fill {
-    transition: none;
-  }
-}
-
 /* Dark Theme Comprehensive Styling */
 [data-theme="dark"] .reader-controls {
   background: rgba(45, 45, 45, 0.95);
@@ -3594,4 +3579,140 @@
     max-width: 140px;
   }
 
+}
+
+/* Page Transition Overlay Styles */
+.page-transition-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity var(--md-duration-medium) var(--md-easing-standard);
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.page-transition-content {
+  text-align: center;
+  padding: var(--md-spacing-lg);
+  border-radius: var(--md-radius-large);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--md-shadow-2);
+  animation: slideInScale var(--md-duration-medium) var(--md-easing-decelerate);
+}
+
+.page-transition-icon {
+  font-size: 2rem;
+  margin-bottom: var(--md-spacing-md);
+  opacity: 0.8;
+}
+
+.page-transition-title {
+  font-size: 1.2rem;
+  margin-bottom: var(--md-spacing-sm);
+  color: var(--text-primary);
+}
+
+.page-transition-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Canvas transition effects */
+.pdf-canvas-transition {
+  transition: transform var(--md-duration-long) var(--md-easing-standard),
+              opacity var(--md-duration-long) var(--md-easing-standard),
+              filter var(--md-duration-medium) var(--md-easing-standard);
+}
+
+.pdf-canvas-transition.transitioning {
+  transform: scale(0.95);
+  opacity: 0.6;
+  filter: blur(2px);
+}
+
+@keyframes slideInScale {
+  0% {
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Dark theme support for page transitions */
+[data-theme="dark"] .page-transition-overlay {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .page-transition-content {
+  background: var(--glass-bg-medium);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+[data-theme="dark"] .page-transition-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .page-transition-subtitle {
+  color: var(--text-secondary);
+}
+
+/* Responsive adjustments for page transitions */
+@media (max-width: 768px) {
+  .page-transition-content {
+    padding: var(--md-spacing-md);
+    margin: var(--md-spacing-md);
+  }
+  
+  .page-transition-title {
+    font-size: 1.1rem;
+  }
+  
+  .page-transition-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .page-transition-icon {
+    font-size: 1.5rem;
+    margin-bottom: var(--md-spacing-sm);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-overlay {
+    transition: opacity 0.2s ease;
+  }
+  
+  .page-transition-content {
+    animation: none;
+  }
+  
+  .pdf-canvas-transition {
+    transition: opacity 0.2s ease;
+  }
+  
+  .pdf-canvas-transition.transitioning {
+    transform: none;
+    filter: none;
+  }
 }
