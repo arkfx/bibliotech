@@ -10,7 +10,7 @@ export class ReadingPreferences {
     this.storagePrefix = 'bibliotech_reader_prefs';
     this.defaultPreferences = {
       // Theme preferences
-      theme: 'light',
+      theme: 'dark',
       autoTheme: false, // System-aware theme switching
       
       // Zoom and view preferences
@@ -313,7 +313,7 @@ export class ReadingPreferences {
       let timeBasedInterval;
       if (this.getPreference('autoTheme', true) && this.getPreference('timeBasedTheme', false)) {
         timeBasedInterval = setInterval(() => {
-          const currentTheme = this.getPreference('theme', 'light');
+          const currentTheme = this.getPreference('theme', 'dark');
           const timeBasedTheme = this.getTimeBasedTheme();
           
           if (currentTheme !== timeBasedTheme && typeof callback === 'function') {
@@ -344,7 +344,7 @@ export class ReadingPreferences {
     
     // If auto theme is disabled, use manual preference
     if (!prefs.autoTheme) {
-      return prefs.theme || 'light';
+      return prefs.theme || 'dark';
     }
     
     // Check for reading environment context

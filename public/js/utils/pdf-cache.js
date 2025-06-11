@@ -93,26 +93,40 @@ export class PDFCache {
     }
   }
 
-  cacheRenderedPage(pdfId, pageNum, imageData, scale) {
-    const key = `${pdfId}_${pageNum}_${scale}`;
-    this.pageCache.set(key, {
-      imageData,
-      timestamp: Date.now()
-    });
-    
-    // Limit cache size (keep last 10 pages)
-    if (this.pageCache.size > 10) {
-      const firstKey = this.pageCache.keys().next().value;
-      this.pageCache.delete(firstKey);
+  cacheRenderedPage(pdfId, pageNum, imageData, scale, theme = 'light') {
+    try {
+      const key = `${pdfId}_page_${pageNum}_${scale}_${theme}`;
+      this.pageCache.set(key, {
+        imageData: imageData,
+        timestamp: Date.now(),
+        scale: scale,
+        theme: theme,
+        pageNum: pageNum,
+        pdfId: pdfId
+      });
+      
+      // Limit cache size (keep last 20 pages per theme)
+      this.manageCacheSize();
+    } catch (error) {
+      console.log('Could not cache page:', error);
     }
   }
 
-  getCachedPage(pdfId, pageNum, scale) {
-    const key = `${pdfId}_${pageNum}_${scale}`;
-    const cached = this.pageCache.get(key);
-    
-    if (cached && this.isCacheValid(cached.timestamp)) {
-      return cached.imageData;
+  getCachedPage(pdfId, pageNum, scale, theme = 'light') {
+    try {
+      const key = `${pdfId}_page_${pageNum}_${scale}_${theme}`;
+      const cached = this.pageCache.get(key);
+      
+      if (cached && this.isCacheValid(cached.timestamp)) {
+        return cached.imageData;
+      }
+      
+      // Remove expired cache entry
+      if (cached) {
+        this.pageCache.delete(key);
+      }
+    } catch (error) {
+      console.log('Could not retrieve cached page:', error);
     }
     
     return null;
@@ -160,38 +174,17 @@ export class PDFCache {
   }
 
   async manageCacheSize() {
-    if (!this.db) return;
+    const maxCacheSize = 40; // 20 pages per theme (light + dark)
     
-    try {
-      const transaction = this.db.transaction(['pdfs'], 'readwrite');
-      const store = transaction.objectStore('pdfs');
-      const index = store.index('timestamp');
+    if (this.pageCache.size > maxCacheSize) {
+      // Sort by timestamp and remove oldest entries
+      const entries = Array.from(this.pageCache.entries());
+      entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
       
-      // Get all entries sorted by timestamp (newest first)
-      const entries = [];
-      const request = index.openCursor(null, 'prev');
-      
-      await new Promise((resolve) => {
-        request.onsuccess = (event) => {
-          const cursor = event.target.result;
-          if (cursor) {
-            entries.push(cursor.value);
-            cursor.continue();
-          } else {
-            resolve();
-          }
-        };
+      const entriesToRemove = entries.slice(0, this.pageCache.size - maxCacheSize);
+      entriesToRemove.forEach(([key]) => {
+        this.pageCache.delete(key);
       });
-      
-      // Keep only the 5 most recent PDFs
-      if (entries.length > 5) {
-        const toDelete = entries.slice(5);
-        for (const entry of toDelete) {
-          await store.delete(entry.id);
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to manage cache size:', error);
     }
   }
 
@@ -233,5 +226,19 @@ export class PDFCache {
       console.warn('Failed to get cache stats:', error);
       return null;
     }
+  }
+
+  // Clear cache for specific theme
+  clearThemeCache(pdfId, theme) {
+    if (!this.pageCache) return;
+    
+    const keysToDelete = [];
+    for (const [key, value] of this.pageCache.entries()) {
+      if (value.pdfId === pdfId && value.theme === theme) {
+        keysToDelete.push(key);
+      }
+    }
+    
+    keysToDelete.forEach(key => this.pageCache.delete(key));
   }
 } 
