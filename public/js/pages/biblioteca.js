@@ -1,5 +1,6 @@
 import { getLivrosDaBiblioteca } from "../api/biblioteca.js";
 import { carregarGeneros } from "./genero.js";
+import { getBooksInProgress, getRecentlyReadBooks } from "../api/reading-progress.js";
 
 let todosLivros = [];
 let livrosVisiveisAtualmente = [];
@@ -33,6 +34,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const livrosRecentes = obterLivrosRecentes();
       renderizarLivros(livrosRecentes, recentesGrid);
     }
+    
+    // Carregar e renderizar livros em progresso (para "Continue Reading")
+    await carregarLivrosEmProgresso();
     
     atualizarEstadoVazio();
 
@@ -73,7 +77,7 @@ function configurarEventos() {
   // Tabs
   const tabs = document.querySelectorAll(".tab-button");
   tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
+    tab.addEventListener("click", async () => {
       // Remover classe 'active' de todos os tabs
       tabs.forEach(t => t.classList.remove("active"));
       
@@ -121,6 +125,9 @@ function configurarEventos() {
         catalogo.style.display = "none";
         recentes.style.display = "none";
         lendo.style.display = "block";
+        
+        // Carregar e exibir livros em progresso
+        await carregarEExibirLivrosEmProgresso();
       }
     });
   });
@@ -278,7 +285,9 @@ function criarElementoLivro(livro) {
       <div class="book-meta">
         <span class="book-date">Adicionado em ${dataFormatada}</span>
       </div>
-      <button class="ler-livro-btn" data-id="${livro.id}">Ler</button>
+      <div class="book-bottom-actions">
+        <button class="action-button ler-livro-btn" data-id="${livro.id}">Ler</button>
+      </div>
     </div>
   `;
 
@@ -308,4 +317,110 @@ function obterLivrosRecentes(dias = 3) {
   return todosLivros
     .filter(livro => new Date(livro.data_adquirido) >= limite)
     .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
+}
+
+// Função para carregar livros em progresso (para seção "Continue Reading")
+async function carregarLivrosEmProgresso() {
+  try {
+    const livrosProgresso = await getRecentlyReadBooks(5);
+    const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
+    
+    if (lendoGrid) {
+      renderizarLivrosComProgresso(livrosProgresso, lendoGrid);
+    }
+  } catch (error) {
+    console.error("Erro ao carregar livros em progresso:", error);
+  }
+}
+
+// Função para carregar e exibir todos os livros em progresso (para aba "Reading")
+async function carregarEExibirLivrosEmProgresso() {
+  try {
+    const livrosProgresso = await getBooksInProgress();
+    const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
+    
+    if (lendoGrid) {
+      if (livrosProgresso.length === 0) {
+        lendoGrid.innerHTML = '<p class="empty-message">Você não tem nenhum livro em progresso.</p>';
+      } else {
+        renderizarLivrosComProgresso(livrosProgresso, lendoGrid);
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao carregar livros em progresso:", error);
+    const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
+    if (lendoGrid) {
+      lendoGrid.innerHTML = '<p class="empty-message">Erro ao carregar livros em progresso.</p>';
+    }
+  }
+}
+
+// Função para renderizar livros com informação de progresso
+function renderizarLivrosComProgresso(livros, container) {
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  livros.forEach((livro) => {
+    const livroElement = criarElementoLivroComProgresso(livro);
+    container.appendChild(livroElement);
+  });
+}
+
+// Função para criar elemento de livro com informação de progresso
+function criarElementoLivroComProgresso(livro) {
+  const livroElement = document.createElement("div");
+  livroElement.className = "book-card";
+  livroElement.dataset.id = livro.livro_id || livro.id;
+
+  const capaUrl = livro.imagem_url || "../public/images/placeholder-book.png";
+  const dataFormatada = formatarData(livro.data_adquirido);
+  const nomeGenero = livro.nome_genero || "Gênero não informado";
+  const progressoFormatado = Math.round(livro.progress_percentage || 0);
+  const paginaAtual = livro.current_page || 1;
+  const totalPaginas = livro.total_pages || 1;
+
+  livroElement.innerHTML = `
+    <div class="book-cover-container">
+      <a href="leitor.html?id=${livro.livro_id || livro.id}" class="book-cover-link">
+        <img src="${capaUrl}" alt="Capa do livro ${livro.titulo}" class="book-cover" />
+        <div class="progress-overlay">
+          <div class="progress-bar" style="width: ${progressoFormatado}%"></div>
+          <span class="progress-text">${progressoFormatado}%</span>
+        </div>
+      </a>
+    </div>
+    <div class="book-info">
+      <h3 class="book-title">
+        <a href="leitor.html?id=${livro.livro_id || livro.id}">${livro.titulo}</a>
+      </h3>
+      <p class="book-genre">${nomeGenero}</p>
+      <p class="book-author">${livro.autor}</p>
+      <div class="book-meta">
+        <span class="book-progress">Página ${paginaAtual} de ${totalPaginas}</span>
+        <span class="book-date">Adicionado em ${dataFormatada}</span>
+      </div>
+      <div class="book-bottom-actions">
+        <button class="action-button ler-livro-btn" data-id="${livro.livro_id || livro.id}" data-current-page="${paginaAtual}">
+          ${progressoFormatado > 0 ? 'Continuar Lendo' : 'Ler'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Adiciona evento ao botão
+  const botaoLer = livroElement.querySelector(".ler-livro-btn");
+  botaoLer.addEventListener("click", () => {
+    const livroId = livro.livro_id || livro.id;
+    const currentPage = paginaAtual;
+    
+    // If there's reading progress, include it in the URL for immediate navigation
+    if (currentPage > 1) {
+      window.location.href = `leitor.html?id=${livroId}&page=${currentPage}`;
+    } else {
+      window.location.href = `leitor.html?id=${livroId}`;
+    }
+  });
+
+  return livroElement;
 }

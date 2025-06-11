@@ -885,9 +885,22 @@ export class PDFViewer {
       // Initialize reading session AFTER showing PDF controls
       const userId = await this.getUserId();
       if (bookId && userId) {
-        this.readingSession = new ReadingSession(bookId, userId);
+        // Import the database-backed reading session
+        const { ReadingSessionDB } = await import('./reading-session-db.js');
+        this.readingSession = new ReadingSessionDB(bookId, userId);
         // Update progress immediately after initialization
+        await this.readingSession.init();
         this.readingSession.updateProgress(this.pageNum, this.pageCount);
+        
+        // Handle URL-based page navigation (from "Continue Reading" buttons)
+        if (window.targetPage) {
+          console.log('Navigating to target page from URL:', window.targetPage);
+          if (window.targetPage >= 1 && window.targetPage <= this.pageCount) {
+            this.goToPage(window.targetPage);
+          }
+          // Clear the target page
+          delete window.targetPage;
+        }
       }
       
     } catch (error) {
@@ -1620,18 +1633,24 @@ export class PDFViewer {
 
   // Add method to go to specific page (used by reading session resume)
   goToPage(pageNumber) {
+    console.log(`PDF Viewer - goToPage called with pageNumber: ${pageNumber}, pageCount: ${this.pageCount}, viewMode: ${this.viewMode}`);
+    
     if (pageNumber >= 1 && pageNumber <= this.pageCount) {
       if (this.viewMode === 'continuous' && this.virtualScrolling) {
+        console.log('Using continuous mode navigation');
         this.scrollToPageInContinuousMode(pageNumber);
       } else {
-        // Standard page mode rendering
-        this.renderPage(pageNumber);
+        // Enhanced page mode navigation with smooth transition
+        console.log('Using page mode navigation with smooth transition');
+        this.smoothPageTransition(pageNumber);
       }
       
       // Update reading session in both modes
       if (this.readingSession) {
         this.readingSession.updateProgress(pageNumber, this.pageCount);
       }
+    } else {
+      console.warn(`Invalid page number: ${pageNumber}. Must be between 1 and ${this.pageCount}`);
     }
   }
 
@@ -1655,6 +1674,54 @@ export class PDFViewer {
     // Update current page number immediately
     this.pageNum = pageNumber;
     this.updateUI();
+  }
+
+  async smoothPageTransition(targetPage) {
+    // Skip smooth transition for small jumps (regular navigation)
+    const pageJump = Math.abs(targetPage - this.pageNum);
+    if (pageJump <= 1) {
+      await this.renderPage(targetPage);
+      return;
+    }
+
+    console.log(`PDF Viewer - Starting continuous-style smooth transition to page ${targetPage} (jump of ${pageJump} pages)`);
+
+    // Store current mode state
+    const originalViewMode = this.viewMode;
+    const wasInPageMode = (originalViewMode === 'page');
+    
+    if (wasInPageMode) {
+      // Temporarily switch to continuous mode for the smooth animation
+      console.log('Temporarily switching to continuous mode for smooth animation');
+      this.isSwitchingModes = true; // Prevent jarring auto-scroll during switch
+      
+      await this.enableContinuousMode();
+      
+      // Small delay to ensure continuous mode is fully initialized
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      this.isSwitchingModes = false; // Re-enable smooth scrolling
+    }
+    
+    // Use the existing smooth continuous mode navigation
+    this.scrollToPageInContinuousMode(targetPage);
+    
+    if (wasInPageMode) {
+      // Wait for the smooth scroll animation to complete
+      await new Promise(resolve => setTimeout(resolve, 800)); // Match CSS transition duration
+      
+      // Switch back to page mode
+      console.log('Switching back to page mode after animation');
+      this.isSwitchingModes = true; // Prevent jarring transitions
+      
+      await this.enablePageMode();
+      
+      // Ensure we're on the correct page in page mode
+      await this.renderPage(targetPage);
+      
+      this.isSwitchingModes = false;
+      console.log(`Continuous-style smooth transition to page ${targetPage} completed`);
+    }
   }
 
   // Enhanced Cleanup method
