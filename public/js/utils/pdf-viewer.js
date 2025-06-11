@@ -491,6 +491,7 @@ export class PDFViewer {
       theme = 'light';
     }
     
+    const previousTheme = this.currentTheme;
     this.currentTheme = theme;
     document.documentElement.setAttribute('data-theme', theme);
     
@@ -503,22 +504,33 @@ export class PDFViewer {
     }
     
     this.updateThemeIcons();
+    
+    // Force re-render if PDF is loaded and theme actually changed
+    if (this.pdfDoc && previousTheme !== theme) {
+      this.clearThemeCache(previousTheme);
+      this.forceRerenderCurrentView();
+    }
   }
 
   cycleTheme() {
     const themes = ['light', 'dark'];
     const currentIndex = themes.indexOf(this.currentTheme);
     const nextIndex = (currentIndex + 1) % themes.length;
+    const previousTheme = this.currentTheme;
+    
     this.setTheme(themes[nextIndex]);
     this.updateThemeButtons();
 
-    // 💡 Re-render pages instantly so the theme change is visible immediately
+    // 💡 Clear cache and re-render pages instantly so the theme change is visible immediately
     if (this.pdfDoc) {
+      // Clear cached pages for the previous theme to force fresh rendering
+      this.clearThemeCache(previousTheme);
+      
       if (this.viewMode === 'page') {
-        // Re-render current page
+        // Force re-render current page by bypassing cache
         this.renderPage(this.pageNum);
       } else if (this.viewMode === 'continuous' && this.virtualScrolling) {
-        // Re-render already rendered pages in continuous mode
+        // Re-render all visible pages in continuous mode
         this.virtualScrolling.renderedPages.forEach((pageData, pageNum) => {
           if (pageData && pageData.canvas) {
             // Mark as not rendered to force fresh render with new theme
@@ -527,6 +539,13 @@ export class PDFViewer {
           }
         });
       }
+    }
+  }
+
+  // Helper method to clear cache for a specific theme
+  clearThemeCache(theme) {
+    if (this.cache && this.currentPDFId) {
+      this.cache.clearThemeCache(this.currentPDFId, theme);
     }
   }
 
@@ -921,9 +940,9 @@ export class PDFViewer {
       // Always use light theme for page 1 to avoid mask reversion issues
       const effectiveTheme = (num === 1) ? 'light' : this.currentTheme;
       
-      const cachedImage = this.cache.getCachedPage(this.currentPDFId, num, this.scale);
+      const cachedImage = this.cache.getCachedPage(this.currentPDFId, num, this.scale, effectiveTheme);
       
-      if (cachedImage && effectiveTheme === 'light') {
+      if (cachedImage) {
         this.ctx.putImageData(cachedImage, 0, 0);
         this.pageRendering = false;
         
@@ -958,10 +977,9 @@ export class PDFViewer {
         effectiveTheme
       );
       
-      if (effectiveTheme === 'light') {
-        const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-        this.cache.cacheRenderedPage(this.currentPDFId, num, imageData, this.scale);
-      }
+      // Cache the rendered page with theme information
+      const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+      this.cache.cacheRenderedPage(this.currentPDFId, num, imageData, this.scale, effectiveTheme);
       
       this.pageRendering = false;
       
@@ -986,7 +1004,10 @@ export class PDFViewer {
     if (this.pageNum < this.pageCount) {
       const nextPageNum = this.pageNum + 1;
       
-      const cachedNext = this.cache.getCachedPage(this.currentPDFId, nextPageNum, this.scale);
+      // Use light theme for page 1, otherwise use current theme
+      const effectiveTheme = (nextPageNum === 1) ? 'light' : this.currentTheme;
+      
+      const cachedNext = this.cache.getCachedPage(this.currentPDFId, nextPageNum, this.scale, effectiveTheme);
       if (!cachedNext) {
         setTimeout(async () => {
           try {
@@ -997,9 +1018,6 @@ export class PDFViewer {
             const preloadCtx = preloadCanvas.getContext('2d');
             preloadCanvas.height = viewport.height;
             preloadCanvas.width = viewport.width;
-            
-            // Use light theme for page 1, otherwise use current theme
-            const effectiveTheme = (nextPageNum === 1) ? 'light' : this.currentTheme;
             
             if (effectiveTheme === 'light') {
               // Standard rendering for light theme (including page 1)
@@ -1018,7 +1036,7 @@ export class PDFViewer {
             }
             
             const imageData = preloadCtx.getImageData(0, 0, preloadCanvas.width, preloadCanvas.height);
-            this.cache.cacheRenderedPage(this.currentPDFId, nextPageNum, imageData, this.scale);
+            this.cache.cacheRenderedPage(this.currentPDFId, nextPageNum, imageData, this.scale, effectiveTheme);
           } catch (error) {
             // Silently fail preload
           }
@@ -1548,10 +1566,14 @@ export class PDFViewer {
         );
       }
       
+      // Cache the rendered page with theme information
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      this.cache.cacheRenderedPage(this.currentPDFId, pageNum, imageData, this.virtualScrolling.effectiveScale, effectiveTheme);
+      
       // Mark as rendered
       pageData.rendered = true;
       
-      console.log(`PDF Viewer - Rendered virtual page ${pageNum}`);
+      console.log(`PDF Viewer - Rendered virtual page ${pageNum} with theme ${effectiveTheme}`);
       
     } catch (error) {
       console.error(`Error rendering virtual page ${pageNum}:`, error);
@@ -1640,9 +1662,9 @@ export class PDFViewer {
         console.log('Using continuous mode navigation');
         this.scrollToPageInContinuousMode(pageNumber);
       } else {
-        // Enhanced page mode navigation with smooth transition
-        console.log('Using page mode navigation with smooth transition');
-        this.smoothPageTransition(pageNumber);
+        // Direct page mode navigation without animation
+        console.log('Using direct page mode navigation');
+        this.renderPage(pageNumber);
       }
       
       // Update reading session in both modes
@@ -1674,54 +1696,6 @@ export class PDFViewer {
     // Update current page number immediately
     this.pageNum = pageNumber;
     this.updateUI();
-  }
-
-  async smoothPageTransition(targetPage) {
-    // Skip smooth transition for small jumps (regular navigation)
-    const pageJump = Math.abs(targetPage - this.pageNum);
-    if (pageJump <= 1) {
-      await this.renderPage(targetPage);
-      return;
-    }
-
-    console.log(`PDF Viewer - Starting continuous-style smooth transition to page ${targetPage} (jump of ${pageJump} pages)`);
-
-    // Store current mode state
-    const originalViewMode = this.viewMode;
-    const wasInPageMode = (originalViewMode === 'page');
-    
-    if (wasInPageMode) {
-      // Temporarily switch to continuous mode for the smooth animation
-      console.log('Temporarily switching to continuous mode for smooth animation');
-      this.isSwitchingModes = true; // Prevent jarring auto-scroll during switch
-      
-      await this.enableContinuousMode();
-      
-      // Small delay to ensure continuous mode is fully initialized
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      this.isSwitchingModes = false; // Re-enable smooth scrolling
-    }
-    
-    // Use the existing smooth continuous mode navigation
-    this.scrollToPageInContinuousMode(targetPage);
-    
-    if (wasInPageMode) {
-      // Wait for the smooth scroll animation to complete
-      await new Promise(resolve => setTimeout(resolve, 800)); // Match CSS transition duration
-      
-      // Switch back to page mode
-      console.log('Switching back to page mode after animation');
-      this.isSwitchingModes = true; // Prevent jarring transitions
-      
-      await this.enablePageMode();
-      
-      // Ensure we're on the correct page in page mode
-      await this.renderPage(targetPage);
-      
-      this.isSwitchingModes = false;
-      console.log(`Continuous-style smooth transition to page ${targetPage} completed`);
-    }
   }
 
   // Enhanced Cleanup method
@@ -1761,6 +1735,25 @@ export class PDFViewer {
     }
     if (this.adaptiveLayout) {
       this.adaptiveLayout.cleanup();
+    }
+  }
+
+  // Force re-render current view (used for theme changes)
+  forceRerenderCurrentView() {
+    if (!this.pdfDoc) return;
+    
+    if (this.viewMode === 'page') {
+      // Force re-render current page
+      this.renderPage(this.pageNum);
+    } else if (this.viewMode === 'continuous' && this.virtualScrolling) {
+      // Re-render all visible pages in continuous mode
+      this.virtualScrolling.renderedPages.forEach((pageData, pageNum) => {
+        if (pageData && pageData.canvas) {
+          // Mark as not rendered to force fresh render with new theme
+          pageData.rendered = false;
+          this.renderPageToVirtualCanvas(pageNum, pageData.canvas);
+        }
+      });
     }
   }
 } 

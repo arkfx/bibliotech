@@ -205,7 +205,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  align-self: flex-start;
+  align-self: center;
 }
 
 .book-card .book-author {

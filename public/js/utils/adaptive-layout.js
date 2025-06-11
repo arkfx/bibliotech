@@ -282,12 +282,7 @@ export class AdaptiveLayout {
       sidebar.style.transform = 'translateX(0)';
       sidebar.style.width = '30rem';
     }
-    
-    if (pdfReader) {
-      pdfReader.style.marginLeft = '30rem';
-      pdfReader.style.width = 'calc(100% - 30rem)';
-    }
-    
+
     if (controls) {
       controls.style.display = 'flex';
     }
