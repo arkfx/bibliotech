@@ -255,7 +255,9 @@ function criarElementoLivro(livro) {
       <div class="book-meta">
         <span class="book-date">Adicionado em ${dataFormatada}</span>
       </div>
-      <button class="ler-livro-btn" data-id="${livro.id}">Ler</button>
+      <div class="book-bottom-actions">
+        <button class="action-button ler-livro-btn" data-id="${livro.id}">Ler</button>
+      </div>
     </div>
   `;
 
@@ -360,9 +362,11 @@ function criarElementoLivroComProgresso(livro) {
         <span class="book-progress">Página ${paginaAtual} de ${totalPaginas}</span>
         <span class="book-date">Adicionado em ${dataFormatada}</span>
       </div>
-      <button class="ler-livro-btn" data-id="${livro.livro_id || livro.id}" data-current-page="${paginaAtual}">
-        ${progressoFormatado > 0 ? 'Continuar Lendo' : 'Ler'}
-      </button>
+      <div class="book-bottom-actions">
+        <button class="action-button ler-livro-btn" data-id="${livro.livro_id || livro.id}" data-current-page="${paginaAtual}">
+          ${progressoFormatado > 0 ? 'Continuar Lendo' : 'Ler'}
+        </button>
+      </div>
     </div>
   `;
 
