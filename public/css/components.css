@@ -407,7 +407,7 @@
 .book-info {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 0;
 }
 
 .book-info h3 {

@@ -15,6 +15,21 @@ async function prepararEventosCarrinho() {
       const btn = e.currentTarget;
       const titulo = btn.dataset.titulo;
       const livroId = parseInt(btn.dataset.id);
+      
+      let tipo = "fisico"; 
+      const opcoesCompraContainer = document.querySelector(".opcoes-compra");
+      if (opcoesCompraContainer) {
+        const opcaoAtiva = opcoesCompraContainer.querySelector(".opcao.ativo");
+        if (opcaoAtiva && opcaoAtiva.dataset.tipo) {
+          tipo = opcaoAtiva.dataset.tipo; 
+        }
+      }
+      
+      if (btn.dataset.tipo) { 
+          tipo = btn.dataset.tipo;
+      }
+
+      console.log("Tipo selecionado para o carrinho:", tipo);
 
       if (!userId) {
         mostrarModalPadrao(
@@ -30,21 +45,30 @@ async function prepararEventosCarrinho() {
       btn.disabled = true;
       btn.classList.add("loading");
       try {
-        await addBookToCart(livroId, 1); // ✅ Removido userId
-        //modal 
+        await addBookToCart(livroId, 1, tipo); 
         mostrarModalPadrao(
           "✅🛒",
-          "Sucesso",
-          `O livro "${titulo}" foi adicionado ao carrinho.`,
+          "Sucesso!",
+          `O livro "${titulo}" (${tipo === 'ebook' ? 'E-book' : 'Físico'}) foi adicionado ao carrinho.`,
           "carrinho.html",
           "Ir para o carrinho"
         );
       } catch (err) {
         console.error("Erro ao adicionar ao carrinho:", err);
+        let mensagemErroApi = "Erro ao adicionar ao carrinho."; // Mensagem padrão
+        
+        if (err && err.response && err.response.data && err.response.data.message) {
+            // Exemplo para erros vindos de uma resposta HTTP com JSON (como com Axios)
+            mensagemErroApi = err.response.data.message;
+        } else if (err && err.message) {
+            // Caso o erro seja mais simples e tenha apenas uma propriedade 'message'
+            mensagemErroApi = err.message;
+        }
+
         mostrarModalPadrao(
-          "❌",
-          "Erro",
-          "Erro ao adicionar ao carrinho."
+          "⚠️", // Ícone de aviso
+          "Atenção",
+          mensagemErroApi // Exibe a mensagem específica da API
         );
       } finally {
         btn.disabled = false;

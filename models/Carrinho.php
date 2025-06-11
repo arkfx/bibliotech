@@ -6,6 +6,7 @@ class Carrinho
     public int $usuario_id;
     public int $livro_id;
     public int $quantidade;
+    public string $tipo;
 
     public function __construct(array $data)
     {
@@ -13,6 +14,7 @@ class Carrinho
         $this->usuario_id = (int) ($data['usuario_id'] ?? 0);
         $this->livro_id = (int) ($data['livro_id'] ?? 0);
         $this->quantidade = (int) ($data['quantidade'] ?? 1);
+        $this->tipo = $data['tipo'] ?? 'fisico';
     }
 
     public function toArray(): array
@@ -21,7 +23,8 @@ class Carrinho
             'id' => $this->id,
             'usuario_id' => $this->usuario_id,
             'livro_id' => $this->livro_id,
-            'quantidade' => $this->quantidade
+            'quantidade' => $this->quantidade,
+            'tipo' => $this->tipo
         ];
     }
 }

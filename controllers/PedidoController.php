@@ -5,7 +5,9 @@ require_once __DIR__ . '/../repositories/PedidoRepository.php';
 require_once __DIR__ . '/../repositories/PedidoItemRepository.php';
 require_once __DIR__ . '/../repositories/CarrinhoRepository.php';
 require_once __DIR__ . '/../repositories/LivroRepository.php';
+require_once __DIR__ . '/../repositories/BibliotecaRepository.php';
 require_once __DIR__ . '/../models/Pedido.php';
+require_once __DIR__ . '/../models/Biblioteca.php';
 require_once __DIR__ . '/../models/PedidoItem.php';
 
 class PedidoController extends BaseController
@@ -14,6 +16,7 @@ class PedidoController extends BaseController
     private PedidoItemRepository $itemRepository;
     private CarrinhoRepository $carrinhoRepository;
     private LivroRepository $livroRepository;
+    private BibliotecaRepository $bibliotecaRepository;
 
     public function __construct(private PDO $pdo)
     {
@@ -22,6 +25,7 @@ class PedidoController extends BaseController
         $this->itemRepository = new PedidoItemRepository($pdo);
         $this->carrinhoRepository = new CarrinhoRepository($pdo);
         $this->livroRepository = new LivroRepository($pdo);
+        $this->bibliotecaRepository = new BibliotecaRepository($pdo);
     }
 
     #[Route('/pedido/finalizar', 'POST')]
@@ -35,49 +39,94 @@ class PedidoController extends BaseController
         }
 
         $usuarioId = $_SESSION['userId'];
-        $carrinho = $this->carrinhoRepository->listarPorUsuario($usuarioId);
+        $carrinhoItens = $this->carrinhoRepository->listarPorUsuario($usuarioId);
 
-        if (empty($carrinho)) {
+        if (empty($carrinhoItens)) {
             return $this->response(400, [
                 'status' => 'error',
                 'message' => 'Carrinho vazio.'
             ]);
         }
 
-        $total = 24.99; // Valor fixo de frete
-        $itensPedido = [];
+        $subtotalPedido = 0.00;
+        $contemItemFisico = false;
+        $itensPedidoParaSalvar = []; // Itens que realmente farão parte do pedido
 
-        foreach ($carrinho as $item) {
-            $livroId = is_array($item) ? $item['livro_id'] : $item->livro_id;
-            $quantidade = is_array($item) ? $item['quantidade'] : $item->quantidade;
+        foreach ($carrinhoItens as $itemCarrinho) {
+            $livroId = is_array($itemCarrinho) ? $itemCarrinho['livro_id'] : $itemCarrinho->livro_id;
+            $quantidade = is_array($itemCarrinho) ? $itemCarrinho['quantidade'] : $itemCarrinho->quantidade;
+            $tipo = is_array($itemCarrinho) ? $itemCarrinho['tipo'] : $itemCarrinho->tipo;
+            
             $livro = $this->livroRepository->findById($livroId);
 
             if (!$livro) {
+                error_log("Livro com ID $livroId não encontrado durante finalização do pedido para usuário $usuarioId.");
                 return $this->response(400, [
                     'status' => 'error',
-                    'message' => "Livro com ID $livroId não encontrado."
+                    'message' => "Um dos livros no seu carrinho (ID: $livroId) não foi encontrado. Por favor, remova-o e tente novamente."
                 ]);
             }
-            $subtotal = $livro->preco * $quantidade;
-            $total += $subtotal;
-            $itensPedido[] = new PedidoItem([
+
+            // Lógica para e-books: verificar se já existe na biblioteca
+            if ($tipo === 'ebook') {
+                $itemBiblioteca = new Biblioteca(['usuario_id' => $usuarioId, 'livro_id' => $livroId]);
+                if ($this->bibliotecaRepository->existeNaBiblioteca($itemBiblioteca)) {
+                    continue; // Pula para o próximo item do carrinho
+                }
+                $this->bibliotecaRepository->adicionarLivro($itemBiblioteca);
+            }
+            
+            if ($tipo === 'fisico') {
+                $contemItemFisico = true;
+            }
+
+            $subtotalItemUnico = $livro->preco * $quantidade;
+            $subtotalPedido += $subtotalItemUnico;
+
+            $itensPedidoParaSalvar[] = new PedidoItem([
                 'livro_id' => $livroId,
                 'quantidade' => $quantidade,
-                'preco_unitario' => $livro->preco
+                'preco_unitario' => $livro->preco,
+                'tipo' => $tipo,
+            ]);
+        }
+        
+        if (empty($itensPedidoParaSalvar)) {
+            return $this->response(400, [
+                'status' => 'error',
+                'message' => 'Nenhum item válido para processar no pedido. Verifique se você já possui os e-books selecionados.'
             ]);
         }
 
+        // Calcula o frete
+        $valorFrete = $contemItemFisico ? 24.99 : 0.00;
+        $totalFinalPedido = $subtotalPedido + $valorFrete;
+
         $pedido = new Pedido([
             'usuario_id' => $usuarioId,
-            'total' => $total,
-            'status' => 'confirmado'
+            'total' => $totalFinalPedido,
+            'status' => 'confirmado' ,
+            'valor_frete' => $valorFrete 
         ]);
 
         $pedidoId = $this->pedidoRepository->criar($pedido);
 
-        foreach ($itensPedido as $item) {
+        if (!$pedidoId) {
+             return $this->response(500, [
+                'status' => 'error',
+                'message' => 'Erro ao criar o registro do pedido.'
+            ]);
+        }
+
+        foreach ($itensPedidoParaSalvar as $item) {
             $item->pedido_id = $pedidoId;
-            $this->itemRepository->criar($item);
+            if (!$this->itemRepository->criar($item)) {
+                error_log("Falha ao criar item para o pedido ID $pedidoId: Livro ID {$item->livro_id}");
+                return $this->response(500, [
+                    'status' => 'error',
+                    'message' => 'Erro ao salvar os itens do pedido.'
+                ]);
+            }
         }
 
         $this->carrinhoRepository->limparCarrinho($usuarioId);
@@ -85,7 +134,9 @@ class PedidoController extends BaseController
         return $this->response(200, [
             'status' => 'success',
             'message' => 'Pedido finalizado e confirmado com sucesso!',
-            'pedido_id' => $pedidoId
+            'pedido_id' => $pedidoId,
+            'total_pedido' => $totalFinalPedido,
+            'valor_frete' => $valorFrete   
         ]);
     }
 
@@ -110,7 +161,6 @@ class PedidoController extends BaseController
             ]);
         }
 
-        $pedido->status = 'confirmado';
         $this->pedidoRepository->atualizarStatus($pedido->id, 'confirmado');
 
         return $this->response(200, [

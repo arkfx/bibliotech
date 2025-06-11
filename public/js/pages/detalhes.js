@@ -53,10 +53,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         <p class="autor">por ${livro.autor}</p>
 
         <div class="opcoes-compra">
-          <button class="opcao ativo" onclick="selecionarOpcao(this)">
+          <button class="opcao ativo" onclick="selecionarOpcao(this)" data-tipo="ebook">
             E-Book<br>Disponível<br>instantaneamente
           </button>
-          <button class="opcao" onclick="selecionarOpcao(this)">
+          <button class="opcao" onclick="selecionarOpcao(this)" data-tipo="fisico">
             Livro Normal<br>Envio por Correios
           </button>
         </div>
