@@ -45,6 +45,10 @@ class EditoraController extends BaseController
             return $this->response(400, ['success' => false, 'message' => 'Nome da editora é obrigatório']);
         }
 
+        if ($this->repo->existsByName($data['nome'])) {
+            return $this->response(409, ['success' => false, 'message' => 'Editora já existente']);
+        }
+
         $id = $this->repo->save(new Editora(['nome' => $data['nome']]));
         return $this->response(201, ['success' => true, 'message' => 'Editora cadastrada com sucesso', 'id' => $id]);
     }
@@ -60,6 +64,10 @@ class EditoraController extends BaseController
 
         if (empty($data['id']) || empty($data['nome'])) {
             return $this->response(400, ['success' => false, 'message' => 'ID e nome da editora são obrigatórios']);
+        }
+
+        if ($this->repo->existsByName($data['nome'])) {
+            return $this->response(404, ['success' => false, 'message' => 'Editora já existente']);
         }
 
         $result = $this->repo->update(new Editora($data));

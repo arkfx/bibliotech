@@ -66,4 +66,19 @@ class GeneroRepository extends BaseRepository
         $stmt->closeCursor();
         return $stmt->rowCount() > 0;
     }
+    
+    public function existsByName($nome)
+    {
+        $query = "SELECT COUNT(*) FROM generos WHERE nome = :nome";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
+        $stmt->execute();
+        
+        $count = $stmt->fetchColumn();
+        $stmt->closeCursor();
+        
+        return $count > 0;
+    }
 }
+
+
