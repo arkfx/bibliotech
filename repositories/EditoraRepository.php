@@ -90,4 +90,17 @@ class EditoraRepository  extends BaseRepository
         $stmt->closeCursor();
         return true;
     }
+
+    public function existsByName($nome)
+    {
+        $sql = "SELECT COUNT(*) FROM editoras WHERE nome = :nome";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $count = $stmt->fetchColumn();
+        $stmt->closeCursor();
+
+        return $count > 0;
+    }
 }

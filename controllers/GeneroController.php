@@ -50,14 +50,22 @@ class GeneroController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        if (!isset($data['nome']) || empty(trim($data['nome']))) {
-            return $this->response(400, ['status' => 'error', 'message' => 'Nome do gênero é obrigatório.']);
+        
+        if (!$data || !isset($data['nome']) || empty(trim($data['nome']))) {
+            return $this->response(400, ['status' => 'error', 'message' => 'Nome do gênero é obrigatório e não pode ser vazio.']);
         }
 
-        $genero = new Genero(['nome' => $data['nome']]);
-        $this->repo->save($genero);
+        $nome = trim($data['nome']);
+        if ($this->repo->existsByName($nome)) {
+            return $this->response(409, ['status' => 'error', 'message' => 'Gênero já existe.']);
+        }
 
-        return $this->response(201, ['status' => 'success', 'message' => 'Gênero criado com sucesso.']);
+        $genero = new Genero();
+        $genero->nome = $nome;
+        $savedGenero = $this->repo->save($genero);
+        if ($savedGenero) {
+            return $this->response(201, ['status' => 'success', 'message' => 'Gênero criado com sucesso.', 'data' => $savedGenero->toArray()]);
+        }
     }
 
     #[Route('/generos/{id}', 'DELETE')]
@@ -74,4 +82,37 @@ class GeneroController extends BaseController
             return $this->response(500, ['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    #[Route('/generos/{id}', 'PUT')] 
+    public function atualizar(int $id)
+    {
+        if (!$this->isAdmin()) {
+            return $this->response(403, ['status' => 'error', 'message' => 'Acesso negado. Apenas administradores podem atualizar gêneros.']);
+        }
+
+        $data = $this->getJsonInput();
+        $nome = trim($data['nome'] ?? '');
+
+        if (empty($nome)) {
+            return $this->response(400, ['status' => 'error', 'message' => 'Nome do gênero é obrigatório.']);
+        }
+
+        $genero = $this->repo->findById($id);
+        if (!$genero) {
+            return $this->response(404, ['status' => 'error', 'message' => 'Gênero não encontrado.']);
+        }
+
+        if ($this->repo->existsByName($nome) && $genero->nome !== $nome) {
+            return $this->response(409, ['status' => 'error', 'message' => 'Gênero com este nome já existe.']);
+        }
+
+        $genero->nome = $nome;
+        $updatedGenero = $this->repo->save($genero); 
+
+        if ($updatedGenero) {
+            return $this->response(200, ['status' => 'success', 'message' => 'Gênero atualizado com sucesso.', 'data' => $updatedGenero->toArray()]);
+        }
+        return $this->response(500, ['status' => 'error', 'message' => 'Erro ao atualizar o gênero.']);
+    }
+
 }
