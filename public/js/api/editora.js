@@ -40,7 +40,8 @@ export async function createEditora(nome) {
   });
 
   if (!response.ok) {
-    throw new Error("Erro ao criar editora.");
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Erro ao criar editora.");
   }
 
   return response.json();
@@ -56,7 +57,8 @@ export async function updateEditora(id, nome) {
   });
 
   if (!response.ok) {
-    throw new Error("Erro ao atualizar editora.");
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Erro ao criar editora.");
   }
 
   return response.json();
