@@ -377,6 +377,42 @@ h2 {
   border: 2px solid #f0f0f0;
 }
 
+@media (max-width: 768px) {
+  .checkout-container {
+    flex-direction: column;
+    gap: 20px; 
+  }
+
+  .order-summary {
+    position: static;
+    width: 100%;
+    max-width: 500px; 
+    margin: 0 auto;
+    align-self: center;
+  }
+
+  .form-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .form-row .form-group {
+    flex: 1 1 45%;
+    min-width: 140px;
+  }
+  
+  .checkout-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .checkout-page {
+    padding: 15px;
+  }
+}
+
 /* Para casos de telas menores */
 @media (max-width: 480px) {
   .item-pedido {

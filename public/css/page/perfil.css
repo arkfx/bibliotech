@@ -578,11 +578,25 @@
 
   .order-book {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     text-align: center;
   }
 
   .order-book-cover {
     margin: 0 auto;
+  }
+
+  .order-book-info {
+    width: 100%;        
+    text-align: center;  
+  }
+  
+  .order-summary {
+    width: 100%;         
+  }
+
+  .tracking-info {
+    width: 100%;        
+    justify-content: center; 
   }
 }
