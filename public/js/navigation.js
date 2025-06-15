@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function closeMainNav() {
     mainNav.classList.remove('active');
-    document.body.style.overflow = '';
-    
+  
     const hamburger = mobileNavToggle.querySelector('.hamburger');
     if (hamburger) {
       hamburger.innerHTML = '&#9776;';
@@ -21,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
         hamburger.innerHTML = mainNav.classList.contains('active') ? '✕' : '&#9776;';
       }
       
-      document.body.style.overflow = mainNav.classList.contains('active') ? 'hidden' : '';
     });
     
     const navLinks = document.querySelectorAll('.main-nav-link');
