@@ -11,7 +11,7 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/CarrinhoController.php';
 require_once __DIR__ . '/../controllers/PedidoController.php';
 require_once __DIR__ . '/../controllers/BibliotecaController.php';
-require_once __DIR__ . '/../controllers/ReadingProgressController.php';
+require_once __DIR__ . '/../controllers/ProgressoLeituraController.php';
 require_once __DIR__ . '/../db/Database.php';
 
 $pdo = Database::getInstance()->getConnection();
@@ -26,6 +26,6 @@ $router->register(AuthController::class);
 $router->register(CarrinhoController::class);
 $router->register(PedidoController::class);
 $router->register(BibliotecaController::class);
-$router->register(ReadingProgressController::class);
+$router->register(ProgressoLeituraController::class);
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], $pdo);
