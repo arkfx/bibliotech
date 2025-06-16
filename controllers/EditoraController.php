@@ -1,17 +1,18 @@
 <?php
 
 require_once __DIR__ . '/../routing/Route.php';
-require_once __DIR__ . '/../repositories/EditoraRepository.php';
+require_once __DIR__ . '/../services/EditoraService.php';
 require_once __DIR__ . '/../models/Editora.php';
+require_once __DIR__ . '/BaseController.php';
 
 class EditoraController extends BaseController
 {
-    private EditoraRepository $repo;
+    private EditoraService $editoraService;
 
     public function __construct(private PDO $pdo)
     {
         session_start();
-        $this->repo = new EditoraRepository($pdo);
+        $this->editoraService = new EditoraService($pdo);
         header('Content-Type: application/json');
     }
 
@@ -19,14 +20,14 @@ class EditoraController extends BaseController
     public function listar()
     {
         if (isset($_GET['id'])) {
-            $editora = $this->repo->findById((int)$_GET['id']);
+            $editora = $this->editoraService->buscarPorId((int)$_GET['id']);
             if ($editora) {
                 return $this->response(200, ['success' => true, 'data' => $editora->toArray()]);
             }
             return $this->response(404, ['success' => false, 'message' => 'Editora não encontrada']);
         }
 
-        $editoras = $this->repo->findAll();
+        $editoras = $this->editoraService->listarTodos();
         return $this->response(200, [
             'success' => true,
             'data' => array_map(fn($e) => $e->toArray(), $editoras)
@@ -41,12 +42,17 @@ class EditoraController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        if (empty($data['nome'])) {
-            return $this->response(400, ['success' => false, 'message' => 'Nome da editora é obrigatório']);
-        }
+        $editora = new Editora($data);
 
-        $id = $this->repo->save(new Editora(['nome' => $data['nome']]));
-        return $this->response(201, ['success' => true, 'message' => 'Editora cadastrada com sucesso', 'id' => $id]);
+        try {
+            $this->editoraService->criar($editora);
+            return $this->response(201, [
+                'success' => true,
+                'message' => 'Editora cadastrada com sucesso',
+            ]);
+        } catch (Exception $e) {
+            return $this->response(400, ['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 
     #[Route('/editoras', 'PUT')]
@@ -57,16 +63,17 @@ class EditoraController extends BaseController
         }
 
         $data = $this->getJsonInput();
+        $editora = new Editora((object)$data);
 
-        if (empty($data['id']) || empty($data['nome'])) {
-            return $this->response(400, ['success' => false, 'message' => 'ID e nome da editora são obrigatórios']);
+        try {
+            $sucesso = $this->editoraService->atualizar($editora);
+            if ($sucesso) {
+                return $this->response(200, ['success' => true, 'message' => 'Editora atualizada com sucesso']);
+            }
+            return $this->response(404, ['success' => false, 'message' => 'Editora não encontrada']);
+        } catch (Exception $e) {
+            return $this->response(400, ['success' => false, 'message' => $e->getMessage()]);
         }
-
-        $result = $this->repo->update(new Editora($data));
-        if ($result) {
-            return $this->response(200, ['success' => true, 'message' => 'Editora atualizada com sucesso']);
-        }
-        return $this->response(404, ['success' => false, 'message' => 'Editora não encontrada']);
     }
 
     #[Route('/editoras/{id}', 'DELETE')]
@@ -77,7 +84,7 @@ class EditoraController extends BaseController
         }
 
         try {
-            $this->repo->delete($id);
+            $this->editoraService->excluir($id);
             return $this->response(200, ['success' => true, 'message' => 'Editora removida com sucesso']);
         } catch (Exception $e) {
             return $this->response(500, ['success' => false, 'message' => $e->getMessage()]);

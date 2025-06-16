@@ -1,31 +1,32 @@
 <?php
 
 require_once __DIR__ . '/../routing/Route.php';
-require_once __DIR__ . '/../repositories/GeneroRepository.php';
+require_once __DIR__ . '/../services/GeneroService.php';
 require_once __DIR__ . '/../models/Genero.php';
+require_once __DIR__ . '/BaseController.php';
 
 class GeneroController extends BaseController
 {
-    private GeneroRepository $repo;
+    private GeneroService $generoService;
 
     public function __construct(private PDO $pdo)
     {
         session_start();
-        $this->repo = new GeneroRepository($pdo);
+        $this->generoService = new GeneroService($pdo);
     }
 
     #[Route('/generos', 'GET')]
     public function listar()
     {
         if (isset($_GET['id'])) {
-            $genero = $this->repo->findById((int)$_GET['id']);
+            $genero = $this->generoService->buscarPorId((int)$_GET['id']);
             if ($genero) {
                 return $this->response(200, ['status' => 'success', 'data' => $genero->toArray()]);
             }
             return $this->response(404, ['status' => 'error', 'message' => 'Gênero não encontrado.']);
         }
 
-        $generos = $this->repo->findAll();
+        $generos = $this->generoService->listarTodos();
         return $this->response(200, [
             'status' => 'success',
             'data' => array_map(fn($g) => $g->toArray(), $generos)
@@ -35,7 +36,7 @@ class GeneroController extends BaseController
     #[Route('/generos/{id}', 'GET')]
     public function buscar(int $id)
     {
-        $genero = $this->repo->findById($id);
+        $genero = $this->generoService->buscarPorId($id);
         if ($genero) {
             return $this->response(200, ['status' => 'success', 'data' => $genero->toArray()]);
         }
@@ -49,15 +50,15 @@ class GeneroController extends BaseController
             return $this->response(403, ['status' => 'error', 'message' => 'Acesso negado. Apenas administradores podem criar gêneros.']);
         }
 
-        $data = $this->getJsonInput();
-        if (!isset($data['nome']) || empty(trim($data['nome']))) {
-            return $this->response(400, ['status' => 'error', 'message' => 'Nome do gênero é obrigatório.']);
+        $input = $this->getJsonInput();
+        $genero = new Genero((object)$input);
+
+        try {
+            $this->generoService->criar($genero);
+            return $this->response(201, ['status' => 'success', 'message' => 'Gênero criado com sucesso.']);
+        } catch (Exception $e) {
+            return $this->response(400, ['status' => 'error', 'message' => $e->getMessage()]);
         }
-
-        $genero = new Genero(['nome' => $data['nome']]);
-        $this->repo->save($genero);
-
-        return $this->response(201, ['status' => 'success', 'message' => 'Gênero criado com sucesso.']);
     }
 
     #[Route('/generos/{id}', 'DELETE')]
@@ -68,7 +69,7 @@ class GeneroController extends BaseController
         }
 
         try {
-            $this->repo->delete($id);
+            $this->generoService->excluir($id);
             return $this->response(200, ['status' => 'success', 'message' => 'Gênero excluído com sucesso.']);
         } catch (Exception $e) {
             return $this->response(500, ['status' => 'error', 'message' => $e->getMessage()]);
