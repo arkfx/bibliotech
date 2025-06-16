@@ -1,16 +1,16 @@
 <?php
 
 require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../repositories/ListaDesejoRepository.php';
+require_once __DIR__ . '/../services/ListaDesejoService.php';
 
 class ListaDesejoController extends BaseController
 {
-    private ListaDesejosRepository $repo;
+    private ListaDesejoService $service;
 
     public function __construct(private PDO $pdo)
     {
         session_start();
-        $this->repo = new ListaDesejosRepository($pdo);
+        $this->service = new ListaDesejoService($pdo);
     }
 
     #[Route('/desejos', 'POST')]
@@ -23,13 +23,11 @@ class ListaDesejoController extends BaseController
         $data = $this->getJsonInput();
         $usuarioId = $_SESSION['userId'];
 
-        if (!isset($data['livro_id'])) {
-            return $this->response(400, ['status' => 'error', 'message' => 'ID do livro é obrigatório.']);
-        }
-
         try {
-            $this->repo->add($usuarioId, $data['livro_id']);
+            $this->service->adicionar($usuarioId, (int)($data['livro_id'] ?? 0));
             return $this->response(201, ['status' => 'success', 'message' => 'Livro adicionado com sucesso!']);
+        } catch (InvalidArgumentException $e) {
+            return $this->response(400, ['status' => 'error', 'message' => $e->getMessage()]);
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
                 return $this->response(409, ['status' => 'error', 'message' => 'Livro já está na lista de desejos.']);
@@ -48,17 +46,14 @@ class ListaDesejoController extends BaseController
         $data = $this->getJsonInput();
         $usuarioId = $_SESSION['userId'];
 
-        if (!isset($data['livro_id'])) {
-            return $this->response(400, ['status' => 'error', 'message' => 'ID do livro é obrigatório.']);
-        }
-
         try {
-            $removido = $this->repo->remove($usuarioId, $data['livro_id']);
-
+            $removido = $this->service->remover($usuarioId, (int)($data['livro_id'] ?? 0));
             if ($removido) {
                 return $this->response(200, ['status' => 'success', 'message' => 'Livro removido com sucesso!']);
             }
             return $this->response(404, ['status' => 'error', 'message' => 'Livro não encontrado na lista de desejos.']);
+        } catch (InvalidArgumentException $e) {
+            return $this->response(400, ['status' => 'error', 'message' => $e->getMessage()]);
         } catch (Exception $e) {
             return $this->response(500, ['status' => 'error', 'message' => 'Erro ao remover livro: ' . $e->getMessage()]);
         }
@@ -76,11 +71,11 @@ class ListaDesejoController extends BaseController
 
         try {
             if ($livroId !== null) {
-                $existe = $this->repo->exists((int)$usuarioId, (int)$livroId);
+                $existe = $this->service->existe($usuarioId, (int)$livroId);
                 return $this->response(200, ['status' => 'success', 'exists' => $existe]);
             }
 
-            $livros = $this->repo->listByUsuario((int)$usuarioId);
+            $livros = $this->service->listar($usuarioId);
             return $this->response(200, [
                 'status' => 'success',
                 'data' => array_map(fn($l) => $l->toArray(), $livros)
