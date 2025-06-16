@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../services/ReadingProgressService.php';
+require_once __DIR__ . '/../services/ProgressoLeituraService.php';
 
 class ReadingProgressController extends BaseController
 {
@@ -26,8 +26,15 @@ class ReadingProgressController extends BaseController
         $data = $this->getJsonInput();
         $usuarioId = $_SESSION['userId'];
 
-        $result = $this->progressService->saveProgress($usuarioId, $data);
-        return $this->response($result['statusCode'], $result['body']);
+        try {
+            $sucesso = $this->progressService->salvar($data, $usuarioId);
+            if ($sucesso) {
+                return $this->response(200, ['status' => 'success', 'message' => 'Progresso salvo com sucesso.']);
+            }
+            return $this->response(500, ['status' => 'error', 'message' => 'Erro ao salvar progresso.']);
+        } catch (Exception $e) {
+            return $this->response(400, ['status' => 'error', 'message' => $e->getMessage()]);
+        }
     }
 
     #[Route('/progresso-leitura/{livroId}', 'GET')]
@@ -41,8 +48,13 @@ class ReadingProgressController extends BaseController
         }
 
         $usuarioId = $_SESSION['userId'];
-        $result = $this->progressService->getProgress($usuarioId, $livroId);
-        return $this->response($result['statusCode'], $result['body']);
+        $progress = $this->progressService->buscarPorLivro($usuarioId, $livroId);
+
+        if ($progress) {
+            return $this->response(200, ['status' => 'success', 'data' => $progress->toArray()]);
+        }
+
+        return $this->response(404, ['status' => 'error', 'message' => 'Progresso não encontrado.']);
     }
 
     #[Route('/livros-em-progresso', 'GET')]
@@ -56,8 +68,9 @@ class ReadingProgressController extends BaseController
         }
 
         $usuarioId = $_SESSION['userId'];
-        $result = $this->progressService->getBooksInProgress($usuarioId);
-        return $this->response($result['statusCode'], $result['body']);
+        $books = $this->progressService->livrosEmProgresso($usuarioId);
+
+        return $this->response(200, ['status' => 'success', 'data' => $books]);
     }
 
     #[Route('/livros-lidos-recentemente', 'GET')]
@@ -72,8 +85,9 @@ class ReadingProgressController extends BaseController
 
         $usuarioId = $_SESSION['userId'];
         $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5;
-        $result = $this->progressService->getRecentlyReadBooks($usuarioId, $limit);
-        return $this->response($result['statusCode'], $result['body']);
+        $books = $this->progressService->livrosRecentes($usuarioId, $limit);
+
+        return $this->response(200, ['status' => 'success', 'data' => $books]);
     }
 
     #[Route('/progresso-leitura/{livroId}', 'DELETE')]
@@ -87,7 +101,12 @@ class ReadingProgressController extends BaseController
         }
 
         $usuarioId = $_SESSION['userId'];
-        $result = $this->progressService->deleteProgress($usuarioId, $livroId);
-        return $this->response($result['statusCode'], $result['body']);
+        $sucesso = $this->progressService->excluir($usuarioId, $livroId);
+
+        if ($sucesso) {
+            return $this->response(200, ['status' => 'success', 'message' => 'Progresso removido com sucesso.']);
+        }
+
+        return $this->response(500, ['status' => 'error', 'message' => 'Erro ao remover progresso.']);
     }
 }
