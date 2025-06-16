@@ -1,16 +1,16 @@
 <?php
 
 require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../repositories/BibliotecaRepository.php';
+require_once __DIR__ . '/../services/BibliotecaService.php';
 
 class BibliotecaController extends BaseController
 {
-    private BibliotecaRepository $bibliotecaRepository;
+    private BibliotecaService $bibliotecaService;
 
     public function __construct(private PDO $pdo)
     {
         session_start();
-        $this->bibliotecaRepository = new BibliotecaRepository($pdo);
+        $this->bibliotecaService = new BibliotecaService($pdo);
     }
 
     #[Route('/biblioteca', 'GET')]
@@ -26,7 +26,7 @@ class BibliotecaController extends BaseController
         $usuarioId = $_SESSION['userId'];
 
         try {
-            $livrosDaBiblioteca = $this->bibliotecaRepository->listarPorUsuario($usuarioId);
+            $livrosDaBiblioteca = $this->bibliotecaService->listarLivrosPorUsuario($usuarioId);
 
             if (empty($livrosDaBiblioteca)) {
                 return $this->response(200, [
@@ -62,7 +62,7 @@ class BibliotecaController extends BaseController
         $usuarioId = $_SESSION['userId'];
 
         try {
-            $livro = $this->bibliotecaRepository->buscarLivroDaBiblioteca($usuarioId, $id);
+            $livro = $this->bibliotecaService->buscarLivroParaLeitura($usuarioId, $id);
 
             if (!$livro) {
                 return $this->response(403, [
