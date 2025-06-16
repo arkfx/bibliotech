@@ -42,13 +42,13 @@ class EditoraController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        $editora = new Editora($data);
 
         try {
-            $this->editoraService->criar($editora);
+            $id = $this->editoraService->criar($data);
             return $this->response(201, [
                 'success' => true,
                 'message' => 'Editora cadastrada com sucesso',
+                'id' => $id
             ]);
         } catch (Exception $e) {
             return $this->response(400, ['success' => false, 'message' => $e->getMessage()]);
@@ -63,10 +63,9 @@ class EditoraController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        $editora = new Editora((object)$data);
 
         try {
-            $sucesso = $this->editoraService->atualizar($editora);
+            $sucesso = $this->editoraService->atualizar($data);
             if ($sucesso) {
                 return $this->response(200, ['success' => true, 'message' => 'Editora atualizada com sucesso']);
             }

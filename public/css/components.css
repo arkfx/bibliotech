@@ -130,6 +130,8 @@
   border-radius: 50%;
   padding: 0;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .profile-button:hover {
@@ -139,6 +141,7 @@
 .profile-button .icon-profile {
   color: white;
   stroke: white;
+  
 }
 
 /* Mobile menu toggle */
@@ -147,6 +150,15 @@
   font-size: 3rem;
   cursor: pointer;
   color: #fff;
+  background: transparent;
+  border: none;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+}
+
+.hamburger {
+  display: inline-block;
 }
 
 /* Modal Styles */
@@ -342,6 +354,39 @@
   .main-nav-list button {
     width: 100%;
   }
+
+  .main-nav-list input,
+  .filter-genres,
+  .main-nav-list .btn {
+    width: 100%;
+    height: 4.2rem; 
+    font-size: 1.6rem; 
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
+
+  .filter-genres {
+    background-position: right 15px center;
+    margin-bottom: 0.8rem;
+  }
+
+  .main-content .container.with-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .price-filter-sidebar {
+    width: 100%;
+    min-width: 100%;
+    margin-bottom: 2rem;
+    margin-top: 0;
+    order: -1; 
+  }
+  
+  .header {
+    padding: 0 2rem; 
+  }
 }
 
 /* SEÇÃO DESTAQUE */
@@ -407,7 +452,7 @@
 .book-info {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex-grow: 0;
 }
 
 .book-info h3 {

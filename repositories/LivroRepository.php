@@ -58,17 +58,25 @@ class LivroRepository extends BaseRepository
     }
 
     public function delete($id)
-    {
-        $stmt = $this->conn->prepare("DELETE FROM livros WHERE id = :id");
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
+{
+    // Excluir registros relacionados ao livro
+    $this->conn->prepare("DELETE FROM carrinho WHERE livro_id = :id")->execute([':id' => $id]);
+    $this->conn->prepare("DELETE FROM pedido_itens WHERE livro_id = :id")->execute([':id' => $id]);
+    $this->conn->prepare("DELETE FROM pedidos WHERE id IN (
+        SELECT pedido_id FROM pedido_itens WHERE livro_id = :id
+    )")->execute([':id' => $id]);
 
-        if ($stmt->rowCount() === 0) {
-            throw new Exception("Livro com ID $id não encontrado.");
-        }
+    // Excluir o livro
+    $stmt = $this->conn->prepare("DELETE FROM livros WHERE id = :id");
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
 
-        return true;
+    if ($stmt->rowCount() === 0) {
+        throw new Exception("Livro com ID $id não encontrado.");
     }
+
+    return true;
+}
 
     public function findById($id): ?Livro
     {

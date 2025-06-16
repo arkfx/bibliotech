@@ -137,23 +137,15 @@
           <!-- Filtros adicionais -->
           <div class="filtros-adicionais">
             <div class="search-container">
-              <input
+              <input 
                 type="text"
-                id="biblioteca-search"
-                placeholder="Buscar na biblioteca..."
+                id="biblioteca-search-input"
+                placeholder="Buscar por título ou autor..."
               />
-              <button class="btn-search">
-                <i class="fas fa-search"></i>
-              </button>
             </div>
-            <!-- NOVO: Select para filtro de gênero -->
             <div class="filter-genre-container">
-              <select id="filter-biblioteca-genres" class="sort-select">
-                <option value="">Todos os Gêneros</option>
-                <!-- Gêneros serão populados via JavaScript -->
-              </select>
-            </div>
-
+              <select id="biblioteca-genre-filter" class="sort-select"></select>
+            </div>  
             <div class="sort-container">
               <select id="sort-books" class="sort-select">
                 <option value="data_adicao_asc">
@@ -217,7 +209,6 @@
             <!-- Livros serão inseridos dinamicamente via JavaScript -->
           </div>
         </section>
-
         
       </section>
     </main>

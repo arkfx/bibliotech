@@ -1,7 +1,7 @@
 import { getLivrosDaBiblioteca } from "../api/biblioteca.js";
 import { carregarGeneros } from "./genero.js";
+import { getBooksInProgress, getRecentlyReadBooks } from "../api/reading-progress.js";
 
-// Armazenar os livros para não precisar buscar do servidor a cada ordenação
 let todosLivros = [];
 let livrosVisiveisAtualmente = [];
 let filtroAtual = 'todos';
@@ -11,7 +11,6 @@ let generoFiltro = '';
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const booksCatalog = document.querySelector(".books-catalog");
-    const emptyState = document.getElementById("empty-library");
     const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
     const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
     
@@ -21,63 +20,64 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Carregar livros da biblioteca
     const response = await getLivrosDaBiblioteca();
     todosLivros = response.data || [];
-    
-    if (todosLivros.length === 0) {
-      emptyState.classList.remove("hidden");
-      document.getElementById("adicionados-recentemente").style.display = "none";
-      document.getElementById("continuar-lendo").style.display = "none";
-      return;
-    } else {
-      emptyState.classList.add("hidden");
-      livrosVisiveisAtualmente = [...todosLivros];
-    }
+    livrosVisiveisAtualmente = [...todosLivros];
 
-    // Renderiza o catálogo completo com ordenação padrão
-    const sortSelect = document.getElementById("sort-books");
-    ordenarEExibirLivros(sortSelect.value);
-    
-    // Renderizar livros recentes (últimos 4 livros adicionados)
-    const agora = new Date();
-    const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
-
-    const livrosRecentes = todosLivros
-      .filter(livro => {
-        const dataAdquirido = new Date(livro.data_adquirido);
-        return dataAdquirido >= tresDiasAtras;
-      })
-      .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
-
-    renderizarLivros(livrosRecentes, recentesGrid);
-    
-    // Configurar eventos para filtros e tabs
+    popularFiltroDeGeneros();
     configurarEventos();
+
+    // Lógica inicial de exibição
+    if (todosLivros.length > 0) {
+      const sortSelect = document.getElementById("sort-books");
+      ordenarEExibirLivros(sortSelect.value);
+      
+      // Renderizar livros recentes (últimos 4 livros adicionados)
+      const livrosRecentes = obterLivrosRecentes();
+      renderizarLivros(livrosRecentes, recentesGrid);
+    }
+    
+    // Carregar e renderizar livros em progresso (para "Continue Reading")
+    await carregarLivrosEmProgresso();
+    
+    atualizarEstadoVazio();
 
   } catch (error) {
     console.error("Erro ao carregar biblioteca:", error);
-    alert(
-      "Ocorreu um erro ao carregar sua biblioteca. Por favor, tente novamente mais tarde."
-    );
+    const booksCatalog = document.querySelector(".books-catalog");
+    if(booksCatalog) booksCatalog.innerHTML = "<p>Ocorreu um erro ao carregar sua biblioteca. Tente novamente mais tarde.</p>";
   }
 });
 
 function configurarEventos() {
-  // Ordenação
+  // Listener do campo de busca textual
+  const searchInput = document.getElementById("biblioteca-search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      termoBusca = e.target.value.toLowerCase();
+      aplicarFiltrosEExibir();
+    });
+  }
+  
+  // Listener do filtro de gênero
+  const generoSelect = document.getElementById("biblioteca-genre-filter");
+  if (generoSelect) {
+    generoSelect.addEventListener("change", () => {
+      generoFiltro = generoSelect.value;
+      aplicarFiltrosEExibir();
+    });
+  }
+
+  // Listener da ordenação
   const sortSelect = document.getElementById("sort-books");
-  sortSelect.addEventListener("change", () => {
-    ordenarEExibirLivros(sortSelect.value);
-  });
-  
-  // Filtro de gênero
-  const generoSelect = document.getElementById("filter-biblioteca-genres");
-  generoSelect.addEventListener("change", () => {
-    generoFiltro = generoSelect.value;
-    aplicarFiltrosEExibir();
-  });
-  
+  if (sortSelect) {
+    sortSelect.addEventListener("change", () => {
+      ordenarEExibirLivros(sortSelect.value);
+    });
+  }
+
   // Tabs
   const tabs = document.querySelectorAll(".tab-button");
   tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
+    tab.addEventListener("click", async () => {
       // Remover classe 'active' de todos os tabs
       tabs.forEach(t => t.classList.remove("active"));
       
@@ -102,14 +102,7 @@ function configurarEventos() {
 
         // Mostrar apenas livros adicionados nos últimos 3 dias em "Adicionados Recentemente"
         const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
-        const agora = new Date();
-        const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
-
-        const livrosRecentes = todosLivros.filter(livro => {
-          const dataAdquirido = new Date(livro.data_adquirido);
-          return dataAdquirido >= tresDiasAtras;
-        }).sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
-
+        const livrosRecentes = obterLivrosRecentes();
         renderizarLivros(
           livrosRecentes,
           recentesGrid,
@@ -122,14 +115,7 @@ function configurarEventos() {
 
         // Mostrar apenas livros adicionados nos últimos 3 dias também na aba "Recentes"
         const recentesGrid = document.querySelector("#adicionados-recentemente .books-grid");
-        const agora = new Date();
-        const tresDiasAtras = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 3);
-
-        const livrosRecentes = todosLivros.filter(livro => {
-          const dataAdquirido = new Date(livro.data_adquirido);
-          return dataAdquirido >= tresDiasAtras;
-        }).sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
-
+        const livrosRecentes = obterLivrosRecentes();
         renderizarLivros(
           livrosRecentes,
           recentesGrid,
@@ -139,6 +125,9 @@ function configurarEventos() {
         catalogo.style.display = "none";
         recentes.style.display = "none";
         lendo.style.display = "block";
+        
+        // Carregar e exibir livros em progresso
+        await carregarEExibirLivrosEmProgresso();
       }
     });
   });
@@ -169,22 +158,69 @@ function aplicarFiltrosEExibir() {
   const sortSelect = document.getElementById("sort-books");
   ordenarEExibirLivros(sortSelect.value);
   
-  // Exibir mensagem se não houver resultados
-  const booksCatalog = document.querySelector(".books-catalog");
+  atualizarEstadoVazio();
+}
+
+function atualizarEstadoVazio() {
   const emptyState = document.getElementById("empty-library");
-  
-  if (livrosVisiveisAtualmente.length === 0) {
-    booksCatalog.innerHTML = "";
+  const booksCatalog = document.querySelector(".books-catalog");
+
+  if (!emptyState || !booksCatalog) return;
+
+  // Cenário 1: Biblioteca vazia desde o início.
+  if (todosLivros.length === 0) {
     emptyState.classList.remove("hidden");
-    emptyState.querySelector("h3").textContent = "Nenhum livro encontrado";
-    emptyState.querySelector("p").textContent = "Tente ajustar seus filtros para encontrar livros na sua biblioteca.";
+    booksCatalog.innerHTML = "";
+    emptyState.querySelector("h3").textContent = "Sua biblioteca está vazia";
+    emptyState.querySelector("p").textContent = "Você ainda não tem livros na sua biblioteca. Explore nosso catálogo e compre seu primeiro livro!";
+    const btnExplorar = emptyState.querySelector(".btn-primary");
+    if (btnExplorar) btnExplorar.style.display = 'inline-block';
+    return;
+  }
+
+  // Cenário 2: Biblioteca tem livros, mas o filtro não encontrou nenhum.
+  if (livrosVisiveisAtualmente.length === 0) {
+    emptyState.classList.remove("hidden");
+    booksCatalog.innerHTML = "";
+    emptyState.querySelector("h3").textContent = "Nenhum resultado encontrado";
+    emptyState.querySelector("p").textContent = "Tente usar outros termos na busca ou limpar os filtros.";
+    const btnExplorar = emptyState.querySelector(".btn-primary");
+    if (btnExplorar) btnExplorar.style.display = 'none';
   } else {
+    // Cenário 3: Existem livros para exibir.
     emptyState.classList.add("hidden");
   }
 }
 
+function popularFiltroDeGeneros() {
+  const generoSelect = document.getElementById("biblioteca-genre-filter");
+  if (!generoSelect) return;
+
+  const generosUnicos = new Map();
+  todosLivros.forEach(livro => {
+    if (livro.genero_id && livro.nome_genero) {
+      generosUnicos.set(livro.genero_id, livro.nome_genero);
+    }
+  });
+
+  const generosOrdenados = [...generosUnicos.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+
+  generoSelect.innerHTML = "";
+  
+  const todosOption = document.createElement("option");
+  todosOption.value = ""; 
+  todosOption.textContent = "Todos os Gêneros";
+  generoSelect.appendChild(todosOption);
+
+  generosOrdenados.forEach(([id, nome]) => {
+    const option = document.createElement("option");
+    option.value = id;
+    option.textContent = nome;
+    generoSelect.appendChild(option);
+  });
+}
+
 function ordenarEExibirLivros(criterio) {
-  const booksCatalog = document.querySelector(".books-catalog");
   let livrosOrdenados = [...livrosVisiveisAtualmente];
   
   switch (criterio) {
@@ -205,6 +241,7 @@ function ordenarEExibirLivros(criterio) {
       livrosOrdenados.sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
   }
   
+  const booksCatalog = document.querySelector(".books-catalog");
   renderizarLivros(livrosOrdenados, booksCatalog);
 }
 
@@ -248,7 +285,9 @@ function criarElementoLivro(livro) {
       <div class="book-meta">
         <span class="book-date">Adicionado em ${dataFormatada}</span>
       </div>
-      <button class="ler-livro-btn" data-id="${livro.id}">Ler</button>
+      <div class="book-bottom-actions">
+        <button class="action-button ler-livro-btn" data-id="${livro.id}">Ler</button>
+      </div>
     </div>
   `;
 
@@ -270,4 +309,118 @@ function formatarData(dataString) {
     month: '2-digit',
     year: 'numeric'
   });
+}
+
+function obterLivrosRecentes(dias = 3) {
+  const agora = new Date();
+  const limite = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - dias);
+  return todosLivros
+    .filter(livro => new Date(livro.data_adquirido) >= limite)
+    .sort((a, b) => new Date(b.data_adquirido) - new Date(a.data_adquirido));
+}
+
+// Função para carregar livros em progresso (para seção "Continue Reading")
+async function carregarLivrosEmProgresso() {
+  try {
+    const livrosProgresso = await getRecentlyReadBooks(5);
+    const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
+    
+    if (lendoGrid) {
+      renderizarLivrosComProgresso(livrosProgresso, lendoGrid);
+    }
+  } catch (error) {
+    console.error("Erro ao carregar livros em progresso:", error);
+  }
+}
+
+// Função para carregar e exibir todos os livros em progresso (para aba "Reading")
+async function carregarEExibirLivrosEmProgresso() {
+  try {
+    const livrosProgresso = await getBooksInProgress();
+    const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
+    
+    if (lendoGrid) {
+      if (livrosProgresso.length === 0) {
+        lendoGrid.innerHTML = '<p class="empty-message">Você não tem nenhum livro em progresso.</p>';
+      } else {
+        renderizarLivrosComProgresso(livrosProgresso, lendoGrid);
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao carregar livros em progresso:", error);
+    const lendoGrid = document.querySelector("#continuar-lendo .livros-lendo");
+    if (lendoGrid) {
+      lendoGrid.innerHTML = '<p class="empty-message">Erro ao carregar livros em progresso.</p>';
+    }
+  }
+}
+
+// Função para renderizar livros com informação de progresso
+function renderizarLivrosComProgresso(livros, container) {
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  livros.forEach((livro) => {
+    const livroElement = criarElementoLivroComProgresso(livro);
+    container.appendChild(livroElement);
+  });
+}
+
+// Função para criar elemento de livro com informação de progresso
+function criarElementoLivroComProgresso(livro) {
+  const livroElement = document.createElement("div");
+  livroElement.className = "book-card";
+  livroElement.dataset.id = livro.livro_id || livro.id;
+
+  const capaUrl = livro.imagem_url || "../public/images/placeholder-book.png";
+  const dataFormatada = formatarData(livro.data_adquirido);
+  const nomeGenero = livro.nome_genero || "Gênero não informado";
+  const progressoFormatado = Math.round(livro.progress_percentage || 0);
+  const paginaAtual = livro.current_page || 1;
+  const totalPaginas = livro.total_pages || 1;
+
+  livroElement.innerHTML = `
+    <div class="book-cover-container">
+      <a href="leitor.html?id=${livro.livro_id || livro.id}" class="book-cover-link">
+        <img src="${capaUrl}" alt="Capa do livro ${livro.titulo}" class="book-cover" />
+        <div class="progress-overlay">
+          <div class="progress-bar" style="width: ${progressoFormatado}%"></div>
+          <span class="progress-text">${progressoFormatado}%</span>
+        </div>
+      </a>
+    </div>
+    <div class="book-info">
+      <h3 class="book-title">
+        <a href="leitor.html?id=${livro.livro_id || livro.id}">${livro.titulo}</a>
+      </h3>
+      <p class="book-genre">${nomeGenero}</p>
+      <p class="book-author">${livro.autor}</p>
+      <div class="book-meta">
+        <span class="book-progress">Página ${paginaAtual} de ${totalPaginas}</span>
+        <span class="book-date">Adicionado em ${dataFormatada}</span>
+      </div>
+      <div class="book-bottom-actions">
+        <button class="action-button ler-livro-btn" data-id="${livro.livro_id || livro.id}" data-current-page="${paginaAtual}">
+          ${progressoFormatado > 0 ? 'Continuar Lendo' : 'Ler'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Adiciona evento ao botão
+  const botaoLer = livroElement.querySelector(".ler-livro-btn");
+  botaoLer.addEventListener("click", () => {
+    const livroId = livro.livro_id || livro.id;
+    const currentPage = paginaAtual;
+    
+    // If there's reading progress, include it in the URL for immediate navigation
+    if (currentPage > 1) {
+      window.location.href = `leitor.html?id=${livroId}&page=${currentPage}`;
+    } else {
+      window.location.href = `leitor.html?id=${livroId}`;
+    }
+  });
+
+  return livroElement;
 }

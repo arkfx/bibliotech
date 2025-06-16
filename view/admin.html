@@ -152,7 +152,31 @@
             <tbody id="tabela-editoras"></tbody>
           </table>
         </div>
+
+        <div class="admin-content hidden" id="section-generos">
+          <div class="admin-header">
+            <h2 class="heading-admin">Gerenciamento de Gêneros</h2>
+            <button class="btn-add" id="btnAdicionarGenero">
+              Adicionar Gênero
+            </button>
+          </div>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Data de Criação</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-generos">
+              <!-- Gêneros serão carregados aqui via JavaScript -->
+            </tbody>
+          </table>
+        </div>
       </div>
+    </div>  
     </main>
 
     <!-- Rodapé -->
@@ -259,10 +283,10 @@
               <div class="input-with-icon">
                 <i class="icon pdf-icon">📄</i>
                 <div class="file-input">
-                  <input type="file" id="pdf" class="file-input-hidden" />
-                  <button type="button" class="file-input-button">
-                    Escolha o arquivo
-                  </button>
+                  <input type="text" id="pdf_url" 
+                  name="pdf_url" 
+                  placeholder="Cole a URL do pdf aqui" />
+                  
                 </div>
               </div>
             </div>
@@ -335,9 +359,39 @@
         </form>
       </div>
     </div>
+
+     <div class="modal hidden" id="modalGenero">
+      <div class="modal-content">
+        <h2 id="modal-genero-titulo">Adicionar Gênero</h2>
+        <span class="close-btn" data-modal-id="modalGenero">&times;</span>
+
+        <form class="form-genero">
+          <input type="hidden" id="genero-id-input" />
+
+          <div class="form-group">
+            <label for="genero-nome-input">Nome do Gênero</label> 
+            <div class="input-with-icon">
+              <i class="icon genre-icon">🛡️</i>
+              <input
+                type="text"
+                id="genero-nome-input"
+                placeholder="Digite o nome do gênero"
+              />
+            </div>
+          </div>
+
+          <div class="form-buttons">
+            <button type="button" class="btn-cancel" data-modal-id="modalGenero">Cancelar</button>
+            <button type="submit" class="btn-save btn-loading">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script type="module" src="../public/js/admin.bundle.js"></script>
     <script type="module" src="../public/js/pages/livro.js"></script>
     <script type="module" src="../public/js/pages/genero.js"></script>
     <script type="module" src="../public/js/pages/editora.js"></script>
+    <script type="module" src="../public/js/pages/generoManager.js"></script>
   </body>
 </html>

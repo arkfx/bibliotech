@@ -22,19 +22,29 @@ class EditoraService
         return $this->editoraRepository->findById($id);
     }
 
-    public function criar(Editora $editora): int
+    public function criar(array $data): int
     {
-        $this->validar($editora);
+        $this->validarNome($data);
+
+        if ($this->editoraRepository->existsByName($data['nome'])) {
+            throw new Exception('Editora já existente');
+        }
+
+        $editora = new Editora(['nome' => $data['nome']]);
         return $this->editoraRepository->save($editora);
     }
 
-    public function atualizar(Editora $editora): bool
+    public function atualizar(array $data): bool
     {
-        if (empty($editora->id)) {
-            throw new Exception('ID da editora é obrigatório.');
+        if (empty($data['id']) || empty($data['nome'])) {
+            throw new Exception('ID e nome da editora são obrigatórios');
         }
 
-        $this->validar($editora);
+        if ($this->editoraRepository->existsByName($data['nome'])) {
+            throw new Exception('Editora já existente');
+        }
+
+        $editora = new Editora($data);
         return $this->editoraRepository->update($editora);
     }
 
@@ -43,10 +53,10 @@ class EditoraService
         $this->editoraRepository->delete($id);
     }
 
-    private function validar(Editora $editora): void
+    private function validarNome(array $data): void
     {
-        if (empty(trim($editora->nome))) {
-            throw new Exception('Nome da editora é obrigatório.');
+        if (empty($data['nome']) || !is_string($data['nome']) || trim($data['nome']) === '') {
+            throw new Exception('Nome da editora é obrigatório');
         }
     }
 }
