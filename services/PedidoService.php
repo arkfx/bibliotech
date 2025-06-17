@@ -133,7 +133,7 @@ class PedidoService
         return $pedidos;
     }
 
-    public function buscarPedidoCompleto(int $id): ?Pedido
+    public function buscarPedidoCompleto(int $id): ?array
     {
         return $this->pedidoRepository->buscarPedidoCompletoPorId($id);
     }

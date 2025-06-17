@@ -16,6 +16,7 @@ class Pedido
         $this->total = (float) ($data['total'] ?? 0);
         $this->status = $data['status'] ?? 'pendente';
         $this->valor_frete = (float) ($data['valor_frete'] ?? 0.0);
+        $this->itens = $data['itens'] ?? [];
         $this->criado_em = $data['criado_em'] ?? date('Y-m-d H:i:s');
     }
 
