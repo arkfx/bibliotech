@@ -47,7 +47,8 @@ class EditoraRepository  extends BaseRepository
 
         $editora->id = $this->conn->lastInsertId();
         $stmt->closeCursor();
-        return $editora;
+        
+        return $editora->id > 0;
     }
 
     public function update(Editora $editora): bool
