@@ -73,31 +73,32 @@ class PedidoRepository extends BaseRepository
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$rows) {
-        return null;
-    }
+            return null;
+        }
 
-    $pedidoCompleto = [
-        'pedido_id' => $rows[0]['pedido_id'],
-        'usuario_id' => $rows[0]['usuario_id'],
-        'total' => (float)$rows[0]['total'],
-        'valor_frete' => (float)$rows[0]['valor_frete'], 
-        'status' => $rows[0]['status'],
-        'criado_em' => $rows[0]['criado_em'],
-        'itens' => []
-    ];
-
-    foreach ($rows as $row) {
-        $pedidoCompleto['itens'][] = [
-            'item_id' => $row['item_id'],
-            'livro_id' => $row['livro_id'],
-            'quantidade' => (int)$row['quantidade'],
-            'preco_unitario' => (float)$row['preco_unitario'],
-            'item_tipo' => $row['item_tipo'],
-            'titulo' => $row['titulo'],
-            'imagem_url' => $row['imagem_url'],
-            
+        $pedidoCompleto = [
+            'id' => $rows[0]['pedido_id'],
+            'pedido_id' => $rows[0]['pedido_id'],  // frontend para de quebrar
+            'usuario_id' => $rows[0]['usuario_id'],
+            'total' => (float)$rows[0]['total'],
+            'valor_frete' => (float)$rows[0]['valor_frete'],
+            'status' => $rows[0]['status'],
+            'criado_em' => $rows[0]['criado_em'],
+            'itens' => []
         ];
-    }
+
+        foreach ($rows as $row) {
+            $pedidoCompleto['itens'][] = [
+                'id' => $row['item_id'],
+                'pedido_id' => $row['pedido_id'],
+                'livro_id' => $row['livro_id'],
+                'quantidade' => (int)$row['quantidade'],
+                'preco_unitario' => (float)$row['preco_unitario'],
+                'tipo' => $row['item_tipo'],
+                'titulo' => $row['titulo'],
+                'imagem_url' => $row['imagem_url'],
+            ];
+        }
 
         return $pedidoCompleto;
     }

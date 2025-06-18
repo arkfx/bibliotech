@@ -1,0 +1,140 @@
+<?php
+
+require_once __DIR__ . '/../models/Pedido.php';
+require_once __DIR__ . '/../models/PedidoItem.php';
+require_once __DIR__ . '/../models/Biblioteca.php';
+require_once __DIR__ . '/../repositories/PedidoRepository.php';
+require_once __DIR__ . '/../repositories/PedidoItemRepository.php';
+require_once __DIR__ . '/../repositories/CarrinhoRepository.php';
+require_once __DIR__ . '/../repositories/LivroRepository.php';
+require_once __DIR__ . '/../repositories/BibliotecaRepository.php';
+
+class PedidoService
+{
+    private PedidoRepository $pedidoRepository;
+    private PedidoItemRepository $itemRepository;
+    private CarrinhoRepository $carrinhoRepository;
+    private LivroRepository $livroRepository;
+    private BibliotecaRepository $bibliotecaRepository;
+
+    public function __construct(private PDO $pdo)
+    {
+        $this->pedidoRepository = new PedidoRepository($pdo);
+        $this->itemRepository = new PedidoItemRepository($pdo);
+        $this->carrinhoRepository = new CarrinhoRepository($pdo);
+        $this->livroRepository = new LivroRepository($pdo);
+        $this->bibliotecaRepository = new BibliotecaRepository($pdo);
+    }
+
+    public function finalizarPedido(int $usuarioId): array
+    {
+        $carrinhoItens = $this->carrinhoRepository->listarPorUsuario($usuarioId);
+        if (empty($carrinhoItens)) {
+            throw new Exception('Carrinho vazio.');
+        }
+
+        $subtotalPedido = 0.00;
+        $contemItemFisico = false;
+        $itensPedidoParaSalvar = [];
+
+        foreach ($carrinhoItens as $itemCarrinho) {
+            $livroId = is_array($itemCarrinho) ? $itemCarrinho['livro_id'] : $itemCarrinho->livro_id;
+            $quantidade = is_array($itemCarrinho) ? $itemCarrinho['quantidade'] : $itemCarrinho->quantidade;
+            $tipo = is_array($itemCarrinho) ? $itemCarrinho['tipo'] : $itemCarrinho->tipo;
+
+            $livro = $this->livroRepository->findById($livroId);
+            if (!$livro) {
+                throw new Exception("Livro ID $livroId não encontrado.");
+            }
+
+            if ($tipo === 'ebook') {
+                $itemBiblioteca = new Biblioteca(['usuario_id' => $usuarioId, 'livro_id' => $livroId]);
+                if ($this->bibliotecaRepository->existeNaBiblioteca($itemBiblioteca)) {
+                    continue;
+                }
+                $this->bibliotecaRepository->adicionarLivro($itemBiblioteca);
+            }
+
+            if ($tipo === 'fisico') {
+                $contemItemFisico = true;
+            }
+
+            $subtotalPedido += $livro->preco * $quantidade;
+
+            $itensPedidoParaSalvar[] = new PedidoItem([
+                'livro_id' => $livroId,
+                'quantidade' => $quantidade,
+                'preco_unitario' => $livro->preco,
+                'tipo' => $tipo,
+            ]);
+        }
+
+        if (empty($itensPedidoParaSalvar)) {
+            throw new Exception('Nenhum item válido no pedido.');
+        }
+
+        $valorFrete = $contemItemFisico ? 24.99 : 0.00;
+        $total = $subtotalPedido + $valorFrete;
+
+        $pedido = new Pedido([
+            'usuario_id' => $usuarioId,
+            'total' => $total,
+            'status' => 'confirmado',
+            'valor_frete' => $valorFrete,
+        ]);
+
+        $pedidoId = $this->pedidoRepository->criar($pedido);
+        if (!$pedidoId) {
+            throw new Exception('Erro ao criar o pedido.');
+        }
+
+        foreach ($itensPedidoParaSalvar as $item) {
+            $item->pedido_id = $pedidoId;
+            if (!$this->itemRepository->criar($item)) {
+                throw new Exception("Erro ao salvar item do pedido (Livro ID {$item->livro_id}).");
+            }
+        }
+
+        $this->carrinhoRepository->limparCarrinho($usuarioId);
+
+        return [
+            'pedido_id' => $pedidoId,
+            'total' => $total,
+            'valor_frete' => $valorFrete
+        ];
+    }
+
+    public function confirmarPedido(int $usuarioId): ?Pedido
+    {
+        $pedido = $this->pedidoRepository->buscarPedidoPendenteDoUsuario($usuarioId);
+        if (!$pedido) {
+            return null;
+        }
+
+        $this->pedidoRepository->atualizarStatus($pedido->id, 'confirmado');
+        return $pedido;
+    }
+
+    public function listarPedidosDoUsuario(int $usuarioId): array
+    {
+        $pedidos = $this->pedidoRepository->buscarPorUsuario($usuarioId);
+
+        foreach ($pedidos as &$pedido) {
+            $pedidoId = is_object($pedido) ? $pedido->id : $pedido['id'];
+            $itens = $this->itemRepository->buscarPorPedido($pedidoId);
+
+            if (is_object($pedido)) {
+                $pedido->itens = $itens;
+            } else {
+                $pedido['itens'] = $itens;
+            }
+        }
+
+        return $pedidos;
+    }
+
+    public function buscarPedidoCompleto(int $id): ?array
+    {
+        return $this->pedidoRepository->buscarPedidoCompletoPorId($id);
+    }
+}

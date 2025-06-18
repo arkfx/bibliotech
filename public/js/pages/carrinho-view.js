@@ -56,6 +56,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       item.classList.add("cart-item");
       item.dataset.livroId = livro.livro_id;
       item.dataset.livroTipo = livro.tipo; 
+      const precoFormatado = parseFloat(livro.preco).toFixed(2).replace('.', ',');
+
       item.innerHTML = `
         <div class="livro-info">
           <img src="${livro.imagem_url}" alt="${livro.titulo}">
@@ -66,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               </a>
             </h3>
             <p class="livro-autor">por ${livro.autor || "Autor desconhecido"}</p>
-            <p class="livro-preco">R$ ${livro.preco}</p>
+            <p class="livro-preco">R$ ${precoFormatado}</p>
             <p class="livro-tipo">Tipo: ${livro.tipo === 'ebook' ? 'E-book' : 'Físico'}</p> 
           </div>
         </div>

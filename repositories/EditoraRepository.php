@@ -47,10 +47,11 @@ class EditoraRepository  extends BaseRepository
 
         $editora->id = $this->conn->lastInsertId();
         $stmt->closeCursor();
-        return $editora;
+        
+        return $editora->id > 0;
     }
 
-    public function update(Editora $editora)
+    public function update(Editora $editora): bool
     {
         $sql = "UPDATE editoras 
                 SET nome = :nome, updated_at = NOW()
@@ -61,7 +62,7 @@ class EditoraRepository  extends BaseRepository
         $stmt->execute();
         $stmt->closeCursor();
 
-        return $editora;
+        return $stmt->rowCount() > 0;
     }
 
     public function delete($id)
