@@ -73,6 +73,7 @@ class UsuarioRepositoryTest extends TestCase
             'id' => 1,
             'nome' => 'Nome Novo',
             'email' => 'novo@teste.com',
+            'senha' => 'novaSenha123',
             'telefone' => '222',
             'data_nascimento' => '1995-05-10',
             'cpf' => '222'
