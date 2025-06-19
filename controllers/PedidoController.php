@@ -1,16 +1,20 @@
 <?php
 
-require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../services/PedidoService.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Services\PedidoService;
+use Exception;
 
 class PedidoController extends BaseController
 {
     private PedidoService $pedidoService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->pedidoService = new PedidoService($pdo);
+        $this->pedidoService = $this->appFactory->createPedidoService();
     }
 
     #[Route('/pedido/finalizar', 'POST')]

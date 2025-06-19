@@ -1,16 +1,20 @@
 <?php
 
-require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../services/ProgressoLeituraService.php';
+namespace BiblioTech\Controllers;
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Services\ProgressoLeituraService;
+use Exception;
+
 
 class ProgressoLeituraController extends BaseController
 {
     private ProgressoLeituraService $progressService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->progressService = new ProgressoLeituraService($pdo);
+        $this->progressService = $this->appFactory->createProgressoLeituraService();
     }
 
     #[Route('/progresso-leitura', 'POST')]

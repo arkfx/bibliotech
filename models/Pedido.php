@@ -1,4 +1,7 @@
 <?php
+
+namespace BiblioTech\Models;
+
 class Pedido
 {
     public int $id;

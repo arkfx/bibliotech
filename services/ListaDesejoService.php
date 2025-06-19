@@ -1,14 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../repositories/ListaDesejoRepository.php';
+namespace BiblioTech\Services;
+
+use BiblioTech\Repositories\ListaDesejoRepository;
+use InvalidArgumentException;
 
 class ListaDesejoService
 {
-    private ListaDesejosRepository $repo;
+    private ListaDesejoRepository $repo;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(ListaDesejoRepository $repo)
     {
-        $this->repo = new ListaDesejosRepository($pdo);
+        $this->repo = $repo;
     }
 
     public function adicionar(int $usuarioId, int $livroId): void

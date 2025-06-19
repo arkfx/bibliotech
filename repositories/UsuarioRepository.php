@@ -1,7 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../models/Usuario.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\Usuario;
+use PDO;
 
 class UsuarioRepository extends BaseRepository
 {

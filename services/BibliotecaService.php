@@ -1,14 +1,16 @@
 <?php
 
-require_once __DIR__ . '/../repositories/BibliotecaRepository.php';
+namespace BiblioTech\Services;
+
+use BiblioTech\Repositories\BibliotecaRepository;
 
 class BibliotecaService
 {
     private BibliotecaRepository $bibliotecaRepository;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(BibliotecaRepository $bibliotecaRepository)
     {
-        $this->bibliotecaRepository = new BibliotecaRepository($pdo);
+        $this->bibliotecaRepository = $bibliotecaRepository;
     }
 
     public function listarLivrosPorUsuario(int $usuarioId): array

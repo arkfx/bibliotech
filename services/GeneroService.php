@@ -1,15 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../models/Genero.php';
-require_once __DIR__ . '/../repositories/GeneroRepository.php';
+namespace BiblioTech\Services;
+use BiblioTech\Models\Genero;
+use BiblioTech\Repositories\GeneroRepository;
+use Exception;
 
 class GeneroService
 {
     private GeneroRepository $generoRepository;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(GeneroRepository $generoRepository)
     {
-        $this->generoRepository = new GeneroRepository($pdo);
+        $this->generoRepository = $generoRepository;
     }
 
     public function listarTodos(): array

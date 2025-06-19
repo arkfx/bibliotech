@@ -1,19 +1,20 @@
 <?php
 
-require_once __DIR__ . '/../routing/Route.php';
-require_once __DIR__ . '/../services/EditoraService.php';
-require_once __DIR__ . '/../models/Editora.php';
-require_once __DIR__ . '/BaseController.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Services\EditoraService;
+use Exception;
 
 class EditoraController extends BaseController
 {
     private EditoraService $editoraService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->editoraService = new EditoraService($pdo);
-        header('Content-Type: application/json');
+        $this->editoraService = $this->appFactory->createEditoraService();
     }
 
     #[Route('/editoras', 'GET')]

@@ -1,7 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../models/Genero.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+use BiblioTech\Models\Genero;
+
+use PDO;
 
 class GeneroRepository extends BaseRepository
 {

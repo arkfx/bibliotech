@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Models;
+
 class Editora
 {
     public $id;

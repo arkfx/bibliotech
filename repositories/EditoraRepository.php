@@ -1,7 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../models/Editora.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\Editora;
+use BiblioTech\Repositories\BaseRepository;
+use PDO;
+use Exception;
 
 class EditoraRepository  extends BaseRepository
 {

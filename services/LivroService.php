@@ -1,9 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../models/Livro.php';
-require_once __DIR__ . '/../repositories/LivroRepository.php';
-require_once __DIR__ . '/../repositories/EditoraRepository.php';
-require_once __DIR__ . '/../repositories/GeneroRepository.php';
+namespace BiblioTech\Services;
+
+use BiblioTech\Models\Livro;
+use BiblioTech\Repositories\LivroRepository;
+use BiblioTech\Repositories\EditoraRepository;
+use BiblioTech\Repositories\GeneroRepository;
+use Exception;
 
 class LivroService
 {
@@ -11,11 +14,14 @@ class LivroService
     private EditoraRepository $editoraRepository;
     private GeneroRepository $generoRepository;
 
-    public function __construct(private PDO $pdo)
-    {
-        $this->livroRepository = new LivroRepository($pdo);
-        $this->editoraRepository = new EditoraRepository($pdo);
-        $this->generoRepository = new GeneroRepository($pdo);
+    public function __construct(
+        LivroRepository $livroRepository,
+        EditoraRepository $editoraRepository,
+        GeneroRepository $generoRepository
+    ) {
+        $this->livroRepository = $livroRepository;
+        $this->editoraRepository = $editoraRepository;
+        $this->generoRepository = $generoRepository;
     }
 
     public function listar(?string $termo, ?int $genero_id, string $ordem): array

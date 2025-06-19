@@ -1,4 +1,7 @@
 <?php
+
+namespace BiblioTech\Models;
+
 class Usuario
 {
     public ?int $id = null;

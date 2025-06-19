@@ -1,7 +1,9 @@
 <?php
 
-require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../repositories/UsuarioRepository.php';
+namespace BiblioTech\Controllers;
+use BiblioTech\Repositories\UsuarioRepository;
+use BiblioTech\Core\Route;
+use PDO;
 
 class AuthController extends BaseController
 {

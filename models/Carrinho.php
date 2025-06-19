@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Models;
+
 class Carrinho
 {
     public int $id;
@@ -21,7 +23,6 @@ class Carrinho
         $this->quantidade = (int) ($data['quantidade'] ?? 1);
         $this->tipo = $data['tipo'] ?? 'fisico';
 
-        // Atribuir os detalhes do livro se existirem nos dados
         $this->titulo = $data['titulo'] ?? null;
         $this->preco = isset($data['preco']) ? (float)$data['preco'] : null;
         $this->imagem_url = $data['imagem_url'] ?? null;
@@ -36,7 +37,7 @@ class Carrinho
             'livro_id' => $this->livro_id,
             'quantidade' => $this->quantidade,
             'tipo' => $this->tipo,
-            // Incluir os detalhes do livro no array retornado
+
             'titulo' => $this->titulo,
             'preco' => $this->preco,
             'imagem_url' => $this->imagem_url,

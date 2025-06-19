@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Models;
+
 class Genero
 {
     public $id;

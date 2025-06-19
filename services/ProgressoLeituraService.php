@@ -1,15 +1,18 @@
 <?php
 
-require_once __DIR__ . '/../repositories/ReadingProgressRepository.php';
-require_once __DIR__ . '/../models/ReadingProgress.php';
+namespace BiblioTech\Services;
+
+use BiblioTech\Models\ReadingProgress;
+use BiblioTech\Repositories\ReadingProgressRepository;
+use InvalidArgumentException;
 
 class ProgressoLeituraService
 {
     private ReadingProgressRepository $repository;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(ReadingProgressRepository $repository)
     {
-        $this->repository = new ReadingProgressRepository($pdo);
+        $this->repository = $repository;
     }
 
     public function salvar(array $data, int $usuarioId): bool

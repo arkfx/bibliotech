@@ -1,16 +1,20 @@
 <?php
 
-require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../services/CarrinhoService.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Services\CarrinhoService;
+use Exception;
 
 class CarrinhoController extends BaseController
 {
     private CarrinhoService $carrinhoService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->carrinhoService = new CarrinhoService($pdo);
+        $this->carrinhoService = $this->appFactory->createCarrinhoService();
     }
 
     #[Route('/carrinho', 'GET')]

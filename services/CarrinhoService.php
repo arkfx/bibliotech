@@ -1,10 +1,12 @@
 <?php
+namespace BiblioTech\Services;
 
-require_once __DIR__ . '/../repositories/CarrinhoRepository.php';
-require_once __DIR__ . '/../repositories/LivroRepository.php';
-require_once __DIR__ . '/../repositories/BibliotecaRepository.php';
-require_once __DIR__ . '/../models/Carrinho.php';
-require_once __DIR__ . '/../models/Biblioteca.php';
+use BiblioTech\Models\Carrinho;
+use BiblioTech\Models\Biblioteca;
+use BiblioTech\Repositories\CarrinhoRepository;
+use BiblioTech\Repositories\LivroRepository;
+use BiblioTech\Repositories\BibliotecaRepository;
+use Exception;
 
 class CarrinhoService
 {
@@ -12,11 +14,11 @@ class CarrinhoService
     private LivroRepository $livroRepository;
     private BibliotecaRepository $bibliotecaRepository;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(CarrinhoRepository $carrinhoRepository, LivroRepository $livroRepository, BibliotecaRepository $bibliotecaRepository)
     {
-        $this->carrinhoRepository = new CarrinhoRepository($pdo);
-        $this->livroRepository = new LivroRepository($pdo);
-        $this->bibliotecaRepository = new BibliotecaRepository($pdo);
+        $this->carrinhoRepository = $carrinhoRepository;
+        $this->livroRepository = $livroRepository;
+        $this->bibliotecaRepository = $bibliotecaRepository;
     }
 
     public function listarItens(int $usuarioId): array

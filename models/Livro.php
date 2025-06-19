@@ -1,4 +1,7 @@
 <?php
+
+namespace BiblioTech\Models;
+
 class Livro
 {
     public $id;

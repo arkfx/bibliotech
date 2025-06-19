@@ -1,7 +1,9 @@
 <?php
 
-require_once 'BaseRepository.php';
-require_once __DIR__ . '/../models/PedidoItem.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\PedidoItem;
+use PDO;
 
 class PedidoItemRepository extends BaseRepository
 {

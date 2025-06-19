@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Models;
+
 class ReadingProgress
 {
     public ?int $id = null;
