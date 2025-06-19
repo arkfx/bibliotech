@@ -78,7 +78,7 @@ class CarrinhoService
         $quantidade = $data['quantidade'] ?? null;
         $tipo = $data['tipo'] ?? null;
 
-        if (!$livroId || !$quantidade || !$tipo) {
+        if ($livroId === null || $quantidade === null || !$tipo) {
             throw new Exception('ID do livro, quantidade e tipo são obrigatórios.');
         }
 
