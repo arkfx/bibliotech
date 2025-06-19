@@ -1,17 +1,25 @@
 <?php
 
-require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../services/ListaDesejoService.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Services\ListaDesejoService;
+use InvalidArgumentException;
+use Exception;
+use PDOException;
+
 
 class ListaDesejoController extends BaseController
 {
     private ListaDesejoService $service;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->service = new ListaDesejoService($pdo);
+        $this->service = $this->appFactory->createListaDesejoService();
     }
+    
 
     #[Route('/desejos', 'POST')]
     public function adicionar()

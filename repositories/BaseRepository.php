@@ -1,4 +1,6 @@
 <?php
+namespace BiblioTech\Repositories;
+use PDO;
 
 abstract class BaseRepository
 {

@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Core;
+use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class Route

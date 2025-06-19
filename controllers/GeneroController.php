@@ -1,17 +1,20 @@
 <?php
 
-require_once __DIR__ . '/../routing/Route.php';
-require_once __DIR__ . '/../services/GeneroService.php';
-require_once __DIR__ . '/../models/Genero.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Services\GeneroService;
+use Exception;
 
 class GeneroController extends BaseController
 {
     private GeneroService $generoService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->generoService = new GeneroService($pdo);
+        $this->generoService = $this->appFactory->createGeneroService();
     }
 
     #[Route('/generos', 'GET')]

@@ -1,16 +1,21 @@
 <?php
 
-require_once __DIR__ . '/../services/UsuarioService.php';
-require_once __DIR__ . '/BaseController.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Services\UsuarioService;
+use Exception;
 
 class UsuarioController extends BaseController
 {
     private UsuarioService $usuarioService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
-        $this->usuarioService = new UsuarioService($pdo);
-    }
+        session_start();
+        $this->usuarioService = $this->appFactory->createUsuarioService();
+    }    
 
     #[Route('/usuarios', 'POST')]
     public function cadastrar()

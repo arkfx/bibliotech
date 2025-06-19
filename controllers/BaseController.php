@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Controllers;
+
 abstract class BaseController
 {
     protected function response(int $status, array $data): void

@@ -1,7 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../models/Livro.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\Livro;
+use PDO;
+use Exception;
 
 class LivroRepository extends BaseRepository
 {

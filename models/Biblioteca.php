@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Models;
+
 class Biblioteca
 {
     public $id;

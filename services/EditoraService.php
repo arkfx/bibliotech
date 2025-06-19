@@ -1,15 +1,18 @@
 <?php
 
-require_once __DIR__ . '/../repositories/EditoraRepository.php';
-require_once __DIR__ . '/../models/Editora.php';
+namespace BiblioTech\Services;
+
+use BiblioTech\Models\Editora;
+use BiblioTech\Repositories\EditoraRepository;
+use Exception;
 
 class EditoraService
 {
     private EditoraRepository $editoraRepository;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(EditoraRepository $editoraRepository)
     {
-        $this->editoraRepository = new EditoraRepository($pdo);
+        $this->editoraRepository = $editoraRepository;
     }
 
     public function listarTodos(): array

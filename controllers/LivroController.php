@@ -1,18 +1,21 @@
 <?php
 
-require_once __DIR__ . '/../routing/Route.php';
-require_once __DIR__ . '/../services/LivroService.php';
-require_once __DIR__ . '/../models/Livro.php';
-require_once __DIR__ . '/BaseController.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Models\Livro;
+use BiblioTech\Services\LivroService;
+use Exception;
 
 class LivroController extends BaseController
 {
     private LivroService $livroService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->livroService = new LivroService($pdo);
+        $this->livroService = $this->appFactory->createLivroService();
     }
 
     #[Route('/livros', 'GET')]

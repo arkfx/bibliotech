@@ -1,7 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../models/Carrinho.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+use BiblioTech\Models\Carrinho;
+use PDO;
 
 class CarrinhoRepository extends BaseRepository
 {

@@ -1,16 +1,20 @@
 <?php
 
-require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../services/BibliotecaService.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Services\BibliotecaService;
+use Exception;
 
 class BibliotecaController extends BaseController
 {
     private BibliotecaService $bibliotecaService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->bibliotecaService = new BibliotecaService($pdo);
+        $this->bibliotecaService = $this->appFactory->createBibliotecaService();
     }
 
     #[Route('/biblioteca', 'GET')]

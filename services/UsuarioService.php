@@ -1,15 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../repositories/UsuarioRepository.php';
-require_once __DIR__ . '/../models/Usuario.php';
+namespace BiblioTech\Services;
+
+use BiblioTech\Models\Usuario;
+use BiblioTech\Repositories\UsuarioRepository;
+use Exception;
+use DateTime;
 
 class UsuarioService
 {
     private UsuarioRepository $usuarioRepository;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(UsuarioRepository $usuarioRepository)
     {
-        $this->usuarioRepository = new UsuarioRepository($pdo);
+        $this->usuarioRepository = $usuarioRepository;
     }
 
     public function cadastrar(array $data): void

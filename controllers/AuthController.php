@@ -1,16 +1,20 @@
 <?php
 
-require_once __DIR__ . '/BaseController.php';
-require_once __DIR__ . '/../repositories/UsuarioRepository.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Repositories\UsuarioRepository;
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
 
 class AuthController extends BaseController
 {
     private UsuarioRepository $repo;
 
-    public function __construct(private PDO $pdo)
+
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->repo = new UsuarioRepository($pdo);
+        $this->repo = new UsuarioRepository($this->appFactory::getConnectionInstance());
     }
 
     #[Route('/login', 'POST')]
