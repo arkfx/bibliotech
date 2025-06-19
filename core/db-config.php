@@ -1,11 +1,8 @@
 <?php
 
-use BiblioTech\Core\load_env;
-// Carrega as variáveis de ambiente do arquivo .env
+use function BiblioTech\Core\loadEnv;
 
-load_env(__DIR__ . '/../.env');
-// Retorna a configuração do banco de dados
-
+loadEnv(__DIR__ . '/../.env');
 
 return [
     'database' => [

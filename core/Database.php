@@ -1,5 +1,11 @@
 <?php
 
+namespace BiblioTech\Core;
+
+use PDO;
+use PDOException;
+
+
 class Database
 {
     private static $instance = null;

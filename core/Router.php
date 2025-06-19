@@ -1,7 +1,7 @@
 <?php
 
 namespace BiblioTech\Core;
-use BiblioTech\Core\Route;  
+
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -33,25 +33,25 @@ class Router
         }
     }
 
-    public function dispatch(string $requestUri, string $requestMethod, $pdo): void
+    public function dispatch(string $requestUri, string $requestMethod, AppFactory $factory): void
     {
         $path = parse_url($requestUri, PHP_URL_PATH);
-        
-        // Handle multiple possible base paths
+
+        // Remover possíveis caminhos base (como /bibliotech/public)
         $possibleBasePaths = [
             '/bibliotech/public',
             '/bibliotech',
             ''
         ];
-        
+
         foreach ($possibleBasePaths as $basePath) {
             if ($basePath && str_starts_with($path, $basePath)) {
                 $path = substr($path, strlen($basePath));
                 break;
             }
         }
-        
-        // Ensure path starts with /
+
+        // Garante que começa com /
         if (!str_starts_with($path, '/')) {
             $path = '/' . $path;
         }
@@ -63,7 +63,7 @@ class Router
 
             if (preg_match($route['pattern'], $path, $matches)) {
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
-                $controller = new $route['controller']($pdo);
+                $controller = new $route['controller']($factory);
                 call_user_func_array([$controller, $route['action']], $params);
                 return;
             }

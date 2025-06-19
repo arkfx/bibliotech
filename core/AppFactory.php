@@ -36,14 +36,19 @@ class AppFactory
             $dbPort = $_ENV['DB_PORT'];
             $dbName = $_ENV['DB_NAME'];
             $dbUser = $_ENV['DB_USER'];
-            $dbPass = $_ENV['DB_PASS'];
-            
-            self::$pdo = new PDO("pgsql:host=$dbHost;port=$dbPort;dbname=$dbName;charset=utf8", $dbUser, $dbPass, [
+            $dbPass = $_ENV['DB_PASSWORD'];
+
+            self::$pdo = new PDO("pgsql:host=$dbHost;port=$dbPort;dbname=$dbName", $dbUser, $dbPass, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
         }
         return self::$pdo;
+    }
+
+    public static function getConnectionInstance(): PDO
+    {
+        return self::getConnection();
     }
 
     public static function createCarrinhoService(): CarrinhoService
