@@ -11,6 +11,7 @@ class Pedido
     public string $criado_em;
     public array $itens = [];
     public float $valor_frete = 0.0;
+    public ?int $endereco_id = null; // ...existing code...
 
     public function __construct(array $data)
     {
@@ -19,7 +20,7 @@ class Pedido
         $this->total = (float) ($data['total'] ?? 0);
         $this->status = $data['status'] ?? 'pendente';
         $this->valor_frete = (float) ($data['valor_frete'] ?? 0.0);
-        $this->itens = $data['itens'] ?? [];
+        $this->endereco_id = isset($data['endereco_id']) ? (int) $data['endereco_id'] : null; // ...existing code...
         $this->criado_em = $data['criado_em'] ?? date('Y-m-d H:i:s');
     }
 
@@ -31,6 +32,7 @@ class Pedido
             'total' => $this->total,
             'status' => $this->status,
             'valor_frete' => $this->valor_frete,
+            'endereco_id' => $this->endereco_id, // ...existing code...
             'criado_em' => $this->criado_em
         ];
         if (isset($this->itens)) {

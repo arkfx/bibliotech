@@ -12,6 +12,7 @@ use BiblioTech\Repositories\PedidoItemRepository;
 use BiblioTech\Repositories\PedidoRepository;
 use BiblioTech\Repositories\ReadingProgressRepository;
 use BiblioTech\Repositories\UsuarioRepository;
+use BiblioTech\Repositories\EnderecoRepository;
 use BiblioTech\Services\BibliotecaService;
 use BiblioTech\Services\CarrinhoService;
 use BiblioTech\Services\EditoraService;
@@ -21,6 +22,7 @@ use BiblioTech\Services\LivroService;
 use BiblioTech\Services\PedidoService;
 use BiblioTech\Services\ProgressoLeituraService;
 use BiblioTech\Services\UsuarioService;
+use BiblioTech\Services\EnderecoService;
 use PDO;
 
 
@@ -117,5 +119,11 @@ class AppFactory
     {
         $conn = self::getConnection();
         return new ProgressoLeituraService(new ReadingProgressRepository($conn));
+    }
+
+    public function createEnderecoService(): EnderecoService // ...existing code...
+    {
+        $conn = self::getConnection();
+        return new EnderecoService(new EnderecoRepository($conn));
     }
 }
