@@ -7,7 +7,6 @@ use BiblioTech\Core\AppFactory;
 use BiblioTech\Services\BibliotecaService;
 use Exception;
 
-
 class BibliotecaController extends BaseController
 {
     private BibliotecaService $bibliotecaService;

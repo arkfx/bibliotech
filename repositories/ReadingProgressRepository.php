@@ -6,7 +6,6 @@ use BiblioTech\Models\ReadingProgress;
 use PDO;
 use PDOException;
 
-
 class ReadingProgressRepository extends BaseRepository
 {
     public function saveProgress(ReadingProgress $progress): bool

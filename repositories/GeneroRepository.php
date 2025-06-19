@@ -1,8 +1,8 @@
 <?php
 
 namespace BiblioTech\Repositories;
-use BiblioTech\Models\Genero;
 
+use BiblioTech\Models\Genero;
 use PDO;
 
 class GeneroRepository extends BaseRepository

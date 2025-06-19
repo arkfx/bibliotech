@@ -5,7 +5,6 @@ namespace BiblioTech\Controllers;
 use BiblioTech\Repositories\UsuarioRepository;
 use BiblioTech\Core\Route;
 use BiblioTech\Core\AppFactory;
-use PDO;
 
 class AuthController extends BaseController
 {

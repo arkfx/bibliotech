@@ -1,11 +1,11 @@
 <?php
 
 namespace BiblioTech\Controllers;
+
 use BiblioTech\Core\Route;
 use BiblioTech\Core\AppFactory;
 use BiblioTech\Services\ProgressoLeituraService;
 use Exception;
-
 
 class ProgressoLeituraController extends BaseController
 {

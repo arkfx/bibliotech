@@ -31,8 +31,6 @@ class CarrinhoServiceTest extends TestCase
         );
     }
 
-    // --- Testes para adicionarItem ---
-
     public function testAdicionarItemFisicoComSucesso()
     {
         $usuarioId = 1;
@@ -87,7 +85,6 @@ class CarrinhoServiceTest extends TestCase
 
         $this->carrinhoService->adicionarItem($usuarioId, $data);
     }
-
 
     public function testRemoverItemComSucesso()
     {
