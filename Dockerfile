@@ -38,6 +38,9 @@ RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
 # Copy the entire application first
 COPY . /var/www/html/
 
+# Create case-compatible symlink for the Router
+RUN ln -s /var/www/html/controllers /var/www/html/Controllers
+
 # Clear composer cache and install dependencies
 RUN composer clear-cache && \
     composer install --no-dev --optimize-autoloader --no-interaction --no-cache && \
