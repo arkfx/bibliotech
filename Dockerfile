@@ -24,6 +24,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Enable Apache rewrite module
 RUN a2enmod rewrite
 
+# Configure PHP for production
+RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "display_startup_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "log_errors = On" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "error_log = /var/log/apache2/php_errors.log" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "html_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "expose_php = Off" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "max_execution_time = 30" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/production.ini
+
 # Copy the entire application first
 COPY . /var/www/html/
 
