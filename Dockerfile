@@ -24,18 +24,19 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# Copy composer files first for better Docker layer caching
-COPY composer.json composer.lock* ./
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Copy the rest of the application
+# Copy the entire application first
 COPY . /var/www/html/
+
+# Clear composer cache and install dependencies
+RUN composer clear-cache && \
+    composer install --no-dev --optimize-autoloader --no-interaction --no-cache && \
+    composer dump-autoload --optimize --no-dev
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+    && chmod -R 755 /var/www/html \
+    && chown -R www-data:www-data /var/www/html/vendor \
+    && chmod -R 755 /var/www/html/vendor
 
 # Configure Apache virtual host
 RUN echo '<VirtualHost *:80>\n\
