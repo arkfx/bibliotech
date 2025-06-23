@@ -24,18 +24,30 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# Copy composer files first for better Docker layer caching
-COPY composer.json composer.lock* ./
+# Configure PHP for production
+RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "display_startup_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "log_errors = On" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "error_log = /var/log/apache2/php_errors.log" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "html_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "expose_php = Off" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "max_execution_time = 30" >> /usr/local/etc/php/conf.d/production.ini && \
+    echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/production.ini
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Copy the rest of the application
+# Copy the entire application first
 COPY . /var/www/html/
+
+# Clear composer cache and install dependencies
+RUN composer clear-cache && \
+    composer install --no-dev --optimize-autoloader --no-interaction --no-cache && \
+    composer dump-autoload --optimize --no-dev
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+    && chmod -R 755 /var/www/html \
+    && chown -R www-data:www-data /var/www/html/vendor \
+    && chmod -R 755 /var/www/html/vendor
 
 # Configure Apache virtual host
 RUN echo '<VirtualHost *:80>\n\

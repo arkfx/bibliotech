@@ -4,19 +4,25 @@
  * Part of Phase 3: Advanced UI Features
  */
 
+// Note: Transition settings are now handled centrally in PDFViewer.TRANSITION_CONFIG.DEFAULTS
+// No duplicate transition configuration needed here
+
 export class ReadingPreferences {
   constructor(bookId = 'global') {
     this.bookId = bookId;
     this.storagePrefix = 'bibliotech_reader_prefs';
     this.defaultPreferences = {
       // Theme preferences
-      theme: 'dark',
+      theme: 'dark', // Default to dark theme
       autoTheme: false, // System-aware theme switching
       
       // Zoom and view preferences
       zoom: 1.0,
       fitMode: 'width', // 'width', 'height', 'custom'
       viewMode: 'page', // 'page', 'continuous'
+      
+      // Note: Page transition preferences are handled centrally in PDFViewer.TRANSITION_CONFIG.DEFAULTS
+      // No localStorage storage for transition settings - using hardcoded values only
       
       // Reading controls
       autoScroll: false,
@@ -484,8 +490,6 @@ export class ReadingPreferences {
     };
   }
 
-
-
   /**
    * Get optimal fit mode based on device
    */
@@ -500,8 +504,6 @@ export class ReadingPreferences {
     
     return 'width'; // Desktop default to width for comfortable reading
   }
-
-
 
   /**
    * Determine if high contrast should be used

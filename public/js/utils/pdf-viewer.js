@@ -12,66 +12,349 @@ import { AdaptiveLayout } from './adaptive-layout.js';
 
 export class PDFViewer {
   constructor() {
+    // Centralized Page Transition Configuration (Phase 1.1)
+    // THIS IS THE ONLY PLACE TO MODIFY TRANSITION SETTINGS
+    // These settings are NOT stored in localStorage - they are hardcoded
+    this.TRANSITION_CONFIG = {
+      // Available transition types
+      TYPES: {
+        NONE: 'none',
+        FADE: 'fade', 
+        SLIDE: 'slide',
+        FLIP: 'flip'
+      },
+      
+      // Default settings (single source of truth)
+      DEFAULTS: {
+        type: 'flip',        // Modify this to change default transition type
+        duration: 125,       // Modify this to change default transition duration (ms)
+        enabled: true,
+        preloadAdjacent: true
+      },
+      
+      // Validation constraints
+      CONSTRAINTS: {
+        minDuration: 0,
+        maxDuration: 10000,
+        validTypes: ['none', 'fade', 'slide', 'flip']
+      },
+      
+      // CSS class mappings
+      CSS_CLASSES: {
+        container: {
+          none: 'no-transition',
+          fade: 'transition-fade',
+          slide: 'transition-slide', 
+          flip: 'transition-flip',
+          disabled: 'transition-disabled'
+        },
+        states: {
+          transitioning: 'transitioning',
+          slideNext: 'slide-next',
+          slidePrev: 'slide-prev',
+          flipNext: 'flip-next',
+          flipPrev: 'flip-prev'
+        }
+      },
+      
+      // Timing configurations
+      TIMING: {
+        cssTransitionStart: 50,    // Wait time before starting transition
+        preloadDelay: 100,         // Delay before preloading adjacent pages
+        cleanupDelay: 50           // Delay before cleaning up transition classes
+      }
+    };
+
+    // Core PDF.js references
     this.pdfDoc = null;
     this.pageNum = 1;
     this.pageCount = 0;
-    this.scale = 1.2;
-    this.canvas = document.getElementById('pdfCanvas');
-    this.ctx = this.canvas.getContext('2d');
     this.pageRendering = false;
     this.pageNumPending = null;
-    this.currentPDFId = null;
-    this.currentPDFUrl = null;
-    
-    // Enhanced reading controls
+    this.scale = 1.0;
+    this.fitMode = 'width';
     this.viewMode = 'page'; // 'page' or 'continuous'
-    this.preferredViewMode = null; // Store preferred view mode from preferences
-    this.fitMode = 'custom'; // 'width', 'height', 'page', 'custom'
-    this.isSwitchingModes = false; // Track mode switching for smooth transitions
+
+    // Page transition properties - will be set from TRANSITION_CONFIG defaults
+    this.transitionType = this.TRANSITION_CONFIG.DEFAULTS.type;
+    this.transitionDuration = this.TRANSITION_CONFIG.DEFAULTS.duration;
+    this.transitionEnabled = this.TRANSITION_CONFIG.DEFAULTS.enabled;
+    this.isTransitioning = false;
+    this.preloadedPages = new Map(); // Cache for preloaded pages
+
+    // Theme and rendering
+    this.currentTheme = 'dark'; // Default to dark theme
+    this.currentPDFId = null;
+
+    // DOM elements - will be initialized in init()
+    this.canvas = null;
+    this.ctx = null;
+    this.containerEl = null;
+    this.controlsEl = null;
+    this.loadingEl = null;
+    this.errorEl = null;
+
+    // Performance and caching
+    this.cache = null;
+    this.textRenderer = null;
+    this.progressTracker = null;
+    this.sessionDb = null;
+
+    // Responsive and touch handling
+    this.isMobile = window.innerWidth <= 768;
+    this.adaptiveLayout = null;
+    this.lastTouchDistance = 0;
+
+    // Preferences and session management
+    this.preferences = null;
+    this.bookId = null;
+    this.userId = null;
+
+    // Virtual scrolling for continuous mode
+    this.virtualScrolling = null;
+    this.isSwitchingModes = false;
+
+    // Search and TOC functionality
+    this.searchInstance = null;
+    this.tocInstance = null;
+
+    // Helper flag for custom zoom state
+    this.ZOOM_CUSTOM_CLASS = 'zoom-custom';
+
+    // Initialize theme early - load from localStorage if available
+    this.initializeThemeEarly();
     
-    // Touch gesture properties
-    this.touchStartX = 0;
-    this.touchStartY = 0;
-    this.touchEndX = 0;
-    this.touchEndY = 0;
-    this.initialDistance = 0;
-    this.initialScale = 1.2;
-    this.lastTap = 0;
-    this.isZooming = false;
-    this.isSwiping = false;
-    
-    // Theme management
-    this.currentTheme = localStorage.getItem('pdf-reader-theme') || 'light';
-    this.isFullscreen = false;
-    
-    // Initialize components
-    this.cache = new PDFCache();
-    this.textRenderer = new PDFOperatorRenderer();
-    this.readingSession = null;
-    this.tableOfContents = null;
-    this.pdfSearch = null;
-    this.preferences = null; // Will be initialized when PDF loads
-    this.adaptiveLayout = null; // Adaptive layout system
-    
-    // UI elements
-    this.loadingEl = document.getElementById('pdfLoading');
-    this.errorEl = document.getElementById('pdfError');
-    this.controlsEl = document.getElementById('readerControls');
-    this.containerEl = document.getElementById('pdfContainer');
+    // Don't call init() in constructor - will be called from page
+  }
+
+  /**
+   * Initialize theme as early as possible to avoid flash of wrong theme
+   */
+  initializeThemeEarly() {
+    try {
+      // Try to load theme from global preferences immediately
+      const globalPrefs = localStorage.getItem('bibliotech_reader_prefs_global_general');
+      if (globalPrefs) {
+        const parsed = JSON.parse(globalPrefs);
+        const savedTheme = parsed.theme;
+        if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
+          this.currentTheme = savedTheme;
+          document.documentElement.setAttribute('data-theme', savedTheme);
+          console.log('Early theme initialization:', savedTheme);
+          return;
+        }
+      }
+      
+      // Fallback to dark theme
+      this.currentTheme = 'dark';
+      document.documentElement.setAttribute('data-theme', 'dark');
+      console.log('Early theme initialization: default dark');
+    } catch (e) {
+      // Fallback to dark theme on any error
+      this.currentTheme = 'dark';
+      document.documentElement.setAttribute('data-theme', 'dark');
+      console.log('Early theme initialization: fallback to dark');
+    }
+  }
+
+  init() {
+    // Initialize DOM elements first
+    this.canvas = document.getElementById('pdfCanvas');
+    this.containerEl = document.querySelector('.pdf-container');
+    this.controlsEl = document.querySelector('.reader-controls');
+    this.loadingEl = document.querySelector('.pdf-loading');
+    this.errorEl = document.querySelector('.pdf-error');
     this.pageInfoEl = document.getElementById('pageInfo');
-    this.zoomLevelEl = document.getElementById('zoomLevel');
-    // Legacy progress elements removed - using ReadingSession instead
-    
-    // Mobile UI elements
-    this.mobileControlsEl = document.getElementById('mobileControls');
     this.mobilePageInfoEl = document.getElementById('mobilePageInfo');
-    this.mobileZoomLevelEl = document.getElementById('mobileZoomLevel');
-    this.mobileSettingsPanelEl = document.getElementById('mobileSettingsPanel');
+    
+    if (this.canvas) {
+      this.ctx = this.canvas.getContext('2d');
+    }
+
+    // Initialize cache and rendering systems with proper fallbacks
+    try {
+      this.cache = new PDFCache();
+    } catch (error) {
+      console.warn('PDFCache not available, using fallback:', error);
+      this.cache = this.createFallbackCache();
+    }
+
+    try {
+      this.textRenderer = new PDFOperatorRenderer();
+    } catch (error) {
+      console.warn('PDFOperatorRenderer not available, using fallback:', error);
+      this.textRenderer = this.createFallbackRenderer();
+    }
+
+    // Initialize preferences and theme EARLY to ensure proper theme loading
+    this.initializePreferences();
+    
+    // Setup transition system AFTER preferences are loaded
+    this.setupTransitionSystem();
     
     this.setupEventListeners();
-    this.initializePreferences(); // Initialize with global preferences first
-    this.initializeAdaptiveLayout(); // Initialize adaptive layout system
+    this.initializeAdaptiveLayout();
     this.detectMobile();
+  }
+
+  /**
+   * Create fallback cache with all required methods
+   */
+  createFallbackCache() {
+    return {
+      getCachedPage() { return null; },
+      cacheRenderedPage() {},
+      generatePDFId(url) { 
+        // Simple fallback ID generation
+        return btoa(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+      },
+      getCachedPDF() { return Promise.resolve(null); },
+      cachePDF() { return Promise.resolve(); },
+      clearExpiredCache() { return Promise.resolve(); },
+      manageCacheSize() { return Promise.resolve(); },
+      getCacheStats() { return Promise.resolve({}); },
+      clearThemeCache() {}
+    };
+  }
+
+  /**
+   * Create fallback renderer with all required methods
+   */
+  createFallbackRenderer() {
+    return {
+      analyzeAndRenderPage: async (page, canvas, viewport, theme = 'light') => {
+        // Fallback to basic PDF.js rendering
+        const ctx = canvas.getContext('2d');
+        await page.render({
+          canvasContext: ctx,
+          viewport: viewport
+        }).promise;
+      }
+    };
+  }
+
+  /**
+   * Setup page transition system (Phase 1.1)
+   */
+  setupTransitionSystem() {
+    try {
+      // Use centralized defaults directly - no localStorage storage
+      this.transitionType = this.TRANSITION_CONFIG.DEFAULTS.type;
+      this.transitionDuration = this.TRANSITION_CONFIG.DEFAULTS.duration;
+      this.transitionEnabled = this.TRANSITION_CONFIG.DEFAULTS.enabled;
+
+      // Apply transition settings to DOM
+      this.applyTransitionSettingsToDOM();
+      
+      console.log('Transition system setup with centralized defaults:', {
+        type: this.transitionType,
+        duration: this.transitionDuration,
+        enabled: this.transitionEnabled
+      });
+    } catch (error) {
+      console.warn('Error setting up transition system:', error);
+      // Fallback to safe defaults
+      this.transitionType = this.TRANSITION_CONFIG.DEFAULTS.type;
+      this.transitionDuration = this.TRANSITION_CONFIG.DEFAULTS.duration;
+      this.transitionEnabled = this.TRANSITION_CONFIG.DEFAULTS.enabled;
+      this.applyTransitionSettingsToDOM();
+    }
+  }
+
+  /**
+   * Apply transition settings to DOM elements
+   */
+  applyTransitionSettingsToDOM() {
+    if (!this.containerEl) return;
+
+    // Set CSS custom property for transition duration
+    this.containerEl.style.setProperty('--transition-duration', `${this.transitionDuration}ms`);
+    
+    // Apply transition type CSS class
+    this.updateTransitionCSS();
+  }
+
+  /**
+   * Validate transition type using centralized configuration
+   */
+  isValidTransitionType(type) {
+    return this.TRANSITION_CONFIG.CONSTRAINTS.validTypes.includes(type);
+  }
+
+  /**
+   * Validate transition duration using centralized configuration
+   */
+  isValidDuration(duration) {
+    return typeof duration === 'number' && 
+           duration >= this.TRANSITION_CONFIG.CONSTRAINTS.minDuration && 
+           duration <= this.TRANSITION_CONFIG.CONSTRAINTS.maxDuration;
+  }
+
+  /**
+   * Configure page transition settings (Programmatic API)
+   * Note: Changes are temporary and not saved to localStorage
+   */
+  configureTransitions(options = {}) {
+    let hasChanges = false;
+
+    // Validate and apply transition type
+    if (options.type && this.isValidTransitionType(options.type)) {
+      this.transitionType = options.type;
+      hasChanges = true;
+    }
+
+    // Validate and apply transition duration
+    if (typeof options.duration === 'number') {
+      // Use centralized constraints for validation
+      const clampedDuration = Math.max(
+        this.TRANSITION_CONFIG.CONSTRAINTS.minDuration, 
+        Math.min(this.TRANSITION_CONFIG.CONSTRAINTS.maxDuration, options.duration)
+      );
+      this.transitionDuration = clampedDuration;
+      hasChanges = true;
+    }
+
+    // Apply enabled state
+    if (typeof options.enabled === 'boolean') {
+      this.transitionEnabled = options.enabled;
+      hasChanges = true;
+    }
+
+    // Apply changes to DOM (but don't save to localStorage)
+    if (hasChanges) {
+      this.applyTransitionSettingsToDOM();
+      
+      console.log('Transition configuration updated (temporary, not saved):', {
+        type: this.transitionType,
+        duration: this.transitionDuration,
+        enabled: this.transitionEnabled
+      });
+    }
+  }
+
+  /**
+   * Update container CSS classes for transitions using centralized configuration
+   */
+  updateTransitionCSS() {
+    if (!this.containerEl) return;
+
+    const cssClasses = this.TRANSITION_CONFIG.CSS_CLASSES;
+
+    // Remove all existing transition classes
+    Object.values(cssClasses.container).forEach(className => {
+      this.containerEl.classList.remove(className);
+    });
+    
+    // Apply current transition class
+    if (this.transitionEnabled && this.transitionType !== this.TRANSITION_CONFIG.TYPES.NONE) {
+      const transitionClass = cssClasses.container[this.transitionType];
+      if (transitionClass) {
+        this.containerEl.classList.add(transitionClass);
+      }
+    } else {
+      // Disabled or 'none' type
+      this.containerEl.classList.add(cssClasses.container.disabled);
+    }
   }
 
   setupEventListeners() {
@@ -162,7 +445,7 @@ export class PDFViewer {
       // Double-tap to fit width
       this.canvas.addEventListener('click', (e) => {
         const currentTime = new Date().getTime();
-        const tapLength = currentTime - this.lastTap;
+        const tapLength = currentTime - (this.lastTap || 0);
         if (tapLength < 500 && tapLength > 0) {
           this.fitToWidth();
         }
@@ -323,6 +606,13 @@ export class PDFViewer {
     // Load all preferences with smart defaults
     const prefs = this.preferences.loadPreferences();
     
+    // Ensure we have a valid theme preference, defaulting to 'dark'
+    if (!prefs.theme || !['light', 'dark'].includes(prefs.theme)) {
+      prefs.theme = 'dark';
+      this.preferences.savePreference('theme', 'dark', true);
+      console.log('Applied default dark theme');
+    }
+    
     // Use context-aware theme if auto theme is enabled
     if (prefs.autoTheme) {
       const contextTheme = this.preferences.getContextAwareTheme();
@@ -464,25 +754,29 @@ export class PDFViewer {
   }
 
   applyPreferences(prefs) {
-    try {
-      // Apply theme
-      this.setTheme(prefs.theme || 'light');
-      
-      // Apply zoom and fit preferences
-      this.scale = prefs.zoom || 1.2;
-      this.fitMode = prefs.fitMode || 'custom';
-      
-      // Store the preferred view mode but don't apply it yet
-      this.preferredViewMode = prefs.viewMode || 'page';
-      
-      // Update UI to reflect loaded preferences
-      this.updateThemeButtons();
-      this.updateZoomDisplay();
-      
-      console.log('Applied reading preferences:', prefs);
-    } catch (e) {
-      console.warn('Could not apply all preferences:', e);
+    // Apply theme preference - ensure it's applied even if it's the same as current
+    // This is important for initial page load
+    const savedTheme = prefs.theme || 'dark';
+    console.log('Applying theme preference:', savedTheme);
+    this.setTheme(savedTheme);
+
+    // Note: Transition preferences are handled centrally and not loaded from localStorage
+    // They are set directly from TRANSITION_CONFIG.DEFAULTS
+
+    // Apply view mode preference
+    if (prefs.viewMode && prefs.viewMode !== this.viewMode) {
+      this.viewMode = prefs.viewMode;
     }
+
+    // Apply zoom and fit preferences
+    if (prefs.zoom && typeof prefs.zoom === 'number') {
+      this.scale = prefs.zoom;
+    }
+    if (prefs.fitMode) {
+      this.fitMode = prefs.fitMode;
+    }
+
+    console.log('Applied reading preferences (excluding transitions):', prefs);
   }
 
   setTheme(theme) {
@@ -776,7 +1070,16 @@ export class PDFViewer {
     try {
       this.showLoading();
       
-      const progressTracker = new ProgressTracker(this.loadingEl);
+      let progressTracker;
+      try {
+        progressTracker = new ProgressTracker(this.loadingEl);
+      } catch (error) {
+        console.warn('ProgressTracker not available, using fallback:', error);
+        progressTracker = {
+          updateProgress: () => {},
+          complete: () => {}
+        };
+      }
       
       if (!url || typeof url !== 'string') {
         throw new Error(`Invalid PDF URL: ${url}`);
@@ -930,10 +1233,19 @@ export class PDFViewer {
       // Always use light theme for page 1 to avoid mask reversion issues
       const effectiveTheme = (num === 1) ? 'light' : this.currentTheme;
       
-      const cachedImage = this.cache.getCachedPage(this.currentPDFId, num, this.scale, effectiveTheme);
+      // Don't check cache with scale as we need fresh render on zoom changes
+      const cachedImage = null; // Force re-render to fix zoom issues
       
       if (cachedImage) {
         this.ctx.putImageData(cachedImage, 0, 0);
+        
+        // Update canvas dimensions from cached image
+        this.canvas.width = cachedImage.width;
+        this.canvas.height = cachedImage.height;
+        
+        // Ensure canvas reflects its intrinsic size even when loading from cache
+        this.adjustCanvasStyles(this.canvas);
+        
         this.pageRendering = false;
         
         if (this.pageNumPending !== null) {
@@ -944,22 +1256,42 @@ export class PDFViewer {
         
         this.pageNum = num;
         this.updateUI();
+        
+        this.preloadNextPage();
+        
+        // Preload adjacent pages for smooth transitions (Phase 1.1)
+        if (this.transitionEnabled) {
+          setTimeout(() => this.preloadAdjacentPages(), this.TRANSITION_CONFIG.TIMING.preloadDelay);
+        }
+        
         return;
       }
       
       const page = await this.pdfDoc.getPage(num);
       
-      const containerWidth = this.containerEl.clientWidth - 40;
-      const viewport = page.getViewport({ scale: 1 });
-      
-      if (this.scale === 'fit-width') {
-        this.scale = containerWidth / viewport.width;
+      // Calculate the actual numeric scale
+      let effectiveScale = this.scale;
+      if (this.scale === 'fit-width' || this.fitMode === 'width') {
+        const containerWidth = this.containerEl.clientWidth - 40;
+        const baseViewport = page.getViewport({ scale: 1 });
+        effectiveScale = containerWidth / baseViewport.width;
+        // Update the scale to be numeric
+        this.scale = effectiveScale;
+      } else if (this.fitMode === 'height') {
+        const containerHeight = this.containerEl.clientHeight - 40;
+        const baseViewport = page.getViewport({ scale: 1 });
+        effectiveScale = containerHeight / baseViewport.height;
+        this.scale = effectiveScale;
       }
       
-      const finalViewport = page.getViewport({ scale: this.scale });
+      // Always use numeric scale for viewport calculation
+      const finalViewport = page.getViewport({ scale: effectiveScale });
       this.canvas.height = finalViewport.height;
       this.canvas.width = finalViewport.width;
-      
+
+      // NEW: enforce intrinsic canvas size in the DOM
+      this.adjustCanvasStyles(this.canvas);
+
       const imageRegions = await this.textRenderer.analyzeAndRenderPage(
         page, 
         this.canvas, 
@@ -969,7 +1301,7 @@ export class PDFViewer {
       
       // Cache the rendered page with theme information
       const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-      this.cache.cacheRenderedPage(this.currentPDFId, num, imageData, this.scale, effectiveTheme);
+      this.cache.cacheRenderedPage(this.currentPDFId, num, imageData, effectiveScale, effectiveTheme);
       
       this.pageRendering = false;
       
@@ -983,6 +1315,11 @@ export class PDFViewer {
       this.updateUI();
       
       this.preloadNextPage();
+      
+      // Preload adjacent pages for smooth transitions (Phase 1.1)
+      if (this.transitionEnabled) {
+        setTimeout(() => this.preloadAdjacentPages(), this.TRANSITION_CONFIG.TIMING.preloadDelay);
+      }
       
     } catch (error) {
       console.error('Error rendering page:', error);
@@ -1036,23 +1373,23 @@ export class PDFViewer {
   }
 
   showLoading() {
-    this.loadingEl.style.display = 'flex';
-    this.errorEl.style.display = 'none';
-    this.controlsEl.style.display = 'none';
-    this.containerEl.style.display = 'none';
+    if (this.loadingEl) this.loadingEl.style.display = 'flex';
+    if (this.errorEl) this.errorEl.style.display = 'none';
+    if (this.controlsEl) this.controlsEl.style.display = 'none';
+    if (this.containerEl) this.containerEl.style.display = 'none';
   }
 
   showError() {
-    this.loadingEl.style.display = 'none';
-    this.errorEl.style.display = 'flex';
-    this.controlsEl.style.display = 'none';
-    this.containerEl.style.display = 'none';
+    if (this.loadingEl) this.loadingEl.style.display = 'none';
+    if (this.errorEl) this.errorEl.style.display = 'flex';
+    if (this.controlsEl) this.controlsEl.style.display = 'none';
+    if (this.containerEl) this.containerEl.style.display = 'none';
   }
 
   showPDF() {
-    this.loadingEl.style.display = 'none';
-    this.errorEl.style.display = 'none';
-    this.containerEl.style.display = 'flex';
+    if (this.loadingEl) this.loadingEl.style.display = 'none';
+    if (this.errorEl) this.errorEl.style.display = 'none';
+    if (this.containerEl) this.containerEl.style.display = 'flex';
     
     this.detectMobile();
   }
@@ -1069,9 +1406,9 @@ export class PDFViewer {
     }, duration);
   }
 
-  // Navigation methods
-  prevPage() {
-    if (this.pageNum <= 1) return;
+  // Navigation methods with smooth transitions (Phase 1.1)
+  async prevPage() {
+    if (this.pageNum <= 1 || this.isTransitioning) return;
     
     const targetPage = this.pageNum - 1;
     
@@ -1079,13 +1416,13 @@ export class PDFViewer {
       // In continuous mode, scroll to the previous page
       this.scrollToPageInContinuousMode(targetPage);
     } else {
-      // In page mode, render the previous page
-      this.renderPage(targetPage);
+      // In page mode, render with transition
+      await this.renderPageWithTransition(targetPage, 'prev');
     }
   }
 
-  nextPage() {
-    if (this.pageNum >= this.pageCount) return;
+  async nextPage() {
+    if (this.pageNum >= this.pageCount || this.isTransitioning) return;
     
     const targetPage = this.pageNum + 1;
     
@@ -1093,20 +1430,191 @@ export class PDFViewer {
       // In continuous mode, scroll to the next page
       this.scrollToPageInContinuousMode(targetPage);
     } else {
-      // In page mode, render the next page
-      this.renderPage(targetPage);
+      // In page mode, render with transition
+      await this.renderPageWithTransition(targetPage, 'next');
     }
+  }
+
+  /**
+   * Render page with smooth transition animation
+   */
+  async renderPageWithTransition(targetPage, direction = 'next') {
+    if (!this.transitionEnabled || 
+        this.transitionType === this.TRANSITION_CONFIG.TYPES.NONE || 
+        this.isTransitioning || 
+        !this.containerEl) {
+      return this.renderPage(targetPage);
+    }
+
+    this.isTransitioning = true;
+
+    try {
+      // Preload target page if not already cached
+      await this.preloadPage(targetPage);
+
+      // Apply transition CSS classes using centralized configuration
+      const cssClasses = this.TRANSITION_CONFIG.CSS_CLASSES;
+      this.containerEl.classList.add(cssClasses.states.transitioning);
+      
+      // Apply direction-specific classes for slide and flip transitions
+      if (this.transitionType === this.TRANSITION_CONFIG.TYPES.SLIDE || 
+          this.transitionType === this.TRANSITION_CONFIG.TYPES.FLIP) {
+        const directionClass = direction === 'next' 
+          ? cssClasses.states[`${this.transitionType}Next`]
+          : cssClasses.states[`${this.transitionType}Prev`];
+        if (directionClass) {
+          this.containerEl.classList.add(directionClass);
+        }
+      }
+
+      // Wait for CSS transition to start (using centralized timing)
+      await this.delay(this.TRANSITION_CONFIG.TIMING.cssTransitionStart);
+
+      // For flip animations, wait until midpoint to change content for realistic effect
+      if (this.transitionType === this.TRANSITION_CONFIG.TYPES.FLIP) {
+        // Wait for first half of the flip animation
+        const halfDuration = Math.max(50, this.transitionDuration / 2);
+        await this.delay(halfDuration - this.TRANSITION_CONFIG.TIMING.cssTransitionStart);
+        
+        // Change page content at the midpoint of the flip
+        await this.renderPage(targetPage);
+        
+        // Wait for second half of the flip animation
+        await this.delay(halfDuration);
+      } else {
+        // For non-flip transitions, render immediately (original behavior)
+        await this.renderPage(targetPage);
+        
+        // Wait for transition to complete (using actual transition duration)
+        await this.delay(this.transitionDuration);
+      }
+
+      // Clean up transition classes (using centralized timing)
+      await this.delay(this.TRANSITION_CONFIG.TIMING.cleanupDelay);
+      this.containerEl.classList.remove(
+        cssClasses.states.transitioning,
+        cssClasses.states.slideNext,
+        cssClasses.states.slidePrev,
+        cssClasses.states.flipNext,
+        cssClasses.states.flipPrev
+      );
+
+    } catch (error) {
+      console.error('Error during page transition:', error);
+      // Fallback to instant page change
+      await this.renderPage(targetPage);
+    } finally {
+      this.isTransitioning = false;
+    }
+  }
+
+  /**
+   * Preload a specific page for smooth transitions
+   */
+  async preloadPage(pageNum) {
+    if (!this.pdfDoc || pageNum < 1 || pageNum > this.pageCount) return;
+
+    // Check if already preloaded
+    if (this.preloadedPages.has(pageNum)) return;
+
+    try {
+      const effectiveTheme = (pageNum === 1) ? 'light' : this.currentTheme;
+      
+      // Check cache first
+      const cachedImage = this.cache?.getCachedPage(this.currentPDFId, pageNum, this.scale, effectiveTheme);
+      if (cachedImage) {
+        this.preloadedPages.set(pageNum, cachedImage);
+        return;
+      }
+
+      // Render page for preloading
+      const page = await this.pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: this.scale });
+      
+      const preloadCanvas = document.createElement('canvas');
+      const preloadCtx = preloadCanvas.getContext('2d');
+      preloadCanvas.height = viewport.height;
+      preloadCanvas.width = viewport.width;
+
+      if (effectiveTheme === 'light') {
+        await page.render({
+          canvasContext: preloadCtx,
+          viewport: viewport
+        }).promise;
+      } else {
+        await this.textRenderer?.analyzeAndRenderPage(page, preloadCanvas, viewport, effectiveTheme);
+      }
+
+      const imageData = preloadCtx.getImageData(0, 0, preloadCanvas.width, preloadCanvas.height);
+      
+      // Cache and store preloaded page
+      this.cache?.cacheRenderedPage(this.currentPDFId, pageNum, imageData, this.scale, effectiveTheme);
+      this.preloadedPages.set(pageNum, imageData);
+
+    } catch (error) {
+      console.warn('Failed to preload page:', pageNum, error);
+    }
+  }
+
+  /**
+   * Preload adjacent pages for smoother navigation
+   */
+  async preloadAdjacentPages() {
+    if (!this.transitionEnabled || !this.pdfDoc) return;
+
+    const preloadPromises = [];
+    
+    // Preload previous page
+    if (this.pageNum > 1) {
+      preloadPromises.push(this.preloadPage(this.pageNum - 1));
+    }
+    
+    // Preload next page
+    if (this.pageNum < this.pageCount) {
+      preloadPromises.push(this.preloadPage(this.pageNum + 1));
+    }
+
+    await Promise.allSettled(preloadPromises);
+  }
+
+  /**
+   * Utility method for creating delays
+   */
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Helper to compute current numeric scale when this.scale is not a number
+  getCurrentNumericScale() {
+    if (typeof this.scale === 'number' && !isNaN(this.scale)) {
+      return this.scale;
+    }
+
+    // Derive from current canvas dimensions vs original PDF viewport
+    if (!this.pdfDoc || !this.pageNum) return 1;
+    try {
+      const page = this.pdfDoc.getPage ? this.pdfDoc.getPageSync?.(this.pageNum) : null;
+      // pdf.js v3 has no getPageSync; fallback to async getPage (still okay for scale estimation)
+    } catch {}
+    // Fallback: approximate using canvas width / container width
+    if (this.canvas) {
+      const ratio = this.canvas.width / (this.containerEl.clientWidth - 40);
+      if (ratio > 0 && isFinite(ratio)) return ratio;
+    }
+    return 1;
   }
 
   // Zoom methods
   zoomIn() {
-    this.scale = Math.min(this.scale * 1.25, 5);
+    const numericScale = this.getCurrentNumericScale();
+    this.scale = Math.min(numericScale * 1.25, 5);
     this.fitMode = 'custom';
     this.updateViewAfterZoom();
   }
 
   zoomOut() {
-    this.scale = Math.max(this.scale * 0.8, 0.25);
+    const numericScale = this.getCurrentNumericScale();
+    this.scale = Math.max(numericScale * 0.8, 0.25);
     this.fitMode = 'custom';
     this.updateViewAfterZoom();
   }
@@ -1123,6 +1631,9 @@ export class PDFViewer {
     
     // Save preferences when zoom changes
     this.savePreferences();
+    
+    // NEW: toggle custom zoom class depending on mode
+    this.updateZoomCSS();
     
     if (this.viewMode === 'continuous' && this.virtualScrolling) {
       // Store current page and scroll information for precise restoration
@@ -1161,7 +1672,9 @@ export class PDFViewer {
       this.preferences.savePreferences({
         zoom: this.scale,
         fitMode: this.fitMode,
-        viewMode: this.viewMode
+        viewMode: this.viewMode,
+        theme: this.currentTheme
+        // Note: Transition settings are not saved - using hardcoded values only
       });
     }
   }
@@ -1533,7 +2046,10 @@ export class PDFViewer {
       // Set canvas dimensions
       canvas.height = viewport.height;
       canvas.width = viewport.width;
-      
+
+      // NEW: enforce intrinsic canvas size for virtual canvases
+      this.adjustCanvasStyles(canvas);
+
       // Get canvas context
       const ctx = canvas.getContext('2d');
       
@@ -1745,5 +2261,28 @@ export class PDFViewer {
         }
       });
     }
+  }
+
+  /**
+   * Update container CSS when switching between preset fit modes and custom zoom
+   */
+  updateZoomCSS() {
+    if (!this.containerEl) return;
+
+    if (this.fitMode === 'custom') {
+      this.containerEl.classList.add(this.ZOOM_CUSTOM_CLASS);
+    } else {
+      this.containerEl.classList.remove(this.ZOOM_CUSTOM_CLASS);
+    }
+  }
+
+  /**
+   * Ensure the canvas element is displayed at its intrinsic pixel size to
+   * prevent CSS rules such as max-width:100% from shrinking it after a zoom.
+   */
+  adjustCanvasStyles(canvas) {
+    if (!canvas) return;
+    canvas.style.width = `${canvas.width}px`;
+    canvas.style.height = `${canvas.height}px`;
   }
 } 

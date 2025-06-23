@@ -133,11 +133,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: var(--bg-secondary);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 10px var(--shadow-color);
   position: relative;
+  transition: all 0.3s ease;
 }
 
 /* Loading State */
@@ -448,17 +449,38 @@
   text-align: center;
 }
 
-/* PDF Container */
-.pdf-container {
+/* PDF Container with Theme Support - unified with transition system */
+.pdf-reader {
   flex: 1;
-  overflow: auto;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--shadow-color);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* PDF Container Transitions (Phase 1.1) - using centralized configuration */
+.pdf-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 20px;
+  align-items: center;
+  min-height: 400px;
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  background-color: var(--bg-tertiary);
+  transition: all 0.3s ease;
+  /* Use centralized default (500ms) as fallback - matches TRANSITION_CONFIG.DEFAULTS.duration */
+  --transition-duration: 500ms;
 }
 
 #pdfCanvas {
@@ -468,6 +490,73 @@
   border-radius: 4px;
   background-color: var(--canvas-bg);
   transition: all 0.3s ease;
+}
+
+.pdf-canvas-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fade Transition (centralized default type) */
+.pdf-container.transition-fade #pdfCanvas {
+  transition: opacity var(--transition-duration, 500ms) ease-in-out;
+}
+
+.pdf-container.transition-fade.transitioning #pdfCanvas {
+  opacity: 0.3;
+}
+
+/* Slide Transition */
+.pdf-container.transition-slide #pdfCanvas {
+  transition: transform var(--transition-duration, 500ms) ease-in-out;
+}
+
+.pdf-container.transition-slide.transitioning.slide-next #pdfCanvas {
+  transform: translateX(100%);
+}
+
+.pdf-container.transition-slide.transitioning.slide-prev #pdfCanvas {
+  transform: translateX(-100%);
+}
+
+/* Flip Transition */
+.pdf-container.transition-flip {
+  perspective: 1000px;
+}
+
+.pdf-container.transition-flip #pdfCanvas {
+  transition: transform var(--transition-duration, 500ms) ease-in-out;
+  backface-visibility: hidden;
+}
+
+.pdf-container.transition-flip.transitioning.flip-next #pdfCanvas {
+  transform: rotateY(180deg);
+}
+
+.pdf-container.transition-flip.transitioning.flip-prev #pdfCanvas {
+  transform: rotateY(-180deg);
+}
+
+/* No Transition / Disabled */
+.pdf-container.no-transition #pdfCanvas,
+.pdf-container.transition-disabled #pdfCanvas {
+  transition: none;
+}
+
+/* NEW: Override responsive sizing when in custom zoom mode */
+.pdf-container.zoom-custom {
+  justify-content: center;
+  overflow: auto; /* still allow horizontal scroll when wider */
+}
+
+.pdf-container.zoom-custom #pdfCanvas,
+.pdf-container.zoom-custom .virtual-page-container canvas {
+  max-width: none; /* display at rendered pixel size */
+  height: auto;
 }
 
 /* Responsive Design */
@@ -808,41 +897,6 @@
 
 .settings-btn:hover {
   background: var(--control-hover);
-}
-
-/* PDF Container with Theme Support */
-.pdf-reader {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--bg-secondary);
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px var(--shadow-color);
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.pdf-container {
-  flex: 1;
-  overflow: auto;
-  border: 1px solid var(--border-light);
-  border-radius: 4px;
-  background-color: var(--bg-tertiary);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 20px;
-  transition: all 0.3s ease;
-}
-
-#pdfCanvas {
-  max-width: 100%;
-  height: auto;
-  box-shadow: 0 4px 12px var(--shadow-strong);
-  border-radius: 4px;
-  background-color: var(--canvas-bg);
-  transition: all 0.3s ease;
 }
 
 /* Responsive Mobile Controls */
