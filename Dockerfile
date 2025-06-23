@@ -44,6 +44,14 @@ RUN if [ -d "/var/www/html/Controllers" ]; then \
         mv /var/www/html/controllers_temp /var/www/html/controllers; \
     fi
 
+# Fix controller directory path in public/index.php
+RUN sed -i 's|Controllers|controllers|g' /var/www/html/public/index.php
+
+# Fix JavaScript config for production
+RUN sed -i 's|const path = window.location.pathname;|const path = window.location.pathname;|g' /var/www/html/public/js/config.js && \
+    sed -i 's|if (path.includes("/bibliotech/view/")) {|if (path.includes("/bibliotech/view/") \|\| path.includes("/view/")) {|g' /var/www/html/public/js/config.js && \
+    sed -i 's|} else if (path.includes("/bibliotech")) {|} else if (path.includes("/bibliotech") \|\| window.location.hostname.includes("run.app")) {|g' /var/www/html/public/js/config.js
+
 # Clear composer cache and install dependencies
 RUN composer clear-cache && \
     composer install --no-dev --optimize-autoloader --no-interaction --no-cache && \
@@ -64,39 +72,13 @@ RUN echo '<VirtualHost *:80>\n\
         Options -Indexes +FollowSymLinks\n\
         AllowOverride All\n\
         Require all granted\n\
-        \n\
-        # Enable .htaccess\n\
-        RewriteEngine On\n\
-        \n\
-        # Handle root request\n\
-        RewriteRule ^/?$ view/home.html [L]\n\
-        \n\
-        # Handle HTML page requests\n\
-        RewriteRule ^(home|login|cadastro-usuario|carrinho|generos|admin|detalhes-livro|cadastrar-livros|pedido-finalizado|leitor|biblioteca|perfil|finalizar)\.html$ view/$1.html [L]\n\
-        \n\
-        # Serve static files directly\n\
-        RewriteCond %{REQUEST_FILENAME} -f [OR]\n\
-        RewriteCond %{REQUEST_FILENAME} -d\n\
-        RewriteRule ^ - [L]\n\
-        \n\
-        # Allow direct access to view/ directory\n\
-        RewriteRule ^view/ - [L]\n\
-        \n\
-        # Allow direct access to public/ directory\n\
-        RewriteRule ^public/ - [L]\n\
-        \n\
-        # API endpoints - Send to index.php\n\
-        RewriteRule ^(generos|usuarios|livros|editoras|desejos|carrinho|login|logout|session|auth|pedido|biblioteca|progresso-leitura|livros-em-progresso|livros-lidos-recentemente)/?(.*)$ index.php [L,QSA]\n\
-        \n\
-        # Fallback - send all other requests to index.php\n\
-        RewriteRule ^(.*)$ index.php [L,QSA]\n\
     </Directory>\n\
     \n\
     # Alias for public directory assets\n\
     Alias /public /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
         Options -Indexes +FollowSymLinks\n\
-        AllowOverride None\n\
+        AllowOverride All\n\
         Require all granted\n\
         \n\
         # Set proper MIME type for JavaScript modules\n\
