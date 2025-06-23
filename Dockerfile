@@ -21,8 +21,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Enable Apache rewrite module and headers
-RUN a2enmod rewrite headers
+# Enable Apache rewrite module
+RUN a2enmod rewrite
 
 # Configure PHP for production
 RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
@@ -38,20 +38,6 @@ RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
 # Copy the entire application first
 COPY . /var/www/html/
 
-# Fix case sensitivity for controllers directory if needed
-RUN if [ -d "/var/www/html/Controllers" ]; then \
-        mv /var/www/html/Controllers /var/www/html/controllers_temp && \
-        mv /var/www/html/controllers_temp /var/www/html/controllers; \
-    fi
-
-# Fix controller directory path in public/index.php
-RUN sed -i 's|Controllers|controllers|g' /var/www/html/public/index.php
-
-# Fix JavaScript config for production
-RUN sed -i 's|const path = window.location.pathname;|const path = window.location.pathname;|g' /var/www/html/public/js/config.js && \
-    sed -i 's|if (path.includes("/bibliotech/view/")) {|if (path.includes("/bibliotech/view/") \|\| path.includes("/view/")) {|g' /var/www/html/public/js/config.js && \
-    sed -i 's|} else if (path.includes("/bibliotech")) {|} else if (path.includes("/bibliotech") \|\| window.location.hostname.includes("run.app")) {|g' /var/www/html/public/js/config.js
-
 # Clear composer cache and install dependencies
 RUN composer clear-cache && \
     composer install --no-dev --optimize-autoloader --no-interaction --no-cache && \
@@ -63,31 +49,35 @@ RUN chown -R www-data:www-data /var/www/html \
     && chown -R www-data:www-data /var/www/html/vendor \
     && chmod -R 755 /var/www/html/vendor
 
-# Configure Apache virtual host with proper routing
+# Configure Apache virtual host
 RUN echo '<VirtualHost *:80>\n\
     ServerAdmin webmaster@localhost\n\
     DocumentRoot /var/www/html\n\
+    DirectoryIndex view/home.html\n\
     \n\
+    # Redirect URLs with trailing slashes (except root) to their non-slash version\n\
+    RewriteEngine On\n\
+    RewriteCond %{REQUEST_FILENAME} !-d\n\
+    RewriteCond %{REQUEST_URI} .+/$\n\
+    RewriteRule ^(.+?)/$ /$1 [R=301,L]\n\
     <Directory /var/www/html>\n\
-        Options -Indexes +FollowSymLinks\n\
+        Options Indexes FollowSymLinks\n\
         AllowOverride All\n\
         Require all granted\n\
     </Directory>\n\
     \n\
-    # Alias for public directory assets\n\
+    # Explicit alias for each HTML file\n\
+    AliasMatch "^/([^/]+\\.html)$" "/var/www/html/view/$1"\n\
+    \n\
+    # Alias for the public directory\n\
     Alias /public /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
-        Options -Indexes +FollowSymLinks\n\
+        Options Indexes FollowSymLinks\n\
         AllowOverride All\n\
         Require all granted\n\
-        \n\
-        # Set proper MIME type for JavaScript modules\n\
-        <FilesMatch "\.js$">\n\
-            Header set Content-Type "application/javascript"\n\
-        </FilesMatch>\n\
     </Directory>\n\
     \n\
-    # Logging\n\
+    # Define custom error handling\n\
     ErrorLog ${APACHE_LOG_DIR}/error.log\n\
     CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
