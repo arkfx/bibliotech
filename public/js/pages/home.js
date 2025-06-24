@@ -16,7 +16,7 @@ const modal = document.getElementById("cadastroModal");
 const modalClose = document.getElementById("modal-close");
 
 let paginaAtual = 1;
-const limite = 12;
+const limite = 8;
 
 // Evento de boas-vindas
 setTimeout(() => {
