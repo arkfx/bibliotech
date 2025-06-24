@@ -127,8 +127,30 @@ function renderPaginacao(paginacao) {
     paginacaoDiv.appendChild(btn);
   }
 
+  // Criar ou encontrar a área de conteúdo principal
   const container = document.querySelector(".container");
-  container.appendChild(paginacaoDiv);
+  let mainContent = container.querySelector(".main-content-area");
+
+  if (!mainContent) {
+    // Se não existe, criar a área de conteúdo principal
+    mainContent = document.createElement("div");
+    mainContent.className = "main-content-area";
+
+    // Mover a grid para dentro do main-content-area
+    const gridContainer = document.querySelector(".grid--4-cols");
+    mainContent.appendChild(gridContainer);
+
+    // Inserir o main-content-area no container
+    const sidebar = document.querySelector(".price-filter-sidebar");
+    if (sidebar) {
+      container.insertBefore(mainContent, sidebar.nextSibling);
+    } else {
+      container.appendChild(mainContent);
+    }
+  }
+
+  // Sempre inserir a paginação dentro do main-content-area
+  mainContent.appendChild(paginacaoDiv);
 }
 
 function showPriceFilter() {
@@ -140,6 +162,9 @@ function showPriceFilter() {
     if (sidebarExistente) {
       sidebarExistente.remove();
       document.querySelector(".container")?.classList.remove("with-sidebar");
+
+      // Reorganizar o layout quando remove o sidebar
+      reorganizarLayout();
     }
     return;
   }
@@ -166,7 +191,12 @@ function showPriceFilter() {
 
   const container = document.querySelector(".container");
   container?.classList.add("with-sidebar");
+
+  // Inserir o sidebar após o título
   container?.insertBefore(sidebar, sectionTitle.nextSibling);
+
+  // Reorganizar o layout
+  reorganizarLayout();
 
   setupPriceSlider();
   document
@@ -175,6 +205,43 @@ function showPriceFilter() {
   document
     .getElementById("reset-price-filter")
     ?.addEventListener("click", () => aplicarFiltroDePreco(true));
+}
+
+function reorganizarLayout() {
+  const container = document.querySelector(".container");
+  const gridContainer = document.querySelector(".grid--4-cols");
+  const paginacao = document.querySelector(".pagination");
+
+  // Criar ou encontrar a área de conteúdo principal
+  let mainContent = container.querySelector(".main-content-area");
+
+  if (!mainContent) {
+    mainContent = document.createElement("div");
+    mainContent.className = "main-content-area";
+  }
+
+  // Limpar o main-content-area
+  mainContent.innerHTML = "";
+
+  // Adicionar grid ao main-content-area
+  if (gridContainer) {
+    mainContent.appendChild(gridContainer);
+  }
+
+  // Adicionar paginação ao main-content-area se existir
+  if (paginacao) {
+    mainContent.appendChild(paginacao);
+  }
+
+  // Posicionar o main-content-area no container
+  const sidebar = document.querySelector(".price-filter-sidebar");
+  if (sidebar) {
+    // Se há sidebar, inserir após o sidebar
+    container.insertBefore(mainContent, sidebar.nextSibling);
+  } else {
+    // Se não há sidebar, inserir após o título
+    container.insertBefore(mainContent, sectionTitle.nextSibling);
+  }
 }
 
 function setupPriceSlider() {
