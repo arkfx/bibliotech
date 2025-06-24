@@ -34,7 +34,7 @@ class PedidoService
         $this->bibliotecaRepository = $bibliotecaRepository;
     }
 
-    public function finalizarPedido(int $usuarioId): array
+    public function finalizarPedido(int $usuarioId, array $dadosFinalizacao = []): array
     {
         $carrinhoItens = $this->carrinhoRepository->listarPorUsuario($usuarioId);
         if (empty($carrinhoItens)) {
@@ -84,12 +84,19 @@ class PedidoService
         $valorFrete = $contemItemFisico ? 24.99 : 0.00;
         $total = $subtotalPedido + $valorFrete;
 
-        $pedido = new Pedido([
+        // Inclui o endereço_id se fornecido
+        $dadosPedido = [
             'usuario_id' => $usuarioId,
             'total' => $total,
             'status' => 'confirmado',
             'valor_frete' => $valorFrete,
-        ]);
+        ];
+
+        if (isset($dadosFinalizacao['endereco_id']) && $dadosFinalizacao['endereco_id']) {
+            $dadosPedido['endereco_id'] = (int) $dadosFinalizacao['endereco_id'];
+        }
+
+        $pedido = new Pedido($dadosPedido);
 
         $pedidoId = $this->pedidoRepository->criar($pedido);
         if (!$pedidoId) {
@@ -141,8 +148,8 @@ class PedidoService
         return $pedidos;
     }
 
-    public function buscarPedidoCompleto(int $id): ?array
+    public function buscarPedidoCompleto(int $pedidoId): ?array
     {
-        return $this->pedidoRepository->buscarPedidoCompletoPorId($id);
+        return $this->pedidoRepository->buscarPedidoCompletoPorId($pedidoId);
     }
 }

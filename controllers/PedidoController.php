@@ -28,9 +28,10 @@ class PedidoController extends BaseController
         }
 
         $usuarioId = $_SESSION['userId'];
+        $dadosFinalizacao = $this->getJsonInput();
 
         try {
-            $resultado = $this->pedidoService->finalizarPedido($usuarioId);
+            $resultado = $this->pedidoService->finalizarPedido($usuarioId, $dadosFinalizacao);
 
             return $this->response(200, [
                 'status' => 'success',

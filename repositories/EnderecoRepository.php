@@ -21,7 +21,7 @@ class EnderecoRepository extends BaseRepository
             ':cidade' => $endereco->cidade,
             ':estado' => $endereco->estado,
             ':cep' => $endereco->cep,
-            ':is_principal' => $endereco->is_principal ? 1 : 0,
+            ':is_principal' => $endereco->is_principal ? 'true' : 'false',
         ]);
 
         return (int) $this->conn->lastInsertId();
@@ -65,15 +65,11 @@ class EnderecoRepository extends BaseRepository
 
     public function definirComoPrincipal(int $enderecoId, int $usuarioId): bool
     {
-        // Primeiro, remove o status principal de todos os endereços do usuário
-        $sql1 = "UPDATE endereco SET is_principal = 0 WHERE usuario_id = :usuario_id";
+        $sql1 = "UPDATE endereco SET is_principal = false WHERE usuario_id = :usuario_id";
         $stmt1 = $this->conn->prepare($sql1);
         $stmt1->execute([':usuario_id' => $usuarioId]);
-
-        // Depois define o endereço especificado como principal
-        $sql2 = "UPDATE endereco SET is_principal = 1 WHERE id = :id AND usuario_id = :usuario_id";
+        $sql2 = "UPDATE endereco SET is_principal = true WHERE id = :id AND usuario_id = :usuario_id";
         $stmt2 = $this->conn->prepare($sql2);
-        
         return $stmt2->execute([':id' => $enderecoId, ':usuario_id' => $usuarioId]);
     }
 
