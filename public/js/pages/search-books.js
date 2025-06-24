@@ -4,7 +4,7 @@ import {
   carregarListaDesejos,
   configurarBotoesFavoritos,
 } from "../utils/wishlist-utils.js";
-import { carregarGeneros } from "./genero.js"; // ajuste o caminho se necessário
+import { carregarGeneros } from "./genero.js";
 
 const searchInput = document.querySelector(".main-nav-list input");
 const searchButton = document.querySelector(".main-nav-list button");
@@ -16,23 +16,23 @@ const modalTitle = document.getElementById("modal-title");
 const modalMessage = document.getElementById("modal-message");
 const modalClose = document.getElementById("modal-close");
 
+let paginaAtual = 1;
+const limite = 12;
+
 function fecharModal() {
   modal.style.display = "none";
 }
 
 if (searchButton) {
   searchButton.addEventListener("click", () => {
+    paginaAtual = 1;
     showPriceFilter();
-    buscarLivros();
+    buscarLivros(paginaAtual);
   });
-} else {
-  console.warn("Elemento 'searchButton' não encontrado no DOM.");
 }
 
 if (modalClose) {
   modalClose.addEventListener("click", fecharModal);
-} else {
-  console.warn("Elemento 'modalClose' não encontrado no DOM.");
 }
 
 window.addEventListener("click", (e) => {
@@ -55,7 +55,8 @@ function atualizarTitulo(query, generoId) {
   sectionTitle.textContent = titulo;
 }
 
-async function buscarLivros() {
+async function buscarLivros(pagina = 1) {
+  paginaAtual = pagina;
   const query = searchInput.value.trim();
   const generoId = genreFilter.value ? parseInt(genreFilter.value) : null;
 
@@ -66,14 +67,25 @@ async function buscarLivros() {
     const response = await searchBooks({
       query,
       genero_id: generoId,
+      pagina,
+      limite,
     });
 
     if (response.status === "success") {
       const livros = response.data;
+
+      // Animação
+      gridContainer.classList.remove("fade-in");
+      void gridContainer.offsetWidth;
+      gridContainer.innerHTML = "";
+
       renderBooks(gridContainer, livros);
+      gridContainer.classList.add("fade-in");
 
       const favoritos = await carregarListaDesejos();
       configurarBotoesFavoritos(favoritos, ".btn-favorito");
+
+      renderPaginacao(response.paginacao);
     } else {
       gridContainer.innerHTML = `<p>${response.message}</p>`;
     }
@@ -82,6 +94,34 @@ async function buscarLivros() {
     gridContainer.innerHTML =
       "<p>Erro ao buscar os livros. Tente novamente mais tarde.</p>";
   }
+}
+
+function renderPaginacao(paginacao) {
+  const existente = document.querySelector(".pagination");
+  if (existente) existente.remove();
+
+  if (!paginacao || paginacao.totalPaginas <= 1) return;
+
+  const paginacaoDiv = document.createElement("div");
+  paginacaoDiv.classList.add("pagination");
+
+  for (let i = 1; i <= paginacao.totalPaginas; i++) {
+    const btn = document.createElement("button");
+    btn.classList.add("page-btn");
+    if (i === paginacao.pagina) btn.classList.add("active");
+
+    btn.textContent = i;
+    btn.dataset.pagina = i;
+
+    btn.addEventListener("click", () => {
+      buscarLivros(i);
+    });
+
+    paginacaoDiv.appendChild(btn);
+  }
+
+  const container = document.querySelector(".container");
+  container.appendChild(paginacaoDiv);
 }
 
 function setupPriceSlider() {
@@ -211,42 +251,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     showPriceFilter();
     buscarLivros();
   }
-
-  searchButton.addEventListener("click", () => {
-    const termo = searchInput.value.trim();
-    const genero = genreFilter.value;
-    const path = window.location.pathname;
-
-    if (path.includes("home.html")) {
-      const url = new URL(window.location.href);
-      if (termo) url.searchParams.set("search", termo);
-      else url.searchParams.delete("search");
-
-      if (genero) url.searchParams.set("genero_id", genero);
-      else url.searchParams.delete("genero_id");
-
-      window.history.pushState({}, "", url.toString());
-
-      showPriceFilter();
-      buscarLivros();
-    } else {
-      const basePath = path.substring(0, path.lastIndexOf("/") + 1);
-      const url = new URL(basePath + "home.html", window.location.origin);
-      if (termo) url.searchParams.set("search", termo);
-      if (genero) url.searchParams.set("genero_id", genero);
-
-      document.querySelector("main")?.classList.add("blur-loading");
-
-      const overlay = document.createElement("div");
-      overlay.className = "loading-overlay";
-      overlay.innerHTML = `<div>Carregando...</div>`;
-      document.body.appendChild(overlay);
-
-      setTimeout(() => {
-        window.location.replace(url.toString());
-      }, 100);
-    }
-  });
 
   searchInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {

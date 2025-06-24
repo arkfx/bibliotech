@@ -106,7 +106,7 @@
     </header>
 
     <main class="main-content leitor-container">
-<!--       <aside class="book-sidebar">
+      <!--       <aside class="book-sidebar">
         <img id="capaLivro" src="" alt="Capa do livro" />
         <div class="book-info">
           <h2 id="tituloLivro">Título do Livro</h2>
@@ -123,7 +123,6 @@
       </aside> -->
 
       <section class="pdf-reader">
-
         <!-- Loading state -->
         <div class="pdf-loading" id="pdfLoading">
           <div class="loading-spinner"></div>
@@ -131,23 +130,39 @@
         </div>
 
         <!-- Error state -->
-        <div class="pdf-error" id="pdfError" style="display: none;">
+        <div class="pdf-error" id="pdfError" style="display: none">
           <div class="error-icon">⚠️</div>
           <p>Erro ao carregar o PDF</p>
-          <button class="btn-retry" onclick="location.reload()">Tentar Novamente</button>
+          <button class="btn-retry" onclick="location.reload()">
+            Tentar Novamente
+          </button>
         </div>
 
-        <div class="reader-controls" id="readerControls" style="display: none;">
+        <div class="reader-controls" id="readerControls" style="display: none">
           <!-- Navigation controls -->
           <div class="nav-controls">
             <button id="prevPage" class="control-btn" title="Página anterior">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <polyline points="15,18 9,12 15,6"></polyline>
               </svg>
             </button>
             <span id="pageInfo">Página: 1 de 1</span>
             <button id="nextPage" class="control-btn" title="Próxima página">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <polyline points="9,18 15,12 9,6"></polyline>
               </svg>
             </button>
@@ -156,7 +171,14 @@
           <!-- Zoom controls -->
           <div class="zoom-controls">
             <button id="zoomOut" class="control-btn" title="Diminuir zoom">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="M21 21l-4.35-4.35"></path>
                 <line x1="8" y1="11" x2="14" y2="11"></line>
@@ -164,7 +186,14 @@
             </button>
             <span id="zoomLevel">100%</span>
             <button id="zoomIn" class="control-btn" title="Aumentar zoom">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="M21 21l-4.35-4.35"></path>
                 <line x1="11" y1="8" x2="11" y2="14"></line>
@@ -172,7 +201,14 @@
               </svg>
             </button>
             <button id="fitWidth" class="control-btn" title="Ajustar à largura">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <rect x="3" y="6" width="18" height="12" rx="2" ry="2"></rect>
                 <line x1="9" y1="9" x2="15" y2="15"></line>
                 <line x1="15" y1="9" x2="9" y2="15"></line>
@@ -183,7 +219,14 @@
           <!-- Desktop additional controls -->
           <div class="desktop-controls">
             <button id="themeToggle" class="control-btn" title="Alterar tema">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <circle cx="12" cy="12" r="5"></circle>
                 <line x1="12" y1="1" x2="12" y2="3"></line>
                 <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -195,42 +238,99 @@
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
               </svg>
             </button>
-            <button id="fullscreenToggle" class="control-btn" title="Tela cheia">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            <button
+              id="fullscreenToggle"
+              class="control-btn"
+              title="Tela cheia"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                ></path>
               </svg>
             </button>
           </div>
         </div>
 
         <!-- Mobile Bottom Navigation -->
-        <div class="mobile-controls" id="mobileControls" style="display: none;">
+        <div class="mobile-controls" id="mobileControls" style="display: none">
           <div class="mobile-nav-bar">
-            <button id="mobilePrevPage" class="mobile-control-btn" title="Página anterior">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button
+              id="mobilePrevPage"
+              class="mobile-control-btn"
+              title="Página anterior"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <polyline points="15,18 9,12 15,6"></polyline>
               </svg>
             </button>
-            
-            <button id="mobileSettings" class="mobile-control-btn" title="Configurações">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+            <button
+              id="mobileSettings"
+              class="mobile-control-btn"
+              title="Configurações"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 1v6m0 6v6m8.5-7.5L18 12l2.5-.5M3 12l2.5-.5L3 12z"></path>
+                <path
+                  d="M12 1v6m0 6v6m8.5-7.5L18 12l2.5-.5M3 12l2.5-.5L3 12z"
+                ></path>
               </svg>
             </button>
-            
+
             <div class="mobile-page-info">
               <span id="mobilePageInfo">1/1</span>
             </div>
-            
+
             <button id="mobileTheme" class="mobile-control-btn" title="Tema">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                ></path>
               </svg>
             </button>
-            
-            <button id="mobileNextPage" class="mobile-control-btn" title="Próxima página">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+            <button
+              id="mobileNextPage"
+              class="mobile-control-btn"
+              title="Próxima página"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <polyline points="9,18 15,12 9,6"></polyline>
               </svg>
             </button>
@@ -238,13 +338,17 @@
         </div>
 
         <!-- Mobile Settings Panel -->
-        <div class="mobile-settings-panel" id="mobileSettingsPanel" style="display: none;">
+        <div
+          class="mobile-settings-panel"
+          id="mobileSettingsPanel"
+          style="display: none"
+        >
           <div class="settings-panel-content">
             <div class="settings-header">
               <h3>Configurações de Leitura</h3>
               <button id="closeSettings" class="close-settings-btn">×</button>
             </div>
-            
+
             <div class="settings-section">
               <h4>Tema</h4>
               <div class="theme-options">
@@ -266,12 +370,19 @@
                 </button>
               </div>
             </div>
-            
+
             <div class="settings-section">
               <h4>Zoom</h4>
               <div class="zoom-options">
                 <button id="mobileZoomOut" class="settings-control-btn">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="M21 21l-4.35-4.35"></path>
                     <line x1="8" y1="11" x2="14" y2="11"></line>
@@ -279,28 +390,39 @@
                 </button>
                 <span id="mobileZoomLevel">100%</span>
                 <button id="mobileZoomIn" class="settings-control-btn">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="M21 21l-4.35-4.35"></path>
                     <line x1="11" y1="8" x2="11" y2="14"></line>
                     <line x1="8" y1="11" x2="14" y2="11"></line>
                   </svg>
                 </button>
-                <button id="mobileFitWidth" class="settings-control-btn">Ajustar</button>
+                <button id="mobileFitWidth" class="settings-control-btn">
+                  Ajustar
+                </button>
               </div>
             </div>
-            
+
             <div class="settings-section">
               <h4>Navegação</h4>
               <div class="navigation-options">
-                <button id="mobileFullscreen" class="settings-btn">Tela Cheia</button>
+                <button id="mobileFullscreen" class="settings-btn">
+                  Tela Cheia
+                </button>
               </div>
             </div>
           </div>
         </div>
 
         <!-- PDF Canvas Container -->
-        <div class="pdf-container" id="pdfContainer" style="display: none;">
+        <div class="pdf-container" id="pdfContainer" style="display: none">
           <canvas id="pdfCanvas"></canvas>
         </div>
       </section>
@@ -309,15 +431,20 @@
     <footer>© 2025 - Todos os direitos reservados.</footer>
 
     <!-- PDF.js from CDN with multiple fallbacks -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" 
-            onerror="console.error('Failed to load PDF.js from cdnjs');"></script>
-    
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+      onerror="console.error('Failed to load PDF.js from cdnjs');"
+    ></script>
+
     <!-- Application scripts -->
     <script type="module" src="../public/js/pages/leitor.js"></script>
     <script src="../public/js/navigation.js"></script>
     <script type="module" src="../public/js/status.js"></script>
     <script type="module" src="../public/js/profile-menu.js"></script>
-    <script type="module" src="../public/js/pages/search-books.js"></script>
+    <script
+      type="module"
+      src="../public/js/utils/search-redirector.js"
+    ></script>
     <script type="module" src="../public/js/pages/genero.js"></script>
   </body>
 </html>
