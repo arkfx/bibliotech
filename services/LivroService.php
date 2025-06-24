@@ -18,10 +18,11 @@ class LivroService
         $this->generoRepository = new GeneroRepository($pdo);
     }
 
-    public function listar(?string $termo, ?int $genero_id, string $ordem): array
+    public function listar(?string $termo, ?int $genero_id, string $ordem, int $limite, int $offset): array
     {
-        return $this->livroRepository->search($termo, $genero_id, $ordem);
+        return $this->livroRepository->search($termo, $genero_id, $ordem, $limite, $offset);
     }
+
 
     public function buscar(int $id): ?Livro
     {
@@ -66,5 +67,10 @@ class LivroService
         if (!$this->generoRepository->findById($livro->genero_id)) {
             throw new Exception('Gênero inválido.');
         }
+    }
+
+    public function contar(?string $termo, ?int $genero_id): int
+    {
+        return $this->livroRepository->count($termo, $genero_id);
     }
 }

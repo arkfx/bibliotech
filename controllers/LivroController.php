@@ -22,13 +22,25 @@ class LivroController extends BaseController
         $genero_id = isset($_GET['genero_id']) ? (int)$_GET['genero_id'] : null;
         $ordem = isset($_GET['ordem']) && in_array(strtoupper($_GET['ordem']), ['ASC', 'DESC']) ? strtoupper($_GET['ordem']) : 'DESC';
 
-        $livros = $this->livroService->listar($termo, $genero_id, $ordem);
+        $pagina = isset($_GET['pagina']) ? max((int)$_GET['pagina'], 1) : 1;
+        $limite = isset($_GET['limite']) ? max((int)$_GET['limite'], 1) : 6;
+        $offset = ($pagina - 1) * $limite;
+
+        $livros = $this->livroService->listar($termo, $genero_id, $ordem, $limite, $offset);
+        $total = $this->livroService->contar($termo, $genero_id);
 
         return $this->response(200, [
             'status' => 'success',
-            'data' => array_map(fn($l) => $l->toArray(), $livros)
+            'data' => array_map(fn($l) => $l->toArray(), $livros),
+            'paginacao' => [
+                'pagina' => $pagina,
+                'limite' => $limite,
+                'total' => $total,
+                'totalPaginas' => ceil($total / $limite),
+            ]
         ]);
     }
+
 
     #[Route('/livros/{id}', 'GET')]
     public function buscar(int $id)
