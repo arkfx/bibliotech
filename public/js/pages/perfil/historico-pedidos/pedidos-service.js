@@ -93,10 +93,8 @@ function preencherTabela(pedidos) {
     <div class="order-list">
       ${pedidos
         .map((pedido) => {
-          // ID do pedido
           const pedidoId = pedido.id || pedido.pedido_id || "";
-
-          // Data formatada
+          
           let dataFormatada = "Data não disponível";
           try {
             if (pedido.criado_em) {
@@ -106,18 +104,10 @@ function preencherTabela(pedidos) {
             console.error("Erro ao formatar data:", e);
           }
 
-          // Status do pedido
           const status = (pedido.status || "pendente").toLowerCase();
-          const statusFormatado =
-            status.charAt(0).toUpperCase() + status.slice(1);
-          const statusClass =
-            status === "entregue"
-              ? "delivered"
-              : status === "processando"
-              ? "processing"
-              : "";
+          const statusFormatado = status.charAt(0).toUpperCase() + status.slice(1);
+          const statusClass = status === "entregue" ? "delivered" : status === "processando" ? "processing" : "";
 
-          // Itens do pedido
           let itens = [];
           if (Array.isArray(pedido.itens)) {
             itens = pedido.itens;
@@ -129,24 +119,29 @@ function preencherTabela(pedidos) {
 
           const valorFreteApi = parseFloat(pedido.valor_frete);
           const totalPedidoApi = parseFloat(pedido.total);
-
           const frete = !isNaN(valorFreteApi) ? valorFreteApi : 0;
           const total = !isNaN(totalPedidoApi) ? totalPedidoApi : 0;
           let subtotal = total - frete;
           if (subtotal < 0) subtotal = 0;
 
-          // Código de rastreio
           const rastreio = pedido.rastreio || pedido.codigo_rastreio || "";
 
-          // Endereço do pedido
+          // CORREÇÃO: Endereço do pedido
           let enderecoHtml = "";
-          if (pedido.endereco) {
+          if (pedido.endereco && pedido.endereco.endereco) {
             const e = pedido.endereco;
             enderecoHtml = `
               <div class="order-address">
                 <strong>Endereço de entrega:</strong><br>
                 ${e.endereco}, ${e.numero}${e.complemento ? " - " + e.complemento : ""}<br>
                 ${e.bairro}, ${e.cidade}/${e.estado}${e.cep ? " - CEP: " + e.cep : ""}
+              </div>
+            `;
+          } else if (pedido.endereco_id) {
+            // Se tem endereco_id mas não carregou os dados
+            enderecoHtml = `
+              <div class="order-address">
+                <strong>Endereço:</strong> Informações não disponíveis
               </div>
             `;
           }
@@ -171,41 +166,25 @@ function preencherTabela(pedidos) {
                 ? itens
                     .map((item) => {
                       try {
-                        const titulo =
-                          item.titulo || item.title || "Título não disponível";
-                        const autor =
-                          item.autor || item.author || "Autor não disponível";
-                        const imagemUrl =
-                          item.imagem_url ||
-                          item.image_url ||
-                          "/bibliotech/public/images/placeholder-book.png";
+                        const titulo = item.titulo || item.title || "Título não disponível";
+                        const autor = item.autor || item.author || "Autor não disponível";
+                        const imagemUrl = item.imagem_url || item.image_url || "/bibliotech/public/images/placeholder-book.png";
 
                         let precoUnitario = 0;
-                        if (
-                          item.preco_unitario !== undefined &&
-                          item.preco_unitario !== null
-                        ) {
+                        if (item.preco_unitario !== undefined && item.preco_unitario !== null) {
                           precoUnitario = Number(item.preco_unitario);
-                        } else if (
-                          item.preco !== undefined &&
-                          item.preco !== null
-                        ) {
+                        } else if (item.preco !== undefined && item.preco !== null) {
                           precoUnitario = Number(item.preco);
                         }
 
                         let precoFormatado = "0,00";
                         if (!isNaN(precoUnitario)) {
-                          precoFormatado = precoUnitario
-                            .toFixed(2)
-                            .replace(".", ",");
+                          precoFormatado = precoUnitario.toFixed(2).replace(".", ",");
                         }
 
                         const quantidade = parseInt(item.quantidade || 1);
                         const tipoItem = item.tipo || "Não especificado";
-                        const tipoFormatado =
-                          tipoItem.toLowerCase() === "ebook"
-                            ? "E-book"
-                            : "Físico";
+                        const tipoFormatado = tipoItem.toLowerCase() === "ebook" ? "E-book" : "Físico";
 
                         return `
                   <div class="order-book">

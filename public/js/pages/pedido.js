@@ -608,6 +608,7 @@ btnConfirmarFinal?.addEventListener("click", async (event) => {
 });
 
 // Gerenciamento de formas de pagamento
+/*
 document.querySelectorAll('input[name="payment"]').forEach((radio) => {
   radio.addEventListener("change", () => {
     // Remover classe active de todos os formulários
@@ -622,7 +623,7 @@ document.querySelectorAll('input[name="payment"]').forEach((radio) => {
     }
   });
 });
-
+*/
 function atualizarParcelas(total) {
   const select = document.getElementById("parcelas");
   if (!select) return;
@@ -647,13 +648,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Carregar resumo do carrinho (que detecta tipos e controla visibilidade)
   await carregarResumoDoCarrinho();
 
-  // Garantir que o formulário de pagamento padrão esteja visível
-  const formaPagamentoPadrao = document.getElementById('cartao');
-  if (formaPagamentoPadrao && formaPagamentoPadrao.checked) {
-    const formPadrao = document.getElementById(`${formaPagamentoPadrao.value}-form`);
-    if (formPadrao) {
-        formPadrao.classList.add('active');
-        formPadrao.style.display = 'block';
-    }
+  // Configurar gerenciamento de formas de pagamento
+  const selected = document.querySelector('input[name="payment"]:checked');
+  if (selected) {
+    document.querySelectorAll(".payment-form").forEach((form) => {
+      form.classList.remove("active");
+    });
+    const form = document.getElementById(`${selected.value}-form`);
+    if (form) form.classList.add("active");
   }
+
+  // Adicionar listeners para troca de formulário
+  document.querySelectorAll('input[name="payment"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      document.querySelectorAll(".payment-form").forEach((form) => {
+        form.classList.remove("active");
+      });
+      const selectedForm = document.getElementById(`${radio.value}-form`);
+      if (selectedForm) selectedForm.classList.add("active");
+    });
+  });
 });

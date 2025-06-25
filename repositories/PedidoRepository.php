@@ -28,12 +28,43 @@ class PedidoRepository extends BaseRepository
 
     public function buscarPorUsuario(int $usuarioId): array
     {
-        $stmt = $this->conn->prepare("SELECT * FROM pedidos WHERE usuario_id = :usuario_id ORDER BY criado_em DESC");
+        $sql = "
+            SELECT 
+                p.*,
+                e.endereco AS endereco_nome,
+                e.numero,
+                e.complemento,
+                e.bairro,
+                e.cidade,
+                e.estado,
+                e.cep
+            FROM pedidos p
+            LEFT JOIN endereco e ON e.id = p.endereco_id
+            WHERE p.usuario_id = :usuario_id 
+            ORDER BY p.criado_em DESC
+        ";
+        
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([':usuario_id' => $usuarioId]);
 
         $pedidos = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $pedidos[] = new Pedido($row);
+            $pedido = new Pedido($row);
+
+            // Adicionar dados do endereço se existir (endereco_id não nulo e endereço não vazio)
+            if (!empty($row['endereco_id']) && !empty($row['endereco_nome'])) {
+                $pedido->endereco = [
+                    'endereco' => $row['endereco_nome'],
+                    'numero' => $row['numero'],
+                    'complemento' => $row['complemento'],
+                    'bairro' => $row['bairro'],
+                    'cidade' => $row['cidade'],
+                    'estado' => $row['estado'],
+                    'cep' => $row['cep'],
+                ];
+            }
+
+            $pedidos[] = $pedido;
         }
 
         return $pedidos;
