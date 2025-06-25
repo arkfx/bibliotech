@@ -13,6 +13,7 @@ import { obterUserId } from "../utils/auth-utils.js";
 let enderecosUsuario = [];
 let enderecoSelecionado = null;
 let editandoEndereco = null;
+let contemItemFisico = false; // ADICIONAR: controla se há itens físicos
 
 // Elementos do DOM
 const enderecosLista = document.getElementById("enderecos-lista");
@@ -26,39 +27,140 @@ const btnCancelarForm = document.getElementById("btn-cancelar-form");
 const btnSalvarEndereco = document.getElementById("btn-salvar-endereco");
 const formTitulo = document.getElementById("form-titulo");
 const btnConfirmarFinal = document.getElementById("confirm-order-final");
+const addressSection = document.querySelector(".address-section"); // ADICIONAR: seção de endereços
+
+// NOVA FUNÇÃO: Verificar se há itens físicos no carrinho
+async function verificarTiposItensCarrinho() {
+  try {
+    const userId = await obterUserId();
+    if (!userId) {
+      contemItemFisico = false;
+      return false;
+    }
+
+    const carrinhoData = await getCarrinhoDoUsuario(userId);
+    
+    if (carrinhoData.status !== "success" || !carrinhoData.data || carrinhoData.data.length === 0) {
+      contemItemFisico = false;
+      return false;
+    }
+
+    // Verificar se há pelo menos um item físico
+    contemItemFisico = carrinhoData.data.some(item => item.tipo === 'fisico');
+    
+    console.log('Itens físicos detectados:', contemItemFisico);
+    return contemItemFisico;
+  } catch (error) {
+    console.error('Erro ao verificar tipos de itens:', error);
+    contemItemFisico = false;
+    return false;
+  }
+}
+
+// NOVA FUNÇÃO: Controlar visibilidade da seção de endereços
+function controlarVisibilidadeEnderecos() {
+  const ebookNotice = document.getElementById('ebook-only-notice');
+  
+  if (!addressSection) return;
+
+  if (contemItemFisico) {
+    // Mostrar seção de endereços para itens físicos
+    addressSection.style.display = 'block';
+    addressSection.classList.remove('hidden');
+    
+    // Ocultar notificação de ebook
+    if (ebookNotice) {
+      ebookNotice.classList.add('hidden');
+    }
+    
+    console.log('Seção de endereços mostrada - há itens físicos');
+  } else {
+    // Ocultar seção de endereços apenas para ebooks
+    addressSection.style.display = 'none';
+    addressSection.classList.add('hidden');
+    enderecoSelecionado = null;
+    
+    // Mostrar notificação de ebook
+    if (ebookNotice) {
+      ebookNotice.classList.remove('hidden');
+    }
+    
+    console.log('Seção de endereços ocultada - apenas ebooks');
+  }
+  
+  // Atualizar estado do botão de confirmar
+  atualizarEstadoBotaoConfirmar();
+}
+
+function atualizarEstadoBotaoConfirmar() {
+  if (!btnConfirmarFinal) return;
+
+  if (contemItemFisico) {
+    // Para itens físicos, precisa de endereço selecionado
+    btnConfirmarFinal.disabled = !enderecoSelecionado;
+  } else {
+    // Para apenas ebooks, pode confirmar direto
+    btnConfirmarFinal.disabled = false;
+  }
+}
+
+function atualizarVisibilidadeEstadoVazio() {
+  const temEnderecos = enderecosUsuario && enderecosUsuario.length > 0;
+  
+  if (temEnderecos) {
+    enderecosVazio.classList.add("hidden");
+    enderecosLista.classList.remove("hidden");
+  } else {
+    enderecosVazio.classList.remove("hidden");
+    enderecosLista.classList.add("hidden");
+  }
+  
+  console.log('Estado vazio atualizado. Tem endereços:', temEnderecos);
+}
 
 // Função para carregar e exibir endereços
 async function carregarEnderecos() {
+  // Só carregar endereços se há itens físicos
+  if (!contemItemFisico) {
+    return;
+  }
+
   try {
+    console.log('Carregando endereços da API...');
     const response = await listarEnderecos();
     
     if (response.status === "success") {
       enderecosUsuario = response.data || [];
-      renderizarEnderecos();
+      console.log('Endereços carregados:', enderecosUsuario.length);
     } else {
       console.error("Erro ao carregar endereços:", response.message);
       enderecosUsuario = [];
-      renderizarEnderecos();
     }
   } catch (error) {
     console.error("Erro ao carregar endereços:", error);
     enderecosUsuario = [];
+  } finally {
     renderizarEnderecos();
+    atualizarVisibilidadeEstadoVazio();
   }
 }
 
 // Função para renderizar a lista de endereços
 function renderizarEnderecos() {
+  console.log('Renderizando endereços. Total:', enderecosUsuario.length);
+  
   if (enderecosUsuario.length === 0) {
-    // Mostrar estado vazio
+    // Mostrar estado vazio APENAS quando não há endereços
     enderecosLista.classList.add("hidden");
     enderecosVazio.classList.remove("hidden");
     btnConfirmarFinal.disabled = true;
+    console.log('Mostrando estado vazio - nenhum endereço');
   } else {
-    // Mostrar lista de endereços
+    // Mostrar lista de endereços e ESCONDER estado vazio
     enderecosLista.classList.remove("hidden");
-    enderecosVazio.classList.add("hidden");
+    enderecosVazio.classList.add("hidden"); // CORREÇÃO: garantir que está escondido
     
+    // Limpar lista antes de renderizar
     enderecosLista.innerHTML = "";
     
     enderecosUsuario.forEach((endereco, index) => {
@@ -71,6 +173,8 @@ function renderizarEnderecos() {
       const principal = enderecosUsuario.find(e => e.is_principal) || enderecosUsuario[0];
       selecionarEndereco(principal.id);
     }
+    
+    console.log('Lista de endereços renderizada com', enderecosUsuario.length, 'itens');
   }
 }
 
@@ -172,13 +276,13 @@ function selecionarEndereco(enderecoId) {
     card.classList.remove("selected");
   });
   
-  const cardSelecionado = document.querySelector(`[data-endereco-id="${enderecoId}"]`).closest(".address-card");
+  const cardSelecionado = document.querySelector(`[data-endereco-id="${enderecoId}"]`)?.closest(".address-card");
   if (cardSelecionado) {
     cardSelecionado.classList.add("selected");
   }
   
-  // Habilitar botão de confirmar
-  btnConfirmarFinal.disabled = false;
+  // Atualizar botão de confirmar
+  atualizarEstadoBotaoConfirmar();
 }
 
 // Função para abrir formulário de novo endereço
@@ -304,8 +408,12 @@ async function salvarEndereco(event) {
     }
     
     if (response.status === "success") {
+      // Recarregar endereços ANTES de cancelar formulário
       await carregarEnderecos();
       cancelarFormulario();
+      
+      // CORREÇÃO: garantir que o estado vazio seja escondido após adicionar
+      atualizarVisibilidadeEstadoVazio();
       
       // Se foi definido como principal ou é o primeiro endereço, selecionar
       if (dados.is_principal || enderecosUsuario.length === 1) {
@@ -314,6 +422,8 @@ async function salvarEndereco(event) {
           selecionarEndereco(enderecoId);
         }
       }
+    } else {
+      throw new Error(response.message || "Erro ao salvar endereço");
     }
   } catch (error) {
     alert("Erro ao salvar endereço: " + error.message);
@@ -381,9 +491,9 @@ async function carregarResumoDoCarrinho() {
     }
 
     const itensCarrinho = carrinhoData.data;
-    orderItemsContainer.innerHTML = ""; // Limpa o container antes de adicionar novos itens
+    orderItemsContainer.innerHTML = "";
     let subtotalCalculado = 0;
-    let contemItemFisico = false;
+    contemItemFisico = false; // RESET
 
     itensCarrinho.forEach((item) => {
       const itemHTML = `
@@ -401,7 +511,7 @@ async function carregarResumoDoCarrinho() {
       subtotalCalculado += parseFloat(item.preco) * item.quantidade;
 
       if (item.tipo === 'fisico') {
-        contemItemFisico = true;
+        contemItemFisico = true; // DETECTAR item físico
       }
     });
 
@@ -419,7 +529,16 @@ async function carregarResumoDoCarrinho() {
     freteEl.textContent = textoFrete;
     totalEl.textContent = totalCalculado.toFixed(2).replace(".", ",");
 
-    atualizarParcelas(totalCalculado); // Atualiza parcelas com base no total final
+    atualizarParcelas(totalCalculado);
+    
+    // IMPORTANTE: Controlar visibilidade após detectar tipos
+    controlarVisibilidadeEnderecos();
+    
+    // Se há itens físicos, carregar endereços
+    if (contemItemFisico) {
+      await carregarEnderecos();
+    }
+
   } catch (error) {
     console.error("Erro ao carregar resumo do carrinho na página de finalização:", error);
     orderItemsContainer.innerHTML = "<p>Erro ao carregar itens do carrinho. Tente recarregar a página.</p>";
@@ -451,9 +570,9 @@ btnConfirmarFinal?.addEventListener("click", async (event) => {
   btnConfirmar.classList.add("loading");
 
   try {
-    // Verificar se há endereço selecionado
-    if (!enderecoSelecionado) {
-      throw new Error("Selecione um endereço de entrega.");
+    // Verificar se há endereço selecionado APENAS se há itens físicos
+    if (contemItemFisico && !enderecoSelecionado) {
+      throw new Error("Selecione um endereço de entrega para os itens físicos.");
     }
 
     // Coleta dados do pagamento
@@ -461,9 +580,15 @@ btnConfirmarFinal?.addEventListener("click", async (event) => {
 
     // Finaliza o pedido com os dados completos
     const dadosFinalizacao = {
-      endereco_id: enderecoSelecionado,
       ...dadosPagamento
     };
+
+    // Só incluir endereço se há itens físicos
+    if (contemItemFisico && enderecoSelecionado) {
+      dadosFinalizacao.endereco_id = enderecoSelecionado;
+    }
+
+    console.log('Dados de finalização:', dadosFinalizacao);
 
     const res = await finalizarPedido(dadosFinalizacao); 
 
@@ -485,15 +610,15 @@ btnConfirmarFinal?.addEventListener("click", async (event) => {
 // Gerenciamento de formas de pagamento
 document.querySelectorAll('input[name="payment"]').forEach((radio) => {
   radio.addEventListener("change", () => {
+    // Remover classe active de todos os formulários
     document.querySelectorAll(".payment-form").forEach((form) => {
       form.classList.remove("active");
-      form.style.display = "none";
     });
-
+    
+    // Adicionar classe active apenas ao formulário selecionado
     const selectedForm = document.getElementById(`${radio.value}-form`);
     if (selectedForm) {
       selectedForm.classList.add("active");
-      selectedForm.style.display = "block";
     }
   });
 });
@@ -516,8 +641,11 @@ function atualizarParcelas(total) {
 
 // Inicialização da página
 document.addEventListener("DOMContentLoaded", async () => {
+  // Primeiro verificar tipos de itens
+  await verificarTiposItensCarrinho();
+  
+  // Carregar resumo do carrinho (que detecta tipos e controla visibilidade)
   await carregarResumoDoCarrinho();
-  await carregarEnderecos();
 
   // Garantir que o formulário de pagamento padrão esteja visível
   const formaPagamentoPadrao = document.getElementById('cartao');

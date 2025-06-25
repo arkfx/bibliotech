@@ -189,51 +189,160 @@
         </div>
 
         <!-- Seção de Pedidos -->
-        <div class="profile-content hidden" id="section-historico-pedidos">
-          <h2 class="heading-admin">Meus Pedidos</h2>
-          <div class="profile-card">
-            <!-- Lista de pedidos -->
-            <div class="order-list"></div>
+          <div class="profile-content hidden" id="section-historico-pedidos">
+            <h2 class="heading-admin">Meus Pedidos</h2>
+            <div class="profile-card">
+              <!-- Lista de pedidos -->
+              <div class="order-list">
+                <!-- Pedidos são carregados dinamicamente aqui pelo JavaScript -->
+                <!-- O conteúdo vem de public/js/pages/perfil/historico-pedidos/pedidos-service.js -->
+              </div>
 
-            <!-- Estado vazio -->
-            <div class="empty-state hidden">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
-              </svg>
-              <h3>Nenhum pedido realizado</h3>
-              <p>Seus pedidos aparecerão aqui quando você fizer compras em nossa loja.</p>
-              <a href="home.html" class="btn">Explorar Livros</a>
-            </div>
-          </div>
-        </div>
-                  
-        <!-- Seção de Endereços -->
-        <div class="profile-content hidden" id="section-enderecos">
-          <h2 class="heading-admin">Meus Endereços</h2>
-          <div class="profile-card">
-            <div class="address-list">
-              <!-- Endereço Exemplo -->
-              <div class="address-item">
-                <div class="address-header">
-                  <h3>Endereço Principal</h3>
-                  <div class="address-actions">
-                    <button class="btn-icon edit-address">✏️</button>
-                    <button class="btn-icon delete-address">🗑️</button>
-                  </div>
-                </div>
-                <div class="address-details">
-                  <p><strong>Nome:</strong> Casa</p>
-                  <p><strong>CEP:</strong> 00000-000</p>
-                  <p><strong>Endereço:</strong> Rua Exemplo, 123</p>
-                  <p><strong>Complemento:</strong> Apto 101</p>
-                  <p><strong>Cidade:</strong> São Paulo - SP</p>
-                </div>
+              <!-- Estado vazio -->
+              <div class="empty-state hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                <h3>Nenhum pedido realizado</h3>
+                <p>Seus pedidos aparecerão aqui quando você fizer compras em nossa loja.</p>
+                <a href="home.html" class="btn">Explorar Livros</a>
               </div>
             </div>
           </div>
-        </div>
+                  
+        <div class="profile-content hidden" id="section-enderecos">
+            <h2 class="heading-admin">Meus Endereços</h2>
+            <div class="profile-card">
+              <div class="address-header">
+                <h3>Endereços Cadastrados</h3>
+                <button class="btn btn-primary" id="btn-novo-endereco">+ Adicionar Endereço</button>
+              </div>
+              
+              <!-- Estado vazio -->
+              <div id="enderecos-vazio" class="empty-state hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9,22 9,12 15,12 15,22"></polyline>
+                </svg>
+                <h3>Nenhum endereço cadastrado</h3>
+                <p>Adicione um endereço para facilitar suas compras futuras.</p>
+                <button id="btn-primeiro-endereco" class="btn">Adicionar Endereço</button>
+              </div>
+              
+              <!-- Lista de endereços -->
+              <div id="enderecos-lista" class="address-list">
+                <!-- Endereços serão carregados aqui via JavaScript -->
+              </div>
+            </div>
+            
+            <!-- Formulário de endereço (inicialmente oculto) -->
+            <div id="formulario-endereco" class="address-form-container hidden">
+              <div class="form-header">
+                <h3 id="form-titulo">Adicionar Novo Endereço</h3>
+                <button id="btn-cancelar-endereco" class="btn-cancel" type="button">✕</button>
+              </div>
+              
+              <form id="endereco-form">
+                <input type="hidden" id="endereco-id" />
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="endereco">Endereço *</label>
+                    <input
+                      type="text"
+                      id="endereco"
+                      name="endereco"
+                      placeholder="Rua, Avenida, etc."
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="numero">Número *</label>
+                    <input
+                      type="text"
+                      id="numero"
+                      name="numero"
+                      placeholder="123"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="complemento">Complemento</label>
+                  <input
+                    type="text"
+                    id="complemento"
+                    name="complemento"
+                    placeholder="Apto, Bloco, etc. (opcional)"
+                  />
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="bairro">Bairro *</label>
+                    <input
+                      type="text"
+                      id="bairro"
+                      name="bairro"
+                      placeholder="Nome do bairro"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="cidade">Cidade *</label>
+                    <input
+                      type="text"
+                      id="cidade"
+                      name="cidade"
+                      placeholder="Nome da cidade"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="estado">Estado *</label>
+                    <input
+                      type="text"
+                      id="estado"
+                      name="estado"
+                      maxlength="2"
+                      placeholder="SP"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="cep">CEP</label>
+                    <input
+                      type="text"
+                      id="cep"
+                      name="cep"
+                      maxlength="9"
+                      placeholder="00000-000"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-checkbox">
+                  <input type="checkbox" id="is_principal" name="is_principal" />
+                  <label for="is_principal">Definir como endereço principal</label>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" id="btn-cancelar-form" class="btn btn-secondary">
+                    Cancelar
+                  </button>
+                  <button type="submit" id="btn-salvar-endereco" class="btn btn-primary btn-loading">
+                    Salvar Endereço
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
           <!-- Seção de Lista de Desejos -->
           <div class="profile-content hidden" id="section-favoritos">
             <h2 class="heading-admin">Lista de Desejos</h2>
@@ -311,5 +420,6 @@
     <script type="module" src="../public/js/pages/search-books.js"></script>
     <script type="module" src="../public/js/pages/perfil/main.js"></script>
     <script type="module" src="../public/js/pages/carrinho.js"></script>
+
   </body>
 </html>

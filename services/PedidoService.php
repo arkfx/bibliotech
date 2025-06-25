@@ -84,7 +84,7 @@ class PedidoService
         $valorFrete = $contemItemFisico ? 24.99 : 0.00;
         $total = $subtotalPedido + $valorFrete;
 
-        // Inclui o endereço_id se fornecido
+        // Dados básicos do pedido
         $dadosPedido = [
             'usuario_id' => $usuarioId,
             'total' => $total,
@@ -92,9 +92,14 @@ class PedidoService
             'valor_frete' => $valorFrete,
         ];
 
-        if (isset($dadosFinalizacao['endereco_id']) && $dadosFinalizacao['endereco_id']) {
+        // MODIFICAÇÃO: Só incluir endereço se há itens físicos E se foi fornecido
+        if ($contemItemFisico && isset($dadosFinalizacao['endereco_id']) && $dadosFinalizacao['endereco_id']) {
             $dadosPedido['endereco_id'] = (int) $dadosFinalizacao['endereco_id'];
+        } elseif ($contemItemFisico && (!isset($dadosFinalizacao['endereco_id']) || !$dadosFinalizacao['endereco_id'])) {
+            // Se há itens físicos mas não há endereço, é erro
+            throw new Exception('Endereço de entrega é obrigatório para itens físicos.');
         }
+        // Se só há ebooks, não precisa de endereço
 
         $pedido = new Pedido($dadosPedido);
 

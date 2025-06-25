@@ -104,6 +104,13 @@
       <h1 class="checkout-title">Finalizar Pedido</h1>
       <div class="checkout-container">
         <section class="checkout-form">
+          
+          <!-- Notificação para apenas ebooks (será mostrada via JS) -->
+          <div id="ebook-only-notice" class="ebook-only-notice hidden">
+            <span class="icon">📚</span>
+            <h3>Compra Digital</h3>
+            <p>Sua compra contém apenas e-books. Não é necessário endereço de entrega.</p>
+          </div>
           <!-- Seção de Endereços -->
           <div class="address-section">
             <div class="address-header">
@@ -274,70 +281,72 @@
                 </div>
               </div>
 
-              <div id="cartao-form" class="payment-form active">
-                <div class="form-group">
-                  <label for="card-number">Número do Cartão</label>
-                  <input
-                    type="text"
-                    id="card-number"
-                    maxlength="19"
-                    class="input-finalizacao"
-                    required
+              <!-- Container fixo para todos os formulários -->
+              <div class="payment-forms-container">
+                <div id="cartao-form" class="payment-form active">
+                  <div class="form-group">
+                    <label for="card-number">Número do Cartão</label>
+                    <input
+                      type="text"
+                      id="card-number"
+                      maxlength="19"
+                      class="input-finalizacao"
+                      required
+                    />
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="card-name">Nome no Cartão</label>
+                      <input
+                        type="text"
+                        id="card-name"
+                        class="input-finalizacao"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="card-expiry">Validade (MM/AA)</label>
+                      <input
+                        type="text"
+                        id="card-expiry"
+                        maxlength="5"
+                        class="input-finalizacao"
+                        required
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="card-cvv">CVV</label>
+                      <input
+                        type="text"
+                        id="card-cvv"
+                        maxlength="3"
+                        class="input-finalizacao"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="parcelas">Parcelas</label>
+                    <select id="parcelas" class="input-finalizacao"></select>
+                  </div>
+                </div>
+
+                <div id="boleto-form" class="payment-form">
+                  <p>
+                    Um boleto será gerado após a confirmação do pedido e enviado
+                    para seu e-mail.
+                  </p>
+                </div>
+
+                <div id="pix-form" class="payment-form">
+                  <p>Escaneie o QR Code abaixo para pagar:</p>
+                  <img
+                    src="https://user-images.githubusercontent.com/25679721/114888298-b9ea0680-9e26-11eb-8b90-cd2a61a4cfbf.png"
+                    alt="QR Code PIX"
                   />
                 </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="card-name">Nome no Cartão</label>
-                    <input
-                      type="text"
-                      id="card-name"
-                      class="input-finalizacao"
-                      required
-                    />
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="card-expiry">Validade (MM/AA)</label>
-                    <input
-                      type="text"
-                      id="card-expiry"
-                      maxlength="5"
-                      class="input-finalizacao"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="card-cvv">CVV</label>
-                    <input
-                      type="text"
-                      id="card-cvv"
-                      maxlength="3"
-                      class="input-finalizacao"
-                      required
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="parcelas">Parcelas</label>
-                  <select id="parcelas" class="input-finalizacao"></select>
-                </div>
-              </div>
-
-              <div id="boleto-form" class="payment-form" style="display: none">
-                <p>
-                  Um boleto será gerado após a confirmação do pedido e enviado
-                  para seu e-mail.
-                </p>
-              </div>
-
-              <div id="pix-form" class="payment-form" style="display: none">
-                <p>Escaneie o QR Code abaixo para pagar:</p>
-                <img
-                  src="https://user-images.githubusercontent.com/25679721/114888298-b9ea0680-9e26-11eb-8b90-cd2a61a4cfbf.png"
-                  alt="QR Code PIX"
-                  style="max-width: 180px"
-                />
               </div>
             </form>
           </div>
