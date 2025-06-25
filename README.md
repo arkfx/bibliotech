@@ -326,3 +326,14 @@ Requisitos:
 [Acesse o relatório](relatorios/iteracao-4.md)
 
 ---
+
+### Iteração 5 - Refinamento da Plataforma e Melhorias de Usabilidade
+
+_Valor_: Aprimorar a experiência do usuário e a robustez do sistema através da implementação de funcionalidades de navegação otimizadas, gerenciamento de dados mais completo e refinamento de recursos existentes, além de garantir a qualidade do código com a introdução de testes unitários.
+
+_Objetivo_: Como equipe de desenvolvimento, desejamos refinar a plataforma BiblioTech implementando paginação em listagens extensas, melhorando o gerenciamento de endereços para pedidos, criando uma tela de catálogo mais interativa com opções de ordenação, adicionando o gerenciamento de gêneros no painel administrativo, aprimorando o leitor de eBooks e iniciando a cobertura de testes unitários para aumentar a confiabilidade e a manutenibilidade do sistema.
+
+
+[Acesse o relatório](relatorios/iteracao-5.md)
+
+---

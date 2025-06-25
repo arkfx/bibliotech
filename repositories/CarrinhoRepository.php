@@ -1,7 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../models/Carrinho.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+use BiblioTech\Models\Carrinho;
+use PDO;
 
 class CarrinhoRepository extends BaseRepository
 {
@@ -81,7 +82,16 @@ class CarrinhoRepository extends BaseRepository
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':usuario_id', $usuarioId, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retorna um array de arrays associativos
+        
+        $itensCarrinho = [];
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($resultados as $row) {
+            $item = new Carrinho($row); 
+            $itensCarrinho[] = $item;
+        }
+        
+        return $itensCarrinho; // Retorna um array de objetos Carrinho
     }
 
     public function limparCarrinho(int $usuarioId): bool

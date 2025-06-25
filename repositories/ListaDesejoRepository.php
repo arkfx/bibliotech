@@ -1,10 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../models/ListaDesejo.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
 
+use BiblioTech\Models\ListaDesejo;
+use PDO;
 
-class ListaDesejosRepository extends BaseRepository
+class ListaDesejoRepository extends BaseRepository
 {
 
     public function add(int $usuarioId, int $livroId): bool

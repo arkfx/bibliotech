@@ -1,7 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../models/Usuario.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\Usuario;
+use PDO;
 
 class UsuarioRepository extends BaseRepository
 {
@@ -9,12 +11,8 @@ class UsuarioRepository extends BaseRepository
     {
         $sql = "SELECT * FROM usuario WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-
+        $stmt->execute([':id' => $id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-
         return $data ? new Usuario($data) : null;
     }
 
@@ -22,11 +20,8 @@ class UsuarioRepository extends BaseRepository
     {
         $sql = "SELECT * FROM usuario WHERE email = :email";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
+        $stmt->execute([':email' => $email]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-
         return $data ? new Usuario($data) : null;
     }
 
@@ -34,22 +29,19 @@ class UsuarioRepository extends BaseRepository
     {
         $sql = "INSERT INTO usuario (nome, email, senha, telefone, data_nascimento, cpf) 
                 VALUES (:nome, :email, :senha, :telefone, :data_nascimento, :cpf)";
+        
         $stmt = $this->conn->prepare($sql);
-
         $hashed = password_hash($usuario->senha, PASSWORD_BCRYPT);
 
-        $stmt->bindValue(':nome', $usuario->nome);
-        $stmt->bindValue(':email', $usuario->email);
-        $stmt->bindValue(':senha', $hashed);
-        $stmt->bindValue(':telefone', $usuario->telefone ?? null, PDO::PARAM_NULL);
-        $stmt->bindValue(':data_nascimento', $usuario->data_nascimento ?? null, PDO::PARAM_NULL);
-        $stmt->bindValue(':cpf', $usuario->cpf ?? null, PDO::PARAM_NULL);
-
-        $success = $stmt->execute();
-        $stmt->closeCursor();
-        return $success;
+        return $stmt->execute([
+            ':nome' => $usuario->nome,
+            ':email' => $usuario->email,
+            ':senha' => $hashed,
+            ':telefone' => $usuario->telefone,
+            ':data_nascimento' => $usuario->data_nascimento,
+            ':cpf' => $usuario->cpf
+        ]);
     }
-
 
     public function update(Usuario $usuario): bool
     {
@@ -63,14 +55,14 @@ class UsuarioRepository extends BaseRepository
     
         $stmt = $this->conn->prepare($sql);
         
-        $stmt->bindValue(':nome', $usuario->nome);
-        $stmt->bindValue(':email', $usuario->email);
-        $stmt->bindValue(':telefone', $usuario->telefone, $usuario->telefone !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-        $stmt->bindValue(':data_nascimento', $usuario->data_nascimento, $usuario->data_nascimento !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-        $stmt->bindValue(':cpf', $usuario->cpf, $usuario->cpf !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
-        $stmt->bindValue(':id', $usuario->id, PDO::PARAM_INT);
-    
-        return $stmt->execute();
+        return $stmt->execute([
+            ':nome' => $usuario->nome,
+            ':email' => $usuario->email,
+            ':telefone' => $usuario->telefone,
+            ':data_nascimento' => $usuario->data_nascimento,
+            ':cpf' => $usuario->cpf,
+            ':id' => $usuario->id
+        ]);
     }
 
     public function alterarSenha(int $id, string $novaSenha): bool
@@ -80,9 +72,9 @@ class UsuarioRepository extends BaseRepository
         
         $hashed = password_hash($novaSenha, PASSWORD_BCRYPT);
         
-        $stmt->bindValue(':senha', $hashed);
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        
-        return $stmt->execute();
+        return $stmt->execute([
+            ':senha' => $hashed,
+            ':id' => $id
+        ]);
     }
 }

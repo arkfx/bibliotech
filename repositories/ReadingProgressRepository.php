@@ -1,7 +1,10 @@
 <?php
 
-require_once __DIR__ . '/BaseRepository.php';
-require_once __DIR__ . '/../models/ReadingProgress.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\ReadingProgress;
+use PDO;
+use PDOException;
 
 class ReadingProgressRepository extends BaseRepository
 {

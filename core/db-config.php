@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/../core/load_env.php';
+
+use function BiblioTech\Core\loadEnv;
+
 loadEnv(__DIR__ . '/../.env');
 
 return [

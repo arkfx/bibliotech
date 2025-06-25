@@ -175,6 +175,7 @@ function adicionarEventosTabela() {
           document.getElementById("editora").value = livro.editora_id;
           document.getElementById("descricao").value = livro.descricao;
           document.getElementById("imagem_url").value = livro.imagem_url || "";
+          document.getElementById("pdf_url").value = livro.pdf_url || ""; 
 
           livroEmEdicaoId = livro.id;
           btnSalvar.textContent = "ATUALIZAR";
@@ -210,6 +211,8 @@ formLivro.addEventListener("submit", async (e) => {
   const editora_id = document.getElementById("editora").value;
   const descricao = document.getElementById("descricao").value.trim();
   const imagem_url = document.getElementById("imagem_url").value.trim();
+    const pdf_url = document.getElementById("pdf_url").value.trim(); 
+
 
   if (
     !titulo ||
@@ -218,7 +221,8 @@ formLivro.addEventListener("submit", async (e) => {
     !preco ||
     !editora_id ||
     !descricao ||
-    !imagem_url
+    !imagem_url ||
+    !pdf_url
   ) {
     alert("Preencha todos os campos obrigatórios!");
     return;
@@ -237,6 +241,7 @@ formLivro.addEventListener("submit", async (e) => {
         editora_id: parseInt(editora_id),
         descricao,
         imagem_url,
+        pdf_url,
       });
     } else {
       await createBook({
@@ -247,6 +252,7 @@ formLivro.addEventListener("submit", async (e) => {
         editora_id: parseInt(editora_id),
         descricao,
         imagem_url,
+        pdf_url,
       });
     }
 

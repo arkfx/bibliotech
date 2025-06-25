@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Core;
+
 function loadEnv($path)
 {
     if (!file_exists($path)) return;

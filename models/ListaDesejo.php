@@ -1,5 +1,7 @@
 <?php
 
+namespace BiblioTech\Models;
+
 class ListaDesejo
 {
     public int $usuario_id;

@@ -1,9 +1,13 @@
 import { API_BASE } from "../config.js";
 
-export async function finalizarPedido() {
+export async function finalizarPedido(dadosFinalizacao = {}) {
   try {
     const response = await fetch(`${API_BASE}/pedido/finalizar`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dadosFinalizacao),
     });
 
     const contentType = response.headers.get("content-type");

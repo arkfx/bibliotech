@@ -16,3 +16,44 @@ export async function getGeneros() {
 
   return response.json();
 }
+
+export async function createGenero(nome) {
+  const response = await fetch(`${API_BASE}/generos`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ nome }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Erro ao criar gênero." }));
+    throw new Error(errorData.message || "Erro ao criar gênero.");
+  }
+  return response.json();
+}
+
+export async function updateGenero(id, nome) {
+  const response = await fetch(`${API_BASE}/generos/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ nome }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Erro ao atualizar gênero." }));
+    throw new Error(errorData.message || "Erro ao atualizar gênero.");
+  }
+  return response.json();
+}
+
+export async function deleteGenero(id) {
+  const response = await fetch(`${API_BASE}/generos/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Erro ao excluir gênero." }));
+    throw new Error(errorData.message || "Erro ao excluir gênero.");
+  }
+  return response.json();
+}

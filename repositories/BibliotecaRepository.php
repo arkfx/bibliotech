@@ -1,7 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../models/Biblioteca.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\Biblioteca;
+use BiblioTech\Models\Livro;
+
+use PDO;
+
+
 
 class BibliotecaRepository extends BaseRepository
 {

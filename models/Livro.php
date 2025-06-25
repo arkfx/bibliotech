@@ -1,4 +1,7 @@
 <?php
+
+namespace BiblioTech\Models;
+
 class Livro
 {
     public $id;
@@ -17,6 +20,10 @@ class Livro
 
     public function __construct($data = [])
     {
+        if (is_object($data)) {
+            $data = (array) $data; // ← Isso resolve o erro
+        }
+
         $this->id = $data['id'] ?? null;
         $this->titulo = $data['titulo'] ?? '';
         $this->autor = $data['autor'] ?? '';

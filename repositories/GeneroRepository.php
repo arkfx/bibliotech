@@ -1,13 +1,14 @@
 <?php
 
-require_once __DIR__ . '/../models/Genero.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\Genero;
+use PDO;
 
 class GeneroRepository extends BaseRepository
 {
-    public function findAll()
-    {
-        $query = "SELECT * FROM generos";
+    public function findAll() {
+        $query = "SELECT * FROM generos ORDER BY nome";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
 
@@ -36,17 +37,26 @@ class GeneroRepository extends BaseRepository
     public function save(Genero $genero)
     {
         if ($genero->id) {
-            throw new Exception("Atualização de gênero não implementada.");
+            // Atualizar gênero existente
+            $query = "UPDATE generos SET nome = :nome, updated_at = NOW() WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':nome', $genero->nome, PDO::PARAM_STR);
+            $stmt->bindParam(':id', $genero->id, PDO::PARAM_INT);
+            $stmt->execute();
+            $stmt->closeCursor();
+            return $genero; 
+        } else {
+            // Inserir novo gênero
+            $query = "INSERT INTO generos (nome, created_at, updated_at) VALUES (:nome, NOW(), NOW())";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':nome', $genero->nome, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $genero->id = $this->conn->lastInsertId();
+            $stmt->closeCursor(); 
+            
+            return $genero;
         }
-
-        $query = "INSERT INTO generos (nome) VALUES (:nome)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':nome', $genero->nome, PDO::PARAM_STR);
-        $stmt->execute();
-
-        $genero->id = $this->conn->lastInsertId();
-        $stmt->closeCursor();
-        return $genero;
     }
 
     public function delete($id)
@@ -58,4 +68,19 @@ class GeneroRepository extends BaseRepository
         $stmt->closeCursor();
         return $stmt->rowCount() > 0;
     }
+    
+    public function existsByName($nome)
+    {
+        $query = "SELECT COUNT(*) FROM generos WHERE nome = :nome";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
+        $stmt->execute();
+        
+        $count = $stmt->fetchColumn();
+        $stmt->closeCursor();
+        
+        return $count > 0;
+    }
 }
+
+

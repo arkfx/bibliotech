@@ -137,11 +137,15 @@ class EditoraManager {
         
         const id = this.editoraIdInput.value;
         const nome = this.editoraNomeInput.value;
+        const btnSave = this.formEditora.querySelector('.btn-save');
         
         if (!nome.trim()) {
             showToast('O nome da editora é obrigatório', 'error');
             return;
         }
+
+        btnSave.classList.add('loading');
+        btnSave.disabled = true;
         
         try {
             let result;
@@ -163,12 +167,16 @@ class EditoraManager {
         } catch (error) {
             console.error('Erro ao salvar editora:', error);
             showToast(error.message || 'Erro ao salvar editora', 'error');
+        } finally {
+            btnSave.classList.remove('loading');
+            btnSave.disabled = false;
         }
     }
     
     async confirmarExclusao(editora) {
         if (confirm(`Deseja realmente excluir a editora "${editora.nome}"?`)) {
             try {
+
                 const result = await deleteEditora(editora.id);
                 
                 if (result.success) {

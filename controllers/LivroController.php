@@ -1,23 +1,21 @@
 <?php
 
-require_once __DIR__ . '/../routing/Route.php';
-require_once __DIR__ . '/../repositories/LivroRepository.php';
-require_once __DIR__ . '/../repositories/EditoraRepository.php';
-require_once __DIR__ . '/../repositories/GeneroRepository.php';
-require_once __DIR__ . '/BaseController.php';
+namespace BiblioTech\Controllers;
+
+use BiblioTech\Core\Route;
+use BiblioTech\Core\AppFactory;
+use BiblioTech\Models\Livro;
+use BiblioTech\Services\LivroService;
+use Exception;
 
 class LivroController extends BaseController
 {
-    private LivroRepository $livroRepository;
-    private EditoraRepository $editoraRepository;
-    private GeneroRepository $generoRepository;
+    private LivroService $livroService;
 
-    public function __construct(private PDO $pdo)
+    public function __construct(private AppFactory $appFactory)
     {
         session_start();
-        $this->livroRepository = new LivroRepository($pdo);
-        $this->editoraRepository = new EditoraRepository($pdo);
-        $this->generoRepository = new GeneroRepository($pdo);
+        $this->livroService = $this->appFactory->createLivroService();
     }
 
     #[Route('/livros', 'GET')]
@@ -27,18 +25,30 @@ class LivroController extends BaseController
         $genero_id = isset($_GET['genero_id']) ? (int)$_GET['genero_id'] : null;
         $ordem = isset($_GET['ordem']) && in_array(strtoupper($_GET['ordem']), ['ASC', 'DESC']) ? strtoupper($_GET['ordem']) : 'DESC';
 
-        $livros = $this->livroRepository->search($termo, $genero_id, $ordem);
+        $pagina = isset($_GET['pagina']) ? max((int)$_GET['pagina'], 1) : 1;
+        $limite = isset($_GET['limite']) ? max((int)$_GET['limite'], 1) : 6;
+        $offset = ($pagina - 1) * $limite;
+
+        $livros = $this->livroService->listar($termo, $genero_id, $ordem, $limite, $offset);
+        $total = $this->livroService->contar($termo, $genero_id);
 
         return $this->response(200, [
             'status' => 'success',
-            'data' => array_map(fn($l) => $l->toArray(), $livros)
+            'data' => array_map(fn($l) => $l->toArray(), $livros),
+            'paginacao' => [
+                'pagina' => $pagina,
+                'limite' => $limite,
+                'total' => $total,
+                'totalPaginas' => ceil($total / $limite),
+            ]
         ]);
     }
+
 
     #[Route('/livros/{id}', 'GET')]
     public function buscar(int $id)
     {
-        $livro = $this->livroRepository->findById($id);
+        $livro = $this->livroService->buscar($id);
 
         if ($livro) {
             return $this->response(200, ['status' => 'success', 'data' => $livro->toArray()]);
@@ -54,24 +64,15 @@ class LivroController extends BaseController
             return $this->response(403, ['status' => 'error', 'message' => 'Acesso negado. Apenas administradores podem realizar essa ação.']);
         }
 
-        $data = $this->getJsonInput();
+        $input = $this->getJsonInput();
+        $livro = new Livro((object)$input);
 
-        if (!$this->validarCampos($data)) {
-            return $this->response(400, ['status' => 'error', 'message' => 'Todos os campos são obrigatórios.']);
+        try {
+            $this->livroService->criar($livro);
+            return $this->response(201, ['status' => 'success', 'message' => 'Livro cadastrado com sucesso!']);
+        } catch (Exception $e) {
+            return $this->response(400, ['status' => 'error', 'message' => $e->getMessage()]);
         }
-
-        if (!$this->editoraRepository->findById($data['editora_id'])) {
-            return $this->response(400, ['status' => 'error', 'message' => 'Editora inválida.']);
-        }
-
-        if (!$this->generoRepository->findById($data['genero_id'])) {
-            return $this->response(400, ['status' => 'error', 'message' => 'Gênero inválido.']);
-        }
-
-        $livro = new Livro($data);
-        $this->livroRepository->save($livro);
-
-        return $this->response(201, ['status' => 'success', 'message' => 'Livro cadastrado com sucesso!']);
     }
 
     #[Route('/livros', 'PUT')]
@@ -81,24 +82,15 @@ class LivroController extends BaseController
             return $this->response(403, ['status' => 'error', 'message' => 'Acesso negado. Apenas administradores podem realizar essa ação.']);
         }
 
-        $data = $this->getJsonInput();
+        $input = $this->getJsonInput();
+        $livro = new Livro((object)$input);
 
-        if (!isset($data['id']) || !$this->validarCampos($data)) {
-            return $this->response(400, ['status' => 'error', 'message' => 'Todos os campos, incluindo o ID, são obrigatórios.']);
+        try {
+            $this->livroService->atualizar($livro);
+            return $this->response(200, ['status' => 'success', 'message' => 'Livro atualizado com sucesso!']);
+        } catch (Exception $e) {
+            return $this->response(400, ['status' => 'error', 'message' => $e->getMessage()]);
         }
-
-        if (!$this->editoraRepository->findById($data['editora_id'])) {
-            return $this->response(400, ['status' => 'error', 'message' => 'Editora inválida.']);
-        }
-
-        if (!$this->generoRepository->findById($data['genero_id'])) {
-            return $this->response(400, ['status' => 'error', 'message' => 'Gênero inválido.']);
-        }
-
-        $livro = new Livro($data);
-        $this->livroRepository->save($livro);
-
-        return $this->response(200, ['status' => 'success', 'message' => 'Livro atualizado com sucesso!']);
     }
 
     #[Route('/livros/{id}', 'DELETE')]
@@ -109,19 +101,10 @@ class LivroController extends BaseController
         }
 
         try {
-            $this->livroRepository->delete($id);
+            $this->livroService->excluir($id);
             return $this->response(200, ['status' => 'success', 'message' => 'Livro excluído com sucesso!']);
         } catch (Exception $e) {
             return $this->response(404, ['status' => 'error', 'message' => $e->getMessage()]);
         }
-    }
-
-    private function validarCampos(array $data): bool
-    {
-        $campos = ['titulo', 'autor', 'genero_id', 'preco', 'editora_id', 'descricao', 'imagem_url'];
-        foreach ($campos as $campo) {
-            if (!isset($data[$campo]) || $data[$campo] === '') return false;
-        }
-        return true;
     }
 }

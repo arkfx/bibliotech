@@ -1,7 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../models/Editora.php';
-require_once __DIR__ . '/BaseRepository.php';
+namespace BiblioTech\Repositories;
+
+use BiblioTech\Models\Editora;
+use BiblioTech\Repositories\BaseRepository;
+use PDO;
+use Exception;
 
 class EditoraRepository  extends BaseRepository
 {
@@ -47,10 +51,11 @@ class EditoraRepository  extends BaseRepository
 
         $editora->id = $this->conn->lastInsertId();
         $stmt->closeCursor();
-        return $editora;
+        
+        return $editora->id > 0;
     }
 
-    public function update(Editora $editora)
+    public function update(Editora $editora): bool
     {
         $sql = "UPDATE editoras 
                 SET nome = :nome, updated_at = NOW()
@@ -61,7 +66,7 @@ class EditoraRepository  extends BaseRepository
         $stmt->execute();
         $stmt->closeCursor();
 
-        return $editora;
+        return $stmt->rowCount() > 0;
     }
 
     public function delete($id)
@@ -89,5 +94,18 @@ class EditoraRepository  extends BaseRepository
 
         $stmt->closeCursor();
         return true;
+    }
+
+    public function existsByName($nome)
+    {
+        $sql = "SELECT COUNT(*) FROM editoras WHERE nome = :nome";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $count = $stmt->fetchColumn();
+        $stmt->closeCursor();
+
+        return $count > 0;
     }
 }
