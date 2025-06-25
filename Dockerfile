@@ -38,6 +38,9 @@ RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/production.ini && \
 # Copy the entire application first
 COPY . /var/www/html/
 
+# Create case-compatible symlink for the Router
+RUN ln -s /var/www/html/controllers /var/www/html/Controllers
+
 # Clear composer cache and install dependencies
 RUN composer clear-cache && \
     composer install --no-dev --optimize-autoloader --no-interaction --no-cache && \
@@ -55,6 +58,11 @@ RUN echo '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html\n\
     DirectoryIndex view/home.html\n\
     \n\
+    # Redirect URLs with trailing slashes (except root) to their non-slash version\n\
+    RewriteEngine On\n\
+    RewriteCond %{REQUEST_FILENAME} !-d\n\
+    RewriteCond %{REQUEST_URI} .+/$\n\
+    RewriteRule ^(.+?)/$ /$1 [R=301,L]\n\
     <Directory /var/www/html>\n\
         Options Indexes FollowSymLinks\n\
         AllowOverride All\n\
@@ -62,7 +70,7 @@ RUN echo '<VirtualHost *:80>\n\
     </Directory>\n\
     \n\
     # Explicit alias for each HTML file\n\
-    AliasMatch "^/([^/]+\.html)$" "/var/www/html/view/$1"\n\
+    AliasMatch "^/([^/]+\\.html)$" "/var/www/html/view/$1"\n\
     \n\
     # Alias for the public directory\n\
     Alias /public /var/www/html/public\n\

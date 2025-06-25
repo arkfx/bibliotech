@@ -12,8 +12,6 @@ import { AdaptiveLayout } from './adaptive-layout.js';
 
 export class PDFViewer {
   constructor() {
-    // Centralized Page Transition Configuration (Phase 1.1)
-    // THIS IS THE ONLY PLACE TO MODIFY TRANSITION SETTINGS
     // These settings are NOT stored in localStorage - they are hardcoded
     this.TRANSITION_CONFIG = {
       // Available transition types
@@ -26,7 +24,7 @@ export class PDFViewer {
       
       // Default settings (single source of truth)
       DEFAULTS: {
-        type: 'flip',        // Modify this to change default transition type
+        type: 'fade',        // Modify this to change default transition type
         duration: 125,       // Modify this to change default transition duration (ms)
         enabled: true,
         preloadAdjacent: true
@@ -75,15 +73,32 @@ export class PDFViewer {
     this.fitMode = 'width';
     this.viewMode = 'page'; // 'page' or 'continuous'
 
-    // Page transition properties - will be set from TRANSITION_CONFIG defaults
-    this.transitionType = this.TRANSITION_CONFIG.DEFAULTS.type;
-    this.transitionDuration = this.TRANSITION_CONFIG.DEFAULTS.duration;
-    this.transitionEnabled = this.TRANSITION_CONFIG.DEFAULTS.enabled;
+    // Page transition properties (Phase 1.1)
+    this.transitionType = 'fade';
+    this.transitionDuration = 300;
+    this.transitionEnabled = true;
     this.isTransitioning = false;
     this.preloadedPages = new Map(); // Cache for preloaded pages
 
+    // Enhanced zoom properties (Phase 1.2)
+    this.smoothZoomAnimations = true;
+    this.zoomAnimationDuration = 250;
+    this.smartZoomEnabled = true;
+    this.textZoomLevel = 1.5;
+    this.maxZoomLevel = 5.0;
+    this.minZoomLevel = 0.25;
+    this.zoomStep = 0.25;
+    this.pinchSensitivity = 1.0;
+    this.doubleTapZoomMode = 'smart';
+    this.maintainPositionOnZoom = true;
+    this.lastTapTime = 0;
+    this.doubleTapDelay = 300;
+    this.isZoomAnimating = false;
+    this.zoomCenterPoint = { x: 0.5, y: 0.5 }; // Zoom center (0-1 relative coordinates)
+    this.preZoomScrollPosition = { x: 0, y: 0 }; // For maintaining position
+
     // Theme and rendering
-    this.currentTheme = 'dark'; // Default to dark theme
+    this.currentTheme = 'dark';
     this.currentPDFId = null;
 
     // DOM elements - will be initialized in init()
@@ -173,14 +188,14 @@ export class PDFViewer {
 
     // Initialize cache and rendering systems with proper fallbacks
     try {
-      this.cache = new PDFCache();
+    this.cache = new PDFCache();
     } catch (error) {
       console.warn('PDFCache not available, using fallback:', error);
       this.cache = this.createFallbackCache();
     }
 
     try {
-      this.textRenderer = new PDFOperatorRenderer();
+    this.textRenderer = new PDFOperatorRenderer();
     } catch (error) {
       console.warn('PDFOperatorRenderer not available, using fallback:', error);
       this.textRenderer = this.createFallbackRenderer();
@@ -520,32 +535,72 @@ export class PDFViewer {
     // Resize handler
     window.addEventListener('resize', () => {
       this.handleResize();
+      // Recalculate viewport constraints after resize
+      this.updateViewportConstraints();
     });
   }
 
-  // Touch gesture methods
+  // Enhanced touch gesture methods (Phase 1.2)
   handleTouchStart(e) {
+    const now = Date.now();
+    
     if (e.touches.length === 2) {
+      // Pinch-to-zoom gesture
       this.isZooming = true;
       this.initialDistance = this.calculateDistance(e.touches[0], e.touches[1]);
-      this.initialScale = this.scale;
+      this.initialScale = this.getCurrentNumericScale();
+      
+      // Calculate pinch center point
+      this.pinchCenter = this.calculatePinchCenter(e.touches[0], e.touches[1]);
+      
+      // Apply pinch zoom active class
+      if (this.containerEl) {
+        this.containerEl.classList.add('pinch-zoom-active');
+      }
+      
+      e.preventDefault();
+      
     } else if (e.touches.length === 1) {
       this.touchStartX = e.touches[0].clientX;
       this.touchStartY = e.touches[0].clientY;
       this.isSwiping = false;
+      
+      // Double-tap detection for smart zoom
+      if (this.smartZoomEnabled && (now - this.lastTapTime) < this.doubleTapDelay) {
+        e.preventDefault();
+        this.handleDoubleTap(e.touches[0]);
+        return;
+      }
+      
+      this.lastTapTime = now;
     }
   }
 
   handleTouchMove(e) {
     if (this.isZooming && e.touches.length === 2) {
-      const currentDistance = this.calculateDistance(e.touches[0], e.touches[1]);
-      const scaleChange = currentDistance / this.initialDistance;
-      const newScale = this.initialScale * scaleChange;
+      e.preventDefault();
       
-      this.scale = Math.min(Math.max(newScale, 0.25), 5.0);
+      const currentDistance = this.calculateDistance(e.touches[0], e.touches[1]);
+      const scaleChange = (currentDistance / this.initialDistance) * this.pinchSensitivity;
+      let newScale = this.initialScale * scaleChange;
+      
+      // Clamp to min/max zoom levels with viewport constraints
+      const maxZoomForViewport = this.getMaxZoomForViewportSync();
+      newScale = Math.min(Math.max(newScale, this.minZoomLevel), maxZoomForViewport);
+      
+      // Apply enhanced pinch zoom
+      this.scale = newScale;
       this.fitMode = 'custom';
       
-      // Use appropriate rendering method based on view mode
+      // Calculate new pinch center for smooth zooming
+      const newPinchCenter = this.calculatePinchCenter(e.touches[0], e.touches[1]);
+      if (this.maintainPositionOnZoom) {
+        this.adjustScrollForPinch(this.pinchCenter, newPinchCenter, this.initialScale, newScale);
+      }
+      
+      this.pinchCenter = newPinchCenter;
+      
+      // Render with new scale
       if (this.viewMode === 'continuous') {
         this.updateViewAfterZoom();
       } else {
@@ -553,7 +608,7 @@ export class PDFViewer {
         this.updateZoomDisplay();
       }
       
-    } else if (e.touches.length === 1 && !this.isZooming) {
+    } else if (e.touches.length === 1 && !this.isZooming && !this.isZoomAnimating) {
       const touchX = e.touches[0].clientX;
       const touchY = e.touches[0].clientY;
       const deltaX = Math.abs(touchX - this.touchStartX);
@@ -571,8 +626,17 @@ export class PDFViewer {
     if (this.isZooming) {
       this.isZooming = false;
       this.initialDistance = 0;
-      this.initialScale = this.scale;
-    } else if (this.isSwiping) {
+      this.initialScale = this.getCurrentNumericScale();
+      
+      // Remove pinch zoom active class
+      if (this.containerEl) {
+        this.containerEl.classList.remove('pinch-zoom-active');
+      }
+      
+      // Save zoom preferences after pinch gesture
+      this.savePreferences();
+      
+    } else if (this.isSwiping && !this.isZoomAnimating) {
       const deltaX = this.touchEndX - this.touchStartX;
       const threshold = 50;
       
@@ -591,6 +655,62 @@ export class PDFViewer {
     this.touchStartY = 0;
     this.touchEndX = 0;
     this.touchEndY = 0;
+  }
+
+  /**
+   * Handle double-tap for smart zoom
+   */
+  async handleDoubleTap(touch) {
+    if (!this.smartZoomEnabled || this.isZoomAnimating) return;
+    
+    // Calculate tap point relative to container
+    const containerRect = this.containerEl.getBoundingClientRect();
+    const tapPoint = {
+      x: (touch.clientX - containerRect.left) / containerRect.width,
+      y: (touch.clientY - containerRect.top) / containerRect.height
+    };
+    
+    // Apply smart zoom at tap location
+    await this.smartZoom(tapPoint);
+  }
+
+  /**
+   * Calculate center point between two touches
+   */
+  calculatePinchCenter(touch1, touch2) {
+    const containerRect = this.containerEl.getBoundingClientRect();
+    
+    return {
+      x: ((touch1.clientX + touch2.clientX) / 2 - containerRect.left) / containerRect.width,
+      y: ((touch1.clientY + touch2.clientY) / 2 - containerRect.top) / containerRect.height
+    };
+  }
+
+  /**
+   * Adjust scroll position during pinch for smooth zooming
+   */
+  adjustScrollForPinch(oldCenter, newCenter, oldScale, newScale) {
+    if (!this.containerEl) return;
+    
+    const scaleRatio = newScale / oldScale;
+    const containerRect = this.containerEl.getBoundingClientRect();
+    
+    // Calculate the difference in center points
+    const centerDeltaX = (newCenter.x - oldCenter.x) * containerRect.width;
+    const centerDeltaY = (newCenter.y - oldCenter.y) * containerRect.height;
+    
+    // Adjust scroll to maintain focus on pinch center
+    const currentScrollX = this.containerEl.scrollLeft;
+    const currentScrollY = this.containerEl.scrollTop;
+    
+    const newScrollX = (currentScrollX * scaleRatio) - centerDeltaX;
+    const newScrollY = (currentScrollY * scaleRatio) - centerDeltaY;
+    
+    this.containerEl.scrollTo({
+      left: Math.max(0, newScrollX),
+      top: Math.max(0, newScrollY),
+      behavior: 'auto'
+    });
   }
 
   calculateDistance(touch1, touch2) {
@@ -754,14 +874,59 @@ export class PDFViewer {
   }
 
   applyPreferences(prefs) {
-    // Apply theme preference - ensure it's applied even if it's the same as current
-    // This is important for initial page load
-    const savedTheme = prefs.theme || 'dark';
-    console.log('Applying theme preference:', savedTheme);
-    this.setTheme(savedTheme);
+    // Apply theme preference
+    if (prefs.theme && prefs.theme !== this.currentTheme) {
+      this.setTheme(prefs.theme);
+    }
 
-    // Note: Transition preferences are handled centrally and not loaded from localStorage
-    // They are set directly from TRANSITION_CONFIG.DEFAULTS
+    // Apply transition preferences (Phase 1.1)
+    if (prefs.transitionType) {
+      this.transitionType = prefs.transitionType;
+    }
+    if (prefs.transitionDuration) {
+      this.transitionDuration = prefs.transitionDuration;
+    }
+    if (typeof prefs.transitionEnabled === 'boolean') {
+      this.transitionEnabled = prefs.transitionEnabled;
+    }
+    
+    // Update transition CSS after applying preferences
+    this.updateTransitionCSS();
+    if (this.containerEl) {
+      this.containerEl.style.setProperty('--transition-duration', `${this.transitionDuration}ms`);
+    }
+
+    // Apply enhanced zoom preferences (Phase 1.2)
+    if (typeof prefs.smoothZoomAnimations === 'boolean') {
+      this.smoothZoomAnimations = prefs.smoothZoomAnimations;
+    }
+    if (prefs.zoomAnimationDuration) {
+      this.zoomAnimationDuration = prefs.zoomAnimationDuration;
+    }
+    if (typeof prefs.smartZoomEnabled === 'boolean') {
+      this.smartZoomEnabled = prefs.smartZoomEnabled;
+    }
+    if (prefs.textZoomLevel) {
+      this.textZoomLevel = prefs.textZoomLevel;
+    }
+    if (prefs.maxZoomLevel) {
+      this.maxZoomLevel = prefs.maxZoomLevel;
+    }
+    if (prefs.minZoomLevel) {
+      this.minZoomLevel = prefs.minZoomLevel;
+    }
+    if (prefs.zoomStep) {
+      this.zoomStep = prefs.zoomStep;
+    }
+    if (prefs.pinchSensitivity) {
+      this.pinchSensitivity = prefs.pinchSensitivity;
+    }
+    if (prefs.doubleTapZoomMode) {
+      this.doubleTapZoomMode = prefs.doubleTapZoomMode;
+    }
+    if (typeof prefs.maintainPositionOnZoom === 'boolean') {
+      this.maintainPositionOnZoom = prefs.maintainPositionOnZoom;
+    }
 
     // Apply view mode preference
     if (prefs.viewMode && prefs.viewMode !== this.viewMode) {
@@ -1272,13 +1437,25 @@ export class PDFViewer {
       // Calculate the actual numeric scale
       let effectiveScale = this.scale;
       if (this.scale === 'fit-width' || this.fitMode === 'width') {
-        const containerWidth = this.containerEl.clientWidth - 40;
+        // Fallback handling: if the container is hidden (display:none) it will report width 0.
+        // In that case, use the viewport width (window.innerWidth) so that the initial
+        // calculation still results in a visible page. The container will soon be visible
+        // when showPDF() is called, after which updateViewportConstraints() will refine
+        // the zoom level.
+        let containerWidth = (this.containerEl?.clientWidth || 0) - 40;
+        if (containerWidth <= 0) {
+          containerWidth = window.innerWidth - 40;
+        }
+
         const baseViewport = page.getViewport({ scale: 1 });
         effectiveScale = containerWidth / baseViewport.width;
         // Update the scale to be numeric
         this.scale = effectiveScale;
       } else if (this.fitMode === 'height') {
-        const containerHeight = this.containerEl.clientHeight - 40;
+        let containerHeight = (this.containerEl?.clientHeight || 0) - 40;
+        if (containerHeight <= 0) {
+          containerHeight = window.innerHeight - 40;
+        }
         const baseViewport = page.getViewport({ scale: 1 });
         effectiveScale = containerHeight / baseViewport.height;
         this.scale = effectiveScale;
@@ -1291,7 +1468,7 @@ export class PDFViewer {
 
       // NEW: enforce intrinsic canvas size in the DOM
       this.adjustCanvasStyles(this.canvas);
-
+      
       const imageRegions = await this.textRenderer.analyzeAndRenderPage(
         page, 
         this.canvas, 
@@ -1392,6 +1569,17 @@ export class PDFViewer {
     if (this.containerEl) this.containerEl.style.display = 'flex';
     
     this.detectMobile();
+
+    // Ensure initial scale truly fits the available width now that the container is visible.
+    // When the page was still hidden, width calculations might have relied on a fallback
+    // window size and produced a canvas that is wider than the real container. Re-evaluate
+    // the viewport constraints and, if necessary, trigger a fit-to-width adjustment so
+    // the PDF never overflows horizontally on first load / refresh.
+    if (this.scale === 'fit-width' || this.fitMode === 'width') {
+      // Recalculate based on real container width. This will shrink the canvas if it was
+      // previously rendered too wide while the container was hidden.
+      this.updateViewportConstraints();
+    }
   }
 
   showCacheIndicator(fromCache = false, duration = 3000) {
@@ -1470,34 +1658,52 @@ export class PDFViewer {
       // Wait for CSS transition to start (using centralized timing)
       await this.delay(this.TRANSITION_CONFIG.TIMING.cssTransitionStart);
 
-      // For flip animations, wait until midpoint to change content for realistic effect
-      if (this.transitionType === this.TRANSITION_CONFIG.TYPES.FLIP) {
-        // Wait for first half of the flip animation
-        const halfDuration = Math.max(50, this.transitionDuration / 2);
-        await this.delay(halfDuration - this.TRANSITION_CONFIG.TIMING.cssTransitionStart);
-        
-        // Change page content at the midpoint of the flip
-        await this.renderPage(targetPage);
-        
-        // Wait for second half of the flip animation
-        await this.delay(halfDuration);
-      } else {
-        // For non-flip transitions, render immediately (original behavior)
-        await this.renderPage(targetPage);
-        
-        // Wait for transition to complete (using actual transition duration)
-        await this.delay(this.transitionDuration);
-      }
+          // For flip animations, wait until midpoint to change content for realistic effect
+    if (this.transitionType === this.TRANSITION_CONFIG.TYPES.FLIP) {
+      // Wait for first half of the flip animation
+      const halfDuration = Math.max(50, this.transitionDuration / 2);
+      await this.delay(halfDuration - this.TRANSITION_CONFIG.TIMING.cssTransitionStart);
+      
+      // Change page content at the midpoint of the flip
+      await this.renderPage(targetPage);
+      
+      // Wait for second half of the flip animation
+      await this.delay(halfDuration);
+    } else if (this.transitionType === this.TRANSITION_CONFIG.TYPES.FADE) {
+      // For fade animations, wait for fade-out to complete before changing content
+      await this.delay(this.transitionDuration - this.TRANSITION_CONFIG.TIMING.cssTransitionStart);
+      
+      // Change page content after fade-out is complete
+      await this.renderPage(targetPage);
+      
+      // Remove transitioning class to fade in the new content
+      this.containerEl.classList.remove(cssClasses.states.transitioning);
+      
+      // Wait a small amount for the fade-in to complete
+      await this.delay(this.transitionDuration);
+    } else {
+      // For other transitions (slide), render immediately (original behavior)
+      await this.renderPage(targetPage);
+      
+      // Wait for transition to complete (using actual transition duration)
+      await this.delay(this.transitionDuration);
+    }
 
-      // Clean up transition classes (using centralized timing)
-      await this.delay(this.TRANSITION_CONFIG.TIMING.cleanupDelay);
-      this.containerEl.classList.remove(
-        cssClasses.states.transitioning,
-        cssClasses.states.slideNext,
-        cssClasses.states.slidePrev,
-        cssClasses.states.flipNext,
-        cssClasses.states.flipPrev
-      );
+          // Clean up transition classes (using centralized timing)
+    await this.delay(this.TRANSITION_CONFIG.TIMING.cleanupDelay);
+    
+    // For fade transitions, transitioning class is already removed manually
+    if (this.transitionType !== this.TRANSITION_CONFIG.TYPES.FADE) {
+      this.containerEl.classList.remove(cssClasses.states.transitioning);
+    }
+    
+    // Remove direction-specific classes for all transition types
+    this.containerEl.classList.remove(
+      cssClasses.states.slideNext,
+      cssClasses.states.slidePrev,
+      cssClasses.states.flipNext,
+      cssClasses.states.flipPrev
+    );
 
     } catch (error) {
       console.error('Error during page transition:', error);
@@ -1604,25 +1810,578 @@ export class PDFViewer {
     return 1;
   }
 
-  // Zoom methods
-  zoomIn() {
-    const numericScale = this.getCurrentNumericScale();
-    this.scale = Math.min(numericScale * 1.25, 5);
-    this.fitMode = 'custom';
-    this.updateViewAfterZoom();
+  // Enhanced zoom methods (Phase 1.2)
+  async zoomIn(centerPoint = null) {
+    if (this.isZoomAnimating) return;
+    
+    const currentScale = this.getCurrentNumericScale();
+    const maxZoomForViewport = this.getMaxZoomForViewportSync();
+    const newScale = Math.min(currentScale + this.zoomStep, maxZoomForViewport);
+    
+    if (newScale === currentScale) return; // Already at max zoom
+    
+    await this.animatedZoom(newScale, centerPoint, 'zoom-in');
   }
 
-  zoomOut() {
-    const numericScale = this.getCurrentNumericScale();
-    this.scale = Math.max(numericScale * 0.8, 0.25);
+  async zoomOut(centerPoint = null) {
+    if (this.isZoomAnimating) return;
+    
+    const currentScale = this.getCurrentNumericScale();
+    const newScale = Math.max(currentScale - this.zoomStep, this.minZoomLevel);
+    
+    if (newScale === currentScale) return; // Already at min zoom
+    
+    await this.animatedZoom(newScale, centerPoint, 'zoom-out');
+  }
+
+  /**
+   * Enhanced animated zoom with smooth transitions and position maintenance
+   */
+  async animatedZoom(targetScale, centerPoint = null, zoomType = 'zoom') {
+    if (this.isZoomAnimating || !this.pdfDoc) return;
+    
+    this.isZoomAnimating = true;
+    const startScale = this.getCurrentNumericScale();
+    
+    // Store current scroll position if maintaining position
+    if (this.maintainPositionOnZoom) {
+      this.storeScrollPosition();
+    }
+    
+    // Set zoom center point
+    if (centerPoint) {
+      this.zoomCenterPoint = centerPoint;
+      this.setZoomOrigin(centerPoint);
+    }
+    
+    // Show zoom indicator immediately
+    this.showZoomIndicator(targetScale, zoomType);
+    
+    try {
+      if (this.smoothZoomAnimations) {
+        await this.performAnimatedZoomTransition(targetScale, startScale, centerPoint);
+      } else {
+        // Direct zoom without animation
+        this.scale = targetScale;
     this.fitMode = 'custom';
-    this.updateViewAfterZoom();
+        await this.performZoom();
+      }
+      
+      // Restore position if enabled
+      if (this.maintainPositionOnZoom && centerPoint) {
+        this.restoreScrollPositionWithCenter(centerPoint, startScale, targetScale);
+      }
+      
+    } finally {
+      this.isZoomAnimating = false;
+    }
+  }
+
+  /**
+   * Perform animated zoom transition with canvas overlay
+   */
+  async performAnimatedZoomTransition(targetScale, startScale, centerPoint) {
+    if (!this.canvas || !this.containerEl) return;
+    
+    // Store original container overflow and transition classes for restoration
+    const originalOverflow = this.containerEl.style.overflow;
+    const originalOverflowX = this.containerEl.style.overflowX;
+    const originalOverflowY = this.containerEl.style.overflowY;
+    
+    // ENHANCED: More comprehensive transition class preservation for Issue 3
+    const transitionClasses = Array.from(this.containerEl.classList).filter(cls => 
+      cls.startsWith('transition-') || 
+      cls === 'transitioning' || 
+      cls.includes('slide') || 
+      cls.includes('flip') || 
+      cls.includes('fade') ||
+      cls === 'slide-next' ||
+      cls === 'slide-prev' ||
+      cls === 'flip-next' ||
+      cls === 'flip-prev'
+    );
+    
+    // Temporarily disable container scrolling during animation to prevent scroll slider issues
+    this.containerEl.style.overflow = 'hidden';
+    
+    // Create overlay container for animation
+    const animationContainer = document.createElement('div');
+    animationContainer.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+      background: transparent;
+    `;
+    
+    // Clone current canvas for animation
+    const oldCanvas = document.createElement('canvas');
+    const oldCtx = oldCanvas.getContext('2d');
+    oldCanvas.width = this.canvas.width;
+    oldCanvas.height = this.canvas.height;
+    oldCtx.drawImage(this.canvas, 0, 0);
+    
+    // Style the old canvas to match current position
+    oldCanvas.style.cssText = `
+      position: absolute;
+      max-width: 100%;
+      height: auto;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transition: opacity ${this.zoomAnimationDuration}ms ease-in-out,
+                  transform ${this.zoomAnimationDuration}ms cubic-bezier(0.4, 0.0, 0.2, 1);
+      box-shadow: 0 4px 12px var(--shadow-strong);
+      border-radius: 4px;
+      background-color: var(--canvas-bg);
+      opacity: 1;
+    `;
+    
+    // Add transform origin if center point is specified
+    if (centerPoint) {
+      const originX = (centerPoint.x * 100).toFixed(1);
+      const originY = (centerPoint.y * 100).toFixed(1);
+      oldCanvas.style.transformOrigin = `${originX}% ${originY}%`;
+    }
+    
+    animationContainer.appendChild(oldCanvas);
+    this.containerEl.appendChild(animationContainer);
+    
+    // ISSUE 2 FIX: Hide original canvas completely and ensure it stays hidden
+    const originalCanvasDisplay = this.canvas.style.display;
+    this.canvas.style.opacity = '0';
+    this.canvas.style.visibility = 'hidden';
+    this.canvas.style.transition = '';
+    
+    try {
+      // Update scale and render new content (off-screen)
+      this.scale = targetScale;
+    this.fitMode = 'custom';
+      
+      // Render new zoom level (this will update the hidden canvas)
+      await this.renderPage(this.pageNum);
+      
+      // ISSUE 2 FIX: Add a small delay to ensure render is complete before animation
+      await this.delay(50);
+      
+      // Calculate scale transformation for animation
+      const scaleRatio = targetScale / startScale;
+      
+      // ISSUE 2 FIX: Start animation with proper sequencing
+      // First, ensure old canvas is fully visible and positioned
+      await this.delay(16); // Wait one frame
+      
+      // Start fade-out and scale animation on old canvas
+      oldCanvas.style.opacity = '0';
+      oldCanvas.style.transform = `translate(-50%, -50%) scale(${scaleRatio})`;
+      
+      // Wait for fade-out to complete entirely
+      await this.delay(this.zoomAnimationDuration + 50);
+      
+      // ISSUE 2 FIX: Now show new canvas with careful timing
+      this.canvas.style.visibility = 'visible';
+      this.canvas.style.transition = `opacity ${Math.max(100, this.zoomAnimationDuration / 2)}ms ease-in-out`;
+      this.canvas.style.opacity = '1';
+      
+      // Wait for fade-in to complete
+      await this.delay(Math.max(100, this.zoomAnimationDuration / 2) + 50);
+      
+    } finally {
+      // Cleanup animation elements
+      if (animationContainer.parentNode) {
+        animationContainer.remove();
+      }
+      
+      // Restore canvas styles
+      this.canvas.style.display = originalCanvasDisplay;
+      // Remove inline styles that could override future page transitions (Issue 3)
+      this.canvas.style.removeProperty('opacity');
+      this.canvas.style.visibility = 'visible';
+      this.canvas.style.removeProperty('transition');
+      
+      // Restore container overflow settings
+      this.containerEl.style.overflow = originalOverflow;
+      this.containerEl.style.overflowX = originalOverflowX;
+      this.containerEl.style.overflowY = originalOverflowY;
+      
+      // ISSUE 3 FIX: Enhanced transition class restoration
+      // First, ensure all necessary classes are restored
+      transitionClasses.forEach(className => {
+        if (!this.containerEl.classList.contains(className)) {
+          this.containerEl.classList.add(className);
+        }
+      });
+      
+      // Wait a frame to ensure DOM updates are applied
+      await this.delay(16);
+      
+      // Update zoom CSS and UI
+      this.updateZoomCSS();
+      this.updateZoomDisplay();
+      this.savePreferences();
+    }
+  }
+
+  /**
+   * Smart double-tap zoom functionality
+   */
+  async smartZoom(tapPoint) {
+    if (!this.smartZoomEnabled || this.isZoomAnimating) return;
+    
+    const currentScale = this.getCurrentNumericScale();
+    const maxZoomForViewport = this.getMaxZoomForViewportSync();
+    let targetScale;
+    let zoomType = 'smart-zoom';
+    
+    // Determine target zoom level based on mode and current scale
+    switch (this.doubleTapZoomMode) {
+      case 'text-width':
+        targetScale = Math.min(this.textZoomLevel, maxZoomForViewport);
+        break;
+        
+      case 'fit-width':
+        targetScale = 'fit-width';
+        break;
+        
+      case 'smart':
+      default:
+        // Smart zoom logic: cycle through fit-width -> text zoom -> fit-width
+        if (this.fitMode === 'width' || currentScale <= 1.1) {
+          targetScale = Math.min(this.textZoomLevel, maxZoomForViewport);
+          zoomType = 'smart-zoom-in';
+        } else if (currentScale >= Math.min(this.textZoomLevel, maxZoomForViewport) * 0.9) {
+          targetScale = 'fit-width';
+          zoomType = 'smart-zoom-out';
+        } else {
+          targetScale = Math.min(this.textZoomLevel, maxZoomForViewport);
+          zoomType = 'smart-zoom-in';
+        }
+        break;
+    }
+    
+    // Apply smart zoom
+    if (targetScale === 'fit-width') {
+      await this.animatedFitToWidth();
+    } else {
+      await this.animatedZoom(targetScale, tapPoint, zoomType);
+    }
   }
 
   fitToWidth() {
     this.fitMode = 'width';
     this.scale = 'fit-width';
     this.updateViewAfterZoom();
+  }
+
+  /**
+   * Enhanced animated fit to width (Phase 1.2)
+   */
+  async animatedFitToWidth() {
+    if (this.isZoomAnimating) return;
+    
+    this.isZoomAnimating = true;
+    
+    // Show zoom indicator immediately
+    this.showZoomIndicator('fit-width', 'fit-width');
+    
+    try {
+      if (this.smoothZoomAnimations) {
+        await this.performAnimatedFitToWidth();
+      } else {
+        // Direct fit to width without animation
+        this.fitMode = 'width';
+        this.scale = 'fit-width';
+        await this.performZoom();
+      }
+    } finally {
+      this.isZoomAnimating = false;
+    }
+  }
+
+  /**
+   * Perform animated fit to width transition
+   */
+  async performAnimatedFitToWidth() {
+    if (!this.canvas || !this.containerEl) return;
+    
+    // Store original container overflow and transition classes for restoration
+    const originalOverflow = this.containerEl.style.overflow;
+    const originalOverflowX = this.containerEl.style.overflowX;
+    const originalOverflowY = this.containerEl.style.overflowY;
+    
+    // ENHANCED: More comprehensive transition class preservation for Issue 3
+    const transitionClasses = Array.from(this.containerEl.classList).filter(cls => 
+      cls.startsWith('transition-') || 
+      cls === 'transitioning' || 
+      cls.includes('slide') || 
+      cls.includes('flip') || 
+      cls.includes('fade') ||
+      cls === 'slide-next' ||
+      cls === 'slide-prev' ||
+      cls === 'flip-next' ||
+      cls === 'flip-prev'
+    );
+    
+    // Temporarily disable container scrolling during animation to prevent scroll slider issues
+    this.containerEl.style.overflow = 'hidden';
+    
+    // Calculate target scale for fit-width
+    const currentPage = await this.pdfDoc.getPage(this.pageNum);
+    const baseViewport = currentPage.getViewport({ scale: 1 });
+    const containerWidth = this.containerEl.clientWidth - 40;
+    const targetScale = containerWidth / baseViewport.width;
+    const startScale = this.getCurrentNumericScale();
+    
+    // Create overlay container for animation
+    const animationContainer = document.createElement('div');
+    animationContainer.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+      background: transparent;
+    `;
+    
+    // Clone current canvas for animation
+    const oldCanvas = document.createElement('canvas');
+    const oldCtx = oldCanvas.getContext('2d');
+    oldCanvas.width = this.canvas.width;
+    oldCanvas.height = this.canvas.height;
+    oldCtx.drawImage(this.canvas, 0, 0);
+    
+    // Style the old canvas to match current position
+    oldCanvas.style.cssText = `
+      position: absolute;
+      max-width: 100%;
+      height: auto;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transition: opacity ${this.zoomAnimationDuration}ms ease-in-out,
+                  transform ${this.zoomAnimationDuration}ms cubic-bezier(0.4, 0.0, 0.2, 1);
+      box-shadow: 0 4px 12px var(--shadow-strong);
+      border-radius: 4px;
+      background-color: var(--canvas-bg);
+      opacity: 1;
+    `;
+    
+    animationContainer.appendChild(oldCanvas);
+    this.containerEl.appendChild(animationContainer);
+    
+    // ISSUE 2 FIX: Hide original canvas completely and ensure it stays hidden
+    const originalCanvasDisplay = this.canvas.style.display;
+    this.canvas.style.opacity = '0';
+    this.canvas.style.visibility = 'hidden';
+    this.canvas.style.transition = '';
+    
+    try {
+      // Apply fit to width
+      this.fitMode = 'width';
+      this.scale = 'fit-width';
+      
+      // Render new fit-to-width content (off-screen)
+      await this.renderPage(this.pageNum);
+      
+      // ISSUE 2 FIX: Add a small delay to ensure render is complete before animation
+      await this.delay(50);
+      
+      // Calculate scale transformation for animation
+      const scaleRatio = targetScale / startScale;
+      
+      // ISSUE 2 FIX: Start animation with proper sequencing
+      // First, ensure old canvas is fully visible and positioned
+      await this.delay(16); // Wait one frame
+      
+      // Start fade-out and scale animation on old canvas
+      oldCanvas.style.opacity = '0';
+      oldCanvas.style.transform = `translate(-50%, -50%) scale(${scaleRatio})`;
+      
+      // Wait for fade-out to complete entirely
+      await this.delay(this.zoomAnimationDuration + 50);
+      
+      // ISSUE 2 FIX: Now show new canvas with careful timing
+      this.canvas.style.visibility = 'visible';
+      this.canvas.style.transition = `opacity ${Math.max(100, this.zoomAnimationDuration / 2)}ms ease-in-out`;
+      this.canvas.style.opacity = '1';
+      
+      // Wait for fade-in to complete
+      await this.delay(Math.max(100, this.zoomAnimationDuration / 2) + 50);
+      
+    } finally {
+      // Cleanup animation elements
+      if (animationContainer.parentNode) {
+        animationContainer.remove();
+      }
+      
+      // Restore canvas styles
+      this.canvas.style.display = originalCanvasDisplay;
+      // Remove inline styles that could override future page transitions (Issue 3)
+      this.canvas.style.removeProperty('opacity');
+      this.canvas.style.visibility = 'visible';
+      this.canvas.style.removeProperty('transition');
+      
+      // Restore container overflow settings
+      this.containerEl.style.overflow = originalOverflow;
+      this.containerEl.style.overflowX = originalOverflowX;
+      this.containerEl.style.overflowY = originalOverflowY;
+      
+      // ISSUE 3 FIX: Enhanced transition class restoration
+      // First, ensure all necessary classes are restored
+      transitionClasses.forEach(className => {
+        if (!this.containerEl.classList.contains(className)) {
+          this.containerEl.classList.add(className);
+        }
+      });
+      
+      // Wait a frame to ensure DOM updates are applied
+      await this.delay(16);
+      
+      // Update zoom CSS and UI
+      this.updateZoomCSS();
+      this.updateZoomDisplay();
+      this.savePreferences();
+    }
+  }
+
+  /**
+   * Store current scroll position for position maintenance
+   */
+  storeScrollPosition() {
+    if (this.containerEl) {
+      this.preZoomScrollPosition = {
+        x: this.containerEl.scrollLeft,
+        y: this.containerEl.scrollTop
+      };
+    }
+  }
+
+  /**
+   * Restore scroll position with center point consideration
+   */
+  restoreScrollPositionWithCenter(centerPoint, oldScale, newScale) {
+    if (!this.containerEl || !centerPoint) return;
+    
+    const scaleRatio = newScale / oldScale;
+    const containerRect = this.containerEl.getBoundingClientRect();
+    
+    // Calculate new scroll position to maintain the center point
+    const centerX = centerPoint.x * containerRect.width;
+    const centerY = centerPoint.y * containerRect.height;
+    
+    const newScrollX = (this.preZoomScrollPosition.x + centerX) * scaleRatio - centerX;
+    const newScrollY = (this.preZoomScrollPosition.y + centerY) * scaleRatio - centerY;
+    
+    this.containerEl.scrollTo({
+      left: Math.max(0, newScrollX),
+      top: Math.max(0, newScrollY),
+      behavior: 'auto'
+    });
+  }
+
+  /**
+   * Set CSS transform origin for zoom animations
+   */
+  setZoomOrigin(centerPoint) {
+    if (!this.containerEl) return;
+    
+    const originX = (centerPoint.x * 100).toFixed(1);
+    const originY = (centerPoint.y * 100).toFixed(1);
+    
+    this.containerEl.style.setProperty('--zoom-origin', `${originX}% ${originY}%`);
+  }
+
+
+
+  /**
+   * Show zoom level indicator
+   */
+  showZoomIndicator(scale, zoomType = 'zoom') {
+    let displayText;
+    
+    if (scale === 'fit-width') {
+      displayText = 'Ajustar Largura';
+    } else if (typeof scale === 'number') {
+      displayText = `${Math.round(scale * 100)}%`;
+    } else {
+      displayText = 'Zoom';
+    }
+    
+    // Create or update zoom indicator
+    let indicator = document.querySelector('.zoom-indicator');
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.className = 'zoom-indicator';
+      document.body.appendChild(indicator);
+    }
+    
+    indicator.textContent = displayText;
+    indicator.classList.add('visible');
+    
+    // Hide after delay
+    setTimeout(() => {
+      indicator.classList.remove('visible');
+    }, 1500);
+  }
+
+  /**
+   * Perform the actual zoom operation
+   */
+  async performZoom() {
+    // Update zoom display immediately
+    this.updateZoomDisplay();
+    
+    // Save preferences when zoom changes
+    this.savePreferences();
+    
+    // Update zoom CSS and overflow management
+    this.updateZoomCSS();
+    
+    if (this.viewMode === 'continuous' && this.virtualScrolling) {
+      // Store current page and scroll information for precise restoration
+      const currentPage = this.pageNum;
+      const scrollTop = this.containerEl.scrollTop;
+      const pageHeight = this.virtualScrolling.pageHeight;
+      
+      // Calculate the current page's relative scroll position
+      const pageStart = (currentPage - 1) * pageHeight;
+      const relativePageOffset = scrollTop - pageStart;
+      const relativePagePercent = relativePageOffset / pageHeight;
+      
+      // Re-render continuous view with new scale
+      await this.renderContinuousView();
+      
+      // Restore position more precisely based on current page
+      setTimeout(() => {
+        const newPageHeight = this.virtualScrolling.pageHeight;
+        const newPageStart = (currentPage - 1) * newPageHeight;
+        const newScrollTop = newPageStart + (relativePagePercent * newPageHeight);
+        
+        this.containerEl.scrollTop = Math.max(0, newScrollTop);
+        
+        // Ensure current page is updated
+        this.pageNum = currentPage;
+        this.updateUI();
+        
+        // Update overflow after continuous view is rendered
+        this.updateContainerOverflow();
+      }, 150);
+    } else {
+      // Standard page mode rendering
+      await this.renderPage(this.pageNum);
+      
+      // Update overflow after page is rendered
+      setTimeout(() => {
+        this.updateContainerOverflow();
+      }, 50);
+    }
   }
 
   updateViewAfterZoom() {
@@ -1632,7 +2391,7 @@ export class PDFViewer {
     // Save preferences when zoom changes
     this.savePreferences();
     
-    // NEW: toggle custom zoom class depending on mode
+    // Update zoom CSS and overflow management
     this.updateZoomCSS();
     
     if (this.viewMode === 'continuous' && this.virtualScrolling) {
@@ -1659,11 +2418,19 @@ export class PDFViewer {
           // Ensure current page is updated
           this.pageNum = currentPage;
           this.updateUI();
+          
+          // Update overflow after continuous view is rendered
+          this.updateContainerOverflow();
         }, 150);
       });
     } else {
       // Standard page mode rendering
-      this.renderPage(this.pageNum);
+      this.renderPage(this.pageNum).then(() => {
+        // Update overflow after page is rendered
+        setTimeout(() => {
+          this.updateContainerOverflow();
+        }, 50);
+      });
     }
   }
 
@@ -1673,8 +2440,22 @@ export class PDFViewer {
         zoom: this.scale,
         fitMode: this.fitMode,
         viewMode: this.viewMode,
-        theme: this.currentTheme
-        // Note: Transition settings are not saved - using hardcoded values only
+        theme: this.currentTheme,
+        // Phase 1.1 - Transition preferences
+        transitionType: this.transitionType,
+        transitionDuration: this.transitionDuration,
+        transitionEnabled: this.transitionEnabled,
+        // Phase 1.2 - Enhanced zoom preferences
+        smoothZoomAnimations: this.smoothZoomAnimations,
+        zoomAnimationDuration: this.zoomAnimationDuration,
+        smartZoomEnabled: this.smartZoomEnabled,
+        textZoomLevel: this.textZoomLevel,
+        maxZoomLevel: this.maxZoomLevel,
+        minZoomLevel: this.minZoomLevel,
+        zoomStep: this.zoomStep,
+        pinchSensitivity: this.pinchSensitivity,
+        doubleTapZoomMode: this.doubleTapZoomMode,
+        maintainPositionOnZoom: this.maintainPositionOnZoom
       });
     }
   }
@@ -2049,7 +2830,7 @@ export class PDFViewer {
 
       // NEW: enforce intrinsic canvas size for virtual canvases
       this.adjustCanvasStyles(canvas);
-
+      
       // Get canvas context
       const ctx = canvas.getContext('2d');
       
@@ -2265,24 +3046,301 @@ export class PDFViewer {
 
   /**
    * Update container CSS when switching between preset fit modes and custom zoom
+   * Carefully preserves transition classes to avoid interfering with page transitions
    */
   updateZoomCSS() {
     if (!this.containerEl) return;
 
+    // ISSUE 3 FIX: Enhanced and more comprehensive transition class preservation
+    const transitionClasses = Array.from(this.containerEl.classList).filter(cls => 
+      cls.startsWith('transition-') || 
+      cls === 'transitioning' || 
+      cls.includes('slide') || 
+      cls.includes('flip') || 
+      cls.includes('fade') ||
+      cls === 'slide-next' ||
+      cls === 'slide-prev' ||
+      cls === 'flip-next' ||
+      cls === 'flip-prev' ||
+      // Additional specific transition-related classes
+      cls === 'no-transition' ||
+      cls === 'zoom-custom' ||
+      cls === 'continuous-mode'
+    );
+
+    // Apply zoom-specific classes
     if (this.fitMode === 'custom') {
       this.containerEl.classList.add(this.ZOOM_CUSTOM_CLASS);
     } else {
       this.containerEl.classList.remove(this.ZOOM_CUSTOM_CLASS);
     }
+
+    // ISSUE 3 FIX: Ensure all transition classes are properly restored
+    // Use requestAnimationFrame to ensure this happens after any DOM manipulations
+    requestAnimationFrame(() => {
+      transitionClasses.forEach(className => {
+        if (!this.containerEl.classList.contains(className)) {
+          this.containerEl.classList.add(className);
+          console.log(`Restored transition class: ${className}`);
+        }
+      });
+      
+      // Verify the transition system is still active
+      this.ensureTransitionSystemActive();
+    });
+
+    // Update overflow settings based on zoom level and fit mode
+    this.updateContainerOverflow();
   }
 
   /**
-   * Ensure the canvas element is displayed at its intrinsic pixel size to
-   * prevent CSS rules such as max-width:100% from shrinking it after a zoom.
+   * ISSUE 3 FIX: Additional method to ensure transition system remains active
+   */
+  ensureTransitionSystemActive() {
+    if (!this.containerEl || !this.transitionEnabled) return;
+    
+    // Ensure the correct transition type CSS class is applied
+    const expectedTransitionClass = this.TRANSITION_CONFIG.CSS_CLASSES.container[this.transitionType];
+    if (expectedTransitionClass && !this.containerEl.classList.contains(expectedTransitionClass)) {
+      this.containerEl.classList.add(expectedTransitionClass);
+      console.log(`Re-applied transition class: ${expectedTransitionClass}`);
+    }
+    
+    // Ensure transition duration CSS property is set
+    const currentDuration = this.containerEl.style.getPropertyValue('--transition-duration');
+    const expectedDuration = `${this.transitionDuration}ms`;
+    if (currentDuration !== expectedDuration) {
+      this.containerEl.style.setProperty('--transition-duration', expectedDuration);
+      console.log(`Re-applied transition duration: ${expectedDuration}`);
+    }
+  }
+
+  /**
+   * Update container overflow settings based on current zoom level and fit mode
+   * Ensures proper scrolling behavior when content exceeds container dimensions
+   */
+  updateContainerOverflow() {
+    if (!this.containerEl || !this.canvas) return;
+
+    // Get current scale and container dimensions (accounting for padding)
+    const currentScale = this.getCurrentNumericScale();
+    const containerStyle = getComputedStyle(this.containerEl);
+    const containerPaddingX = parseFloat(containerStyle.paddingLeft) + parseFloat(containerStyle.paddingRight);
+    const containerPaddingY = parseFloat(containerStyle.paddingTop) + parseFloat(containerStyle.paddingBottom);
+    
+    const containerWidth = this.containerEl.clientWidth - containerPaddingX;
+    const containerHeight = this.containerEl.clientHeight - containerPaddingY;
+    
+    // Get actual rendered canvas dimensions
+    const canvasRect = this.canvas.getBoundingClientRect();
+    const canvasWidth = canvasRect.width;
+    const canvasHeight = canvasRect.height;
+
+    // Determine if content exceeds container dimensions
+    const contentExceedsWidth = canvasWidth > containerWidth;
+    const contentExceedsHeight = canvasHeight > containerHeight;
+    const contentExceedsContainer = contentExceedsWidth || contentExceedsHeight;
+
+    // Apply CSS classes for positioning behavior
+    if (contentExceedsContainer) {
+      this.containerEl.classList.add('content-exceeds-container');
+      this.containerEl.classList.remove('content-fits-container');
+    } else {
+      this.containerEl.classList.add('content-fits-container');
+      this.containerEl.classList.remove('content-exceeds-container');
+    }
+
+    // Set overflow based on content size and zoom level
+    if (this.fitMode === 'width') {
+      // For fit-to-width, hide horizontal overflow but allow vertical when content exceeds height
+      this.containerEl.style.overflowX = 'hidden';
+      this.containerEl.style.overflowY = contentExceedsHeight ? 'auto' : 'hidden';
+    } else if (this.fitMode === 'custom' && currentScale <= 1.0 && !contentExceedsContainer) {
+      // For small zoom levels where content fits completely, hide both scrollbars
+      this.containerEl.style.overflowX = 'hidden';
+      this.containerEl.style.overflowY = 'hidden';
+    } else if (this.fitMode === 'custom' && (currentScale > 1.0 || contentExceedsContainer)) {
+      // For custom zoom above 100% or when content exceeds container, allow scrolling where needed
+      this.containerEl.style.overflowX = contentExceedsWidth ? 'auto' : 'hidden';
+      this.containerEl.style.overflowY = contentExceedsHeight ? 'auto' : 'hidden';
+      
+      // Ensure we can scroll to all parts of the enlarged content
+      if (contentExceedsContainer) {
+        // Force a reflow to ensure scroll dimensions are updated
+        this.containerEl.scrollTop = this.containerEl.scrollTop;
+        this.containerEl.scrollLeft = this.containerEl.scrollLeft;
+      }
+    } else {
+      // Default behavior for other fit modes
+      this.containerEl.style.overflowX = 'hidden';
+      this.containerEl.style.overflowY = contentExceedsHeight ? 'auto' : 'hidden';
+    }
+
+    // In continuous mode, ensure smooth vertical scrolling
+    if (this.viewMode === 'continuous') {
+      this.containerEl.style.scrollBehavior = 'smooth';
+    }
+
+    // Ensure scroll position is valid after overflow changes
+    this.ensureValidScrollPosition();
+  }
+
+  /**
+   * Ensure the current scroll position is valid and accessible
+   */
+  ensureValidScrollPosition() {
+    if (!this.containerEl) return;
+
+    // Get maximum scroll values
+    const maxScrollTop = this.containerEl.scrollHeight - this.containerEl.clientHeight;
+    const maxScrollLeft = this.containerEl.scrollWidth - this.containerEl.clientWidth;
+
+    // Clamp scroll position to valid range
+    if (this.containerEl.scrollTop > maxScrollTop) {
+      this.containerEl.scrollTop = Math.max(0, maxScrollTop);
+    }
+    if (this.containerEl.scrollLeft > maxScrollLeft) {
+      this.containerEl.scrollLeft = Math.max(0, maxScrollLeft);
+    }
+  }
+
+  /**
+   * Adjust canvas styles to ensure proper display at its intrinsic pixel size
+   * Allow natural scrolling when content exceeds container dimensions
    */
   adjustCanvasStyles(canvas) {
     if (!canvas) return;
+    
+    // Always display canvas at its intrinsic pixel size
+    // This prevents CSS rules like max-width:100% from interfering with zoom
     canvas.style.width = `${canvas.width}px`;
     canvas.style.height = `${canvas.height}px`;
+    canvas.style.display = 'block';
+    
+    // Remove any constraint properties that might interfere with scrolling
+    canvas.style.maxWidth = 'none';
+    canvas.style.maxHeight = 'none';
+    
+    // Update container overflow after canvas style changes
+    // Use setTimeout to ensure the canvas dimensions are applied first
+    setTimeout(() => {
+      this.updateContainerOverflow();
+    }, 0);
   }
+
+  /**
+   * Calculate maximum zoom level that fits within viewport horizontally
+   */
+  getMaxZoomForViewport() {
+    if (!this.pdfDoc || !this.pageNum || !this.containerEl) {
+      return this.maxZoomLevel; // Fallback to original max zoom
+    }
+
+    try {
+      // Get container dimensions with some padding for UI elements
+      const containerWidth = this.containerEl.clientWidth - 80; // Account for padding and scrollbars
+      const containerHeight = this.containerEl.clientHeight - 80;
+
+      // For continuous mode, we need to be more conservative with horizontal space
+      const effectiveContainerWidth = this.viewMode === 'continuous' 
+        ? containerWidth - 40  // Extra margin for continuous mode
+        : containerWidth;
+
+      // Calculate based on current page dimensions
+      return new Promise(async (resolve) => {
+        try {
+          const page = await this.pdfDoc.getPage(this.pageNum);
+          const baseViewport = page.getViewport({ scale: 1 });
+          
+          // Calculate max zoom that fits horizontally
+          const maxHorizontalZoom = effectiveContainerWidth / baseViewport.width;
+          
+          // Calculate max zoom that fits vertically (optional constraint)
+          const maxVerticalZoom = containerHeight / baseViewport.height;
+          
+          // Use the more restrictive of horizontal constraint or original max zoom
+          // We prioritize horizontal constraint but allow some vertical overflow
+          const viewportConstrainedZoom = Math.min(
+            maxHorizontalZoom * 0.95, // 5% margin for safety
+            this.maxZoomLevel // Don't exceed original maximum
+          );
+
+          resolve(Math.max(viewportConstrainedZoom, this.minZoomLevel));
+        } catch (error) {
+          console.warn('Error calculating viewport-constrained zoom:', error);
+          resolve(this.maxZoomLevel);
+        }
+      });
+    } catch (error) {
+      console.warn('Error in getMaxZoomForViewport:', error);
+      return this.maxZoomLevel;
+    }
+  }
+
+  /**
+   * Synchronous version of getMaxZoomForViewport for immediate use
+   */
+  getMaxZoomForViewportSync() {
+    if (!this.pdfDoc || !this.pageNum || !this.containerEl || !this.canvas) {
+      return this.maxZoomLevel;
+    }
+
+    try {
+      // Get container dimensions with padding
+      const containerWidth = this.containerEl.clientWidth - 80;
+      
+      const effectiveContainerWidth = this.viewMode === 'continuous' 
+        ? containerWidth - 40
+        : containerWidth;
+
+      // Use current canvas dimensions to estimate page size
+      if (this.canvas.width > 0) {
+        const currentScale = this.getCurrentNumericScale();
+        const basePage = this.canvas.width / currentScale;
+        const maxHorizontalZoom = effectiveContainerWidth / basePage;
+        
+        return Math.max(
+          Math.min(maxHorizontalZoom * 0.95, this.maxZoomLevel),
+          this.minZoomLevel
+        );
+      }
+
+      return this.maxZoomLevel;
+    } catch (error) {
+      console.warn('Error in getMaxZoomForViewportSync:', error);
+      return this.maxZoomLevel;
+    }
+  }
+
+  /**
+   * Update viewport constraints and adjust current zoom if necessary
+   * Called when the window is resized to prevent horizontal overflow
+   */
+  updateViewportConstraints() {
+    if (!this.pdfDoc || !this.pageNum || !this.containerEl) return;
+
+    try {
+      const currentScale = this.getCurrentNumericScale();
+      const maxZoomForViewport = this.getMaxZoomForViewportSync();
+      
+      // If current zoom exceeds new viewport limits, adjust it
+      if (currentScale > maxZoomForViewport) {
+        console.log(`Adjusting zoom from ${currentScale.toFixed(2)} to ${maxZoomForViewport.toFixed(2)} due to viewport constraints`);
+        
+        // Smoothly transition to the new maximum zoom level
+        this.animatedZoom(maxZoomForViewport, null, 'viewport-constraint');
+      } else {
+        // Just update the canvas styles to ensure proper display
+        if (this.canvas) {
+          this.adjustCanvasStyles(this.canvas);
+        }
+        
+        // Update container overflow settings
+        this.updateContainerOverflow();
+      }
+    } catch (error) {
+      console.warn('Error updating viewport constraints:', error);
+    }
+  }
+
 } 

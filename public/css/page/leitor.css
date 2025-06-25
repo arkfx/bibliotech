@@ -466,42 +466,646 @@
 .pdf-container {
   position: relative;
   width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 20px;
+  height: calc(100vh - 140px);
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-y: auto;   /* Allow vertical scroll */
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 400px;
-  flex: 1;
-  overflow: auto;
-  border: 1px solid var(--border-light);
-  border-radius: 4px;
-  background-color: var(--bg-tertiary);
-  transition: all 0.3s ease;
-  /* Use centralized default (500ms) as fallback - matches TRANSITION_CONFIG.DEFAULTS.duration */
-  --transition-duration: 500ms;
+  justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* When content exceeds container dimensions, use scroll-friendly positioning */
+.pdf-container.content-exceeds-container {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+/* When content fits within container, center it */
+.pdf-container.content-fits-container {
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
 }
 
 #pdfCanvas {
-  max-width: 100%;
+  display: block;
+  margin: 0 auto;
   height: auto;
-  box-shadow: 0 4px 12px var(--shadow-strong);
   border-radius: 4px;
-  background-color: var(--canvas-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
+}
+
+/* When content exceeds container, remove centering margin */
+.pdf-container.content-exceeds-container #pdfCanvas {
+  margin: 0;
+}
+
+/* When content fits container, maintain centering */
+.pdf-container.content-fits-container #pdfCanvas {
+  margin: 0 auto;
+  max-width: 100%;
 }
 
 .pdf-canvas-wrapper {
   position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   height: 100%;
 }
 
 /* Fade Transition (centralized default type) */
+.pdf-container.transition-fade #pdfCanvas {
+  transition: opacity var(--transition-duration, 500ms) ease-in-out;
+}
+
+.pdf-container.transition-fade.transitioning #pdfCanvas {
+  opacity: 0.3;
+}
+
+/* Slide Transition */
+.pdf-container.transition-slide #pdfCanvas {
+  transition: transform var(--transition-duration, 500ms) ease-in-out;
+}
+
+.pdf-container.transition-slide.transitioning.slide-next #pdfCanvas {
+  transform: translateX(100%);
+}
+
+.pdf-container.transition-slide.transitioning.slide-prev #pdfCanvas {
+  transform: translateX(-100%);
+}
+
+/* Flip Transition */
+.pdf-container.transition-flip {
+  perspective: 1000px;
+}
+
+.pdf-container.transition-flip #pdfCanvas {
+  transition: transform var(--transition-duration, 500ms) ease-in-out;
+  backface-visibility: hidden;
+}
+
+.pdf-container.transition-flip.transitioning.flip-next #pdfCanvas {
+  transform: rotateY(180deg);
+}
+
+.pdf-container.transition-flip.transitioning.flip-prev #pdfCanvas {
+  transform: rotateY(-180deg);
+}
+
+/* No Transition / Disabled */
+.pdf-container.no-transition #pdfCanvas,
+.pdf-container.transition-disabled #pdfCanvas {
+  transition: none;
+}
+
+/* NEW: Override responsive sizing when in custom zoom mode */
+.pdf-container.zoom-custom {
+  justify-content: center;
+  overflow: auto; /* still allow horizontal scroll when wider */
+}
+
+.pdf-container.zoom-custom #pdfCanvas,
+.pdf-container.zoom-custom .virtual-page-container canvas {
+  max-width: none; /* display at rendered pixel size */
+  height: auto;
+}
+
+/* Viewport-constrained zoom styles */
+.pdf-container.viewport-constrained {
+  overflow-x: hidden !important;
+}
+
+.pdf-container.viewport-constrained #pdfCanvas {
+  max-width: calc(100% - 20px); /* Account for padding */
+  width: auto;
+  height: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .leitor-container {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 100px);
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .book-sidebar {
+    width: 100%;
+    flex-direction: row;
+    padding: 15px;
+    text-align: left;
+  }
+
+  .book-sidebar img {
+    width: 80px;
+    max-width: 80px;
+    margin-right: 15px;
+    margin-bottom: 0;
+  }
+
+  .book-sidebar .book-info {
+    flex: 1;
+  }
+
+  .reading-progress {
+    margin-top: 0.5rem;
+  }
+
+  .reader-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-controls,
+  .zoom-controls {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pdf-container {
+    padding: 10px;
+  }
+
+  #pageInfo {
+    min-width: auto;
+  }
+
+  #zoomLevel {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .control-btn {
+    padding: 6px;
+  }
+
+  .nav-controls {
+    gap: 8px;
+  }
+
+  .zoom-controls {
+    gap: 6px;
+  }
+
+  #pageInfo,
+  #zoomLevel {
+    font-size: 0.8rem;
+  }
+
+  .pdf-container {
+    padding: 5px;
+  }
+}
+
+/* Mobile Controls */
+.mobile-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: env(safe-area-inset-bottom, 0) 0 0;
+}
+
+.mobile-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 8px;
+}
+
+.mobile-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: var(--control-bg);
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  touch-action: manipulation;
+}
+
+.mobile-control-btn:hover,
+.mobile-control-btn:active {
+  background-color: var(--control-hover);
+  transform: scale(0.95);
+}
+
+.mobile-page-info {
+  flex: 1;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  min-width: 60px;
+}
+
+/* Desktop Controls Enhancement */
+.desktop-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reader-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: var(--control-bg);
+  border: 1px solid var(--control-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+}
+
+.control-btn:hover {
+  background-color: var(--control-hover);
+  border-color: var(--control-active);
+}
+
+/* Mobile Settings Panel */
+.mobile-settings-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-radius: 16px 16px 0 0;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.mobile-settings-panel.show {
+  transform: translateY(0);
+}
+
+.settings-panel-content {
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.settings-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.close-settings-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--control-bg);
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.close-settings-btn:hover {
+  background: var(--control-hover);
+}
+
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Theme Options */
+.theme-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  background: var(--control-bg);
+  border: 2px solid var(--control-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.theme-btn:hover {
+  background: var(--control-hover);
+}
+
+.theme-btn.active {
+  border-color: var(--accent-color);
+  background: var(--accent-color);
+  color: white;
+}
+
+.theme-preview {
+  width: 32px;
+  height: 20px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border-light);
+}
+
+.light-preview {
+  background: linear-gradient(to right, #f9f9f9 50%, #ffffff 50%);
+}
+
+.dark-preview {
+  background: linear-gradient(to right, #1a1a1a 50%, #2d2d2d 50%);
+}
+
+
+
+/* Zoom Options */
+.zoom-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--control-bg);
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+}
+
+.settings-control-btn:hover {
+  background: var(--control-hover);
+}
+
+#mobileZoomLevel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Navigation Options */
+.navigation-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-btn {
+  padding: 12px 16px;
+  background: var(--control-bg);
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.settings-btn:hover {
+  background: var(--control-hover);
+}
+
+/* Responsive Mobile Controls */
+@media (max-width: 768px) {
+  .reader-controls {
+    display: none;
+  }
+  
+  .mobile-controls {
+    display: block;
+  }
+  
+  .desktop-controls {
+    display: none;
+  }
+  
+  .pdf-container {
+    margin-bottom: 80px; /* Space for mobile controls */
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-controls {
+    display: none !important;
+  }
+  
+  .mobile-settings-panel {
+    display: none !important;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (pointer: coarse) {
+  .control-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 12px;
+  }
+  
+  .mobile-control-btn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+}
+
+/* Fullscreen mode */
+.fullscreen-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: var(--bg-primary);
+}
+
+.fullscreen-mode .leitor-container {
+  height: 100vh;
+  padding: 0;
+  gap: 0;
+}
+
+.fullscreen-mode .book-sidebar {
+  display: none;
+}
+
+.fullscreen-mode .pdf-reader {
+  border-radius: 0;
+  padding: 10px;
+}
+
+/* Hide header and footer in fullscreen mode */
+.fullscreen-mode .header {
+  display: none !important;
+}
+
+.fullscreen-mode footer {
+  display: none !important;
+}
+
+/* Loading and error states with theme support */
+.pdf-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  padding: 2rem;
+}
+
+.pdf-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--error-color);
+  text-align: center;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Page Transition Animations (Phase 1.1) */
+.pdf-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.pdf-canvas-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
+/* Enhanced Zoom Animations (Phase 1.2) */
+.zoom-animation-enabled #pdfCanvas,
+.zoom-animation-enabled .virtual-page-container canvas {
+  transition: transform var(--zoom-animation-duration, 250ms) cubic-bezier(0.4, 0.0, 0.2, 1),
+              opacity 200ms ease-in-out,
+              filter 200ms ease-in-out;
+}
+
+.zoom-animation-enabled.zooming #pdfCanvas,
+.zoom-animation-enabled.zooming .virtual-page-container canvas {
+  transform-origin: var(--zoom-origin, center center);
+}
+
+/* Smart zoom focus effect */
+.smart-zoom-focus {
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.3) !important;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+/* Zoom level indicator animation */
+.zoom-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--overlay-bg);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+.zoom-indicator.visible {
+  opacity: 1;
+}
+
+/* Gesture feedback */
+.gesture-active {
+  cursor: zoom-in;
+}
+
+.gesture-active.zooming {
+  cursor: zoom-out;
+}
+
+.pinch-zoom-active #pdfCanvas {
+  transition: none !important; /* Disable transitions during pinch */
+}
+
+/* Fade Transition */
 .pdf-container.transition-fade #pdfCanvas {
   transition: opacity var(--transition-duration, 500ms) ease-in-out;
 }
