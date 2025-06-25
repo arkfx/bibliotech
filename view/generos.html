@@ -27,7 +27,6 @@
 
       <nav class="main-nav">
         <ul class="main-nav-list">
-
           <!-- Select para filtrar por gêneros -->
           <li>
             <select id="filter-genres" class="filter-genres">
@@ -87,8 +86,12 @@
               </svg>
             </button>
             <div class="dropdown-menu">
-              <a href="perfil.html" class="dropdown-item" id="btnPerfil">Meu Perfil</a>
-              <a href="biblioteca.html" class="dropdown-item" id="btnBiblioteca">Biblioteca</a>
+              <a href="perfil.html" class="dropdown-item" id="btnPerfil"
+                >Meu Perfil</a
+              >
+              <a href="biblioteca.html" class="dropdown-item" id="btnBiblioteca"
+                >Biblioteca</a
+              >
               <a href="#" class="dropdown-item" id="btnLogout">Logout</a>
             </div>
           </div>
@@ -134,6 +137,9 @@
     <script type="module" src="../public/js/profile-menu.js"></script>
     <script type="module" src="../public/js/pages/genero.js"></script>
     <script type="module" src="../public/js/pages/carrinho.js"></script>
-    <script type="module" src="../public/js/pages/search-books.js"></script>
+    <script
+      type="module"
+      src="../public/js/utils/search-redirector.js"
+    ></script>
   </body>
 </html>
