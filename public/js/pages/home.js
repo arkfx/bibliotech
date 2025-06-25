@@ -53,6 +53,8 @@ async function buscarLivros(pagina = 1) {
   if (antigaPaginacao) antigaPaginacao.remove();
 
   try {
+    const favoritosPromise = carregarListaDesejos();
+    
     const response = await searchBooks({
       query,
       genero_id: generoId,
@@ -64,14 +66,17 @@ async function buscarLivros(pagina = 1) {
 
     if (response.status === "success") {
       const livros = response.data;
+      
+      const favoritos = await favoritosPromise;
+      
       gridContainer.classList.remove("fade-in");
       void gridContainer.offsetWidth;
       gridContainer.innerHTML = "";
-      renderBooks(gridContainer, livros);
+      
+      renderBooks(gridContainer, livros, favoritos);
       gridContainer.classList.add("fade-in");
-
-      const favoritos = await carregarListaDesejos();
-      configurarBotoesFavoritos(favoritos, ".btn-favorito");
+      
+      configurarBotoesFavoritos(favoritos, ".btn-favorito", false);
 
       renderPaginacao(response.paginacao);
     }
@@ -87,18 +92,24 @@ async function carregarLivros(pagina = 1) {
   if (antigaPaginacao) antigaPaginacao.remove();
 
   try {
+    const favoritosPromise = carregarListaDesejos();
+    
     const response = await getBooks({ pagina, limite });
 
     if (response.status === "success") {
       const livros = response.data;
+      
+      const favoritos = await favoritosPromise;
+      
       gridContainer.classList.remove("fade-in");
       void gridContainer.offsetWidth;
       gridContainer.innerHTML = "";
-      renderBooks(gridContainer, livros);
+      
+      renderBooks(gridContainer, livros, favoritos);
       gridContainer.classList.add("fade-in");
-
-      const favoritos = await carregarListaDesejos();
-      configurarBotoesFavoritos(favoritos, ".btn-favorito");
+      
+      configurarBotoesFavoritos(favoritos, ".btn-favorito", false);
+      
       renderPaginacao(response.paginacao);
     }
   } catch (err) {
