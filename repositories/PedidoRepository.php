@@ -30,18 +30,16 @@ class PedidoRepository extends BaseRepository
     {
         $sql = "
             SELECT 
-                p.*,
-                e.endereco AS endereco_nome,
-                e.numero,
-                e.complemento,
-                e.bairro,
-                e.cidade,
-                e.estado,
-                e.cep
+                p.id AS pedido_id, p.total, p.status, p.valor_frete, p.criado_em, p.endereco_id,
+                i.livro_id, i.quantidade, i.preco_unitario, i.tipo,
+                l.titulo, l.autor, l.imagem_url,
+                e.endereco, e.numero, e.complemento, e.bairro, e.cidade, e.estado, e.cep
             FROM pedidos p
-            LEFT JOIN endereco e ON e.id = p.endereco_id
-            WHERE p.usuario_id = :usuario_id 
-            ORDER BY p.criado_em DESC
+            INNER JOIN pedido_itens i ON p.id = i.pedido_id
+            INNER JOIN livros l ON i.livro_id = l.id
+            LEFT JOIN endereco e ON p.endereco_id = e.id
+            WHERE p.usuario_id = :usuario_id
+            ORDER BY p.criado_em DESC, p.id DESC
         ";
         
         $stmt = $this->conn->prepare($sql);
@@ -49,25 +47,49 @@ class PedidoRepository extends BaseRepository
 
         $pedidos = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $pedido = new Pedido($row);
+            $pedidoId = $row['pedido_id'];
 
-            // Adicionar dados do endereço se existir (endereco_id não nulo e endereço não vazio)
-            if (!empty($row['endereco_id']) && !empty($row['endereco_nome'])) {
-                $pedido->endereco = [
-                    'endereco' => $row['endereco_nome'],
-                    'numero' => $row['numero'],
-                    'complemento' => $row['complemento'],
-                    'bairro' => $row['bairro'],
-                    'cidade' => $row['cidade'],
-                    'estado' => $row['estado'],
-                    'cep' => $row['cep'],
+            // Se o pedido ainda não foi adicionado ao array, crie a estrutura base
+            if (!isset($pedidos[$pedidoId])) {
+                $pedidos[$pedidoId] = [
+                    'id' => $pedidoId,
+                    'total' => (float)$row['total'],
+                    'status' => $row['status'],
+                    'valor_frete' => (float)$row['valor_frete'],
+                    'criado_em' => $row['criado_em'],
+                    'endereco_id' => $row['endereco_id'],
+                    'itens' => [],
+                    'endereco' => null
                 ];
+
+                // Adiciona o endereço apenas uma vez por pedido
+                if ($row['endereco_id'] && $row['endereco']) {
+                    $pedidos[$pedidoId]['endereco'] = [
+                        'endereco' => $row['endereco'],
+                        'numero' => $row['numero'],
+                        'complemento' => $row['complemento'],
+                        'bairro' => $row['bairro'],
+                        'cidade' => $row['cidade'],
+                        'estado' => $row['estado'],
+                        'cep' => $row['cep'],
+                    ];
+                }
             }
 
-            $pedidos[] = $pedido;
+            // Adiciona o item atual ao pedido correspondente
+            $pedidos[$pedidoId]['itens'][] = [
+                'livro_id' => $row['livro_id'],
+                'quantidade' => (int)$row['quantidade'],
+                'preco_unitario' => (float)$row['preco_unitario'],
+                'tipo' => $row['tipo'],
+                'titulo' => $row['titulo'],
+                'autor' => $row['autor'],
+                'imagem_url' => $row['imagem_url']
+            ];
         }
 
-        return $pedidos;
+        // Retorna apenas os valores do array, reindexando para uma lista simples
+        return array_values($pedidos);
     }
 
     public function buscarPorId(int $id): ?Pedido

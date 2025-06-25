@@ -22,7 +22,7 @@
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background-color: #dc3545;
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -34,7 +34,7 @@
 }
 
 .btn-danger:hover {
-  background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+  background-color: #c82333;
   transform: translateY(-1px);
 }
 
@@ -72,54 +72,6 @@
   background: #e8f5e8;
 }
 
-.toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  z-index: 9999;
-  opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  max-width: 80%;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.toast.show {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-
-.toast-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: #ffffff !important;
-  border-color: #1e7e34;
-}
-
-.toast-error {
-  background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
-  color: #ffffff !important;
-  border-color: #c82333;
-}
-
-.toast-info {
-  background: linear-gradient(135deg, #007bff 0%, #17a2b8 100%);
-  color: #ffffff !important;
-  border-color: #0056b3;
-}
-
-.toast-warning {
-  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-  color: #212529 !important;
-  border-color: #e0a800;
-  font-weight: 600;
-}
-
 /* Garantir que o modal também tenha bom contraste */
 .modal-content {
   background: #ffffff !important;
@@ -153,7 +105,7 @@
 }
 
 .modal-close {
-  background: linear-gradient(135deg, #004d88 0%, #0066cc 100%);
+  background-color: #004d88;
   color: #ffffff !important;
   border: none;
   padding: 1rem 2rem;
@@ -165,7 +117,7 @@
 }
 
 .modal-close:hover {
-  background: linear-gradient(135deg, #003366 0%, #0055aa 100%);
+  background-color: #003366;
   transform: translateY(-1px);
 }
 
@@ -186,7 +138,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #004d88 0%, #0066cc 100%);
+  background-color: #004d88;
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -199,14 +151,14 @@
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #003366 0%, #0055aa 100%);
+  background-color: #003366;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 77, 136, 0.3);
 }
 
 /* Melhorar formulário de endereço */
 .address-form-container {
-  background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+  background-color: #f8f9ff;
   border: 2px solid #e3e8ff;
   border-radius: 12px;
   padding: 2rem;
@@ -231,7 +183,7 @@
 }
 
 .btn-cancel {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  background-color: #ff6b6b;
   color: white;
   border: none;
   border-radius: 50%;
@@ -246,7 +198,7 @@
 }
 
 .btn-cancel:hover {
-  background: linear-gradient(135deg, #e55656 0%, #d63031 100%);
+  background-color: #e55656;
   transform: rotate(90deg);
 }
 
@@ -318,7 +270,7 @@
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  background-color: #6c757d;
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -330,7 +282,7 @@
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(135deg, #5a6268 0%, #3d4043 100%);
+  background-color: #5a6268;
   transform: translateY(-1px);
 }
 
@@ -357,7 +309,7 @@
 
 .address-item.principal {
   border-color: #28a745;
-  background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%);
+  background-color: #f8fff9;
 }
 
 .address-item.principal::before {
@@ -377,7 +329,7 @@
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+  background-color: #f8f9ff;
   border-radius: 12px;
   border: 2px dashed #e3e8ff;
 }
@@ -511,8 +463,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Estilos para a seção de pedidos */
@@ -1055,16 +1011,16 @@
   }
 
   .order-book-info {
-    width: 100%;        
-    text-align: center;  
+    width: 100%;
+    text-align: center;
   }
-  
+
   .order-summary {
-    width: 100%;         
+    width: 100%;
   }
 
   .tracking-info {
-    width: 100%;        
-    justify-content: center; 
+    width: 100%;
+    justify-content: center;
   }
 }
