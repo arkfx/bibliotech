@@ -15,7 +15,7 @@ RewriteRule ^/?$ view/home.html [L]
 RewriteRule ^(home|login|cadastro-usuario|carrinho|generos|admin|detalhes-livro|cadastrar-livros|pedido-finalizado|leitor)\.html$ view/$1.html [L]
 
 # API endpoints - Send directly to public/index.php
-RewriteRule ^(generos|usuarios|livros|editoras|desejos|carrinho|login|logout|session|auth|pedido|biblioteca|progresso-leitura|livros-em-progresso|livros-lidos-recentemente)/?(.*)$ public/index.php [L,QSA]
+RewriteRule ^(generos|usuarios|livros|editoras|desejos|carrinho|login|logout|session|auth|pedido|biblioteca|progresso-leitura|livros-em-progresso|livros-lidos-recentemente|endereco)/?(.*)$ public/index.php [L,QSA]
 
 # Allow direct access to view/ directory
 RewriteRule ^view/ - [L]
