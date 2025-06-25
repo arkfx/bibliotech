@@ -42,8 +42,12 @@ export async function updateBook(livro) {
   return response.json();
 }
 
-export async function getBooks() {
-  const response = await fetch(API_BASE + "/livros", {
+export async function getBooks({ pagina = 1, limite = 6 } = {}) {
+  const url = new URL(API_BASE + "/livros");
+  url.searchParams.append("pagina", pagina);
+  url.searchParams.append("limite", limite);
+
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -76,6 +80,8 @@ export async function searchBooks({
   query = "",
   genero_id = null,
   ordem = "DESC",
+  pagina = 1,
+  limite = 12,
 } = {}) {
   const url = new URL(API_BASE + "/livros");
 
@@ -84,6 +90,9 @@ export async function searchBooks({
   if (ordem === "ASC" || ordem === "DESC") {
     url.searchParams.append("ordem", ordem);
   }
+
+  url.searchParams.append("pagina", pagina);
+  url.searchParams.append("limite", limite);
 
   const response = await fetch(url, {
     method: "GET",
