@@ -86,9 +86,17 @@ export class ReadingSessionDB {
         this.currentPage = progress.current_page;
         this.totalPages = progress.total_pages;
         this.progressPercentage = progress.progress_percentage;
+
+        // If a pdfViewer instance is already available, navigate immediately
+        if (window.pdfViewer && typeof window.pdfViewer.goToPage === 'function') {
+          window.pdfViewer.goToPage(this.currentPage);
+        } else {
+          // Store page to jump to once viewer initializes
+          this.resumePage = this.currentPage;
+        }
+
         this.showContinueOption(progress);
-        
-        // Also check localStorage for fallback (migration support)
+        // Also try migrating any newer data from localStorage
         this.migrateFromLocalStorage();
       } else {
         // Check localStorage for existing data to migrate

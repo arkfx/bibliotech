@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Initialize PDF viewer
   const pdfViewer = new PDFViewer();
   
+  // Initialize the viewer (DOM elements, event listeners, etc.)
+  pdfViewer.init();
+  
   // Make globally available for window resize handler
   window.pdfViewer = pdfViewer;
   
@@ -154,3 +157,75 @@ window.addEventListener('beforeunload', () => {
     window.pdfViewer.cleanup();
   }
 });
+
+// Example of how to change transition settings programmatically (Option 2)
+// You can now easily change the transition type and timing from anywhere in your code:
+
+// Method 1: Change individual settings
+function demonstrateTransitionChanges() {
+  if (window.pdfViewer) {
+    console.log('Demonstrating transition configuration changes:');
+    
+    // Change to slide transition with slower timing
+    window.pdfViewer.configureTransitions({
+      type: 'slide',
+      duration: 800,
+      enabled: true
+    });
+    
+    console.log('Changed to slide transition (800ms)');
+    
+    // You can also change just one property at a time:
+    setTimeout(() => {
+      window.pdfViewer.configureTransitions({ type: 'flip' });
+      console.log('Changed to flip transition');
+    }, 3000);
+    
+    setTimeout(() => {
+      window.pdfViewer.configureTransitions({ duration: 200 });
+      console.log('Changed duration to 200ms');
+    }, 6000);
+    
+    setTimeout(() => {
+      window.pdfViewer.configureTransitions({ type: 'none' });
+      console.log('Disabled transitions');
+    }, 9000);
+    
+    setTimeout(() => {
+      // Reset to centralized defaults
+      window.pdfViewer.configureTransitions({
+        type: window.pdfViewer.TRANSITION_CONFIG.DEFAULTS.type,
+        duration: window.pdfViewer.TRANSITION_CONFIG.DEFAULTS.duration,
+        enabled: window.pdfViewer.TRANSITION_CONFIG.DEFAULTS.enabled
+      });
+      console.log('Reset to centralized defaults');
+    }, 12000);
+  }
+}
+
+// Uncomment the line below to see the demonstration in action:
+// setTimeout(demonstrateTransitionChanges, 5000); // Run 5 seconds after page load
+
+// Temporary function to reset preferences (no longer needed for transition settings)
+// Transition settings are now hardcoded and don't use localStorage
+function resetPreferencesToDefaults() {
+  console.log('Resetting preferences (excluding transitions - they are hardcoded now)...');
+  
+  // Clear all reading preferences
+  localStorage.removeItem('bibliotech_reader_prefs_global_general');
+  
+  // Clear book-specific preferences
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('bibliotech_reader_prefs_')) {
+      localStorage.removeItem(key);
+      console.log('Cleared:', key);
+    }
+  });
+  
+  console.log('Preferences cleared! Reloading page...');
+  location.reload();
+}
+
+// TEMPORARY: Automatically reset preferences on first load to test new defaults
+// Uncomment the line below to clear stored preferences and use new defaults:
+// resetPreferencesToDefaults();

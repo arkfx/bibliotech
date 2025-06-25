@@ -4,19 +4,43 @@
  * Part of Phase 3: Advanced UI Features
  */
 
+// Note: Transition settings are now handled centrally in PDFViewer.TRANSITION_CONFIG.DEFAULTS
+// No duplicate transition configuration needed here
+
 export class ReadingPreferences {
   constructor(bookId = 'global') {
     this.bookId = bookId;
     this.storagePrefix = 'bibliotech_reader_prefs';
     this.defaultPreferences = {
       // Theme preferences
-      theme: 'dark',
+      theme: 'dark', // Default to dark theme
       autoTheme: false, // System-aware theme switching
       
       // Zoom and view preferences
       zoom: 1.0,
       fitMode: 'width', // 'width', 'height', 'custom'
       viewMode: 'page', // 'page', 'continuous'
+      
+      // Note: Page transition preferences are handled centrally in PDFViewer.TRANSITION_CONFIG.DEFAULTS
+      // No localStorage storage for transition settings - using hardcoded values only
+      
+      // Page transition preferences (Phase 1.1)
+      transitionType: 'fade', // 'none', 'fade', 'slide', 'flip'
+      transitionDuration: 300, // milliseconds
+      transitionEnabled: true,
+      preloadAdjacentPages: true,
+      
+      // Enhanced zoom preferences (Phase 1.2)
+      smoothZoomAnimations: true, // Enable smooth zoom transitions
+      zoomAnimationDuration: 250, // milliseconds for zoom animations
+      smartZoomEnabled: true, // Enable smart double-tap zoom
+      textZoomLevel: 1.5, // Default zoom level for text zoom
+      maxZoomLevel: 5.0, // Maximum zoom level
+      minZoomLevel: 0.25, // Minimum zoom level
+      zoomStep: 0.25, // Zoom increment for button controls
+      pinchSensitivity: 1.0, // Pinch gesture sensitivity (0.5 = less sensitive, 2.0 = more sensitive)
+      doubleTapZoomMode: 'smart', // 'smart', 'text-width', 'fit-width'
+      maintainPositionOnZoom: true, // Keep reading position during zoom
       
       // Reading controls
       autoScroll: false,
@@ -484,8 +508,6 @@ export class ReadingPreferences {
     };
   }
 
-
-
   /**
    * Get optimal fit mode based on device
    */
@@ -500,8 +522,6 @@ export class ReadingPreferences {
     
     return 'width'; // Desktop default to width for comfortable reading
   }
-
-
 
   /**
    * Determine if high contrast should be used
