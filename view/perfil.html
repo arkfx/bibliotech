@@ -227,21 +227,33 @@
                 <!-- O conteúdo vem de public/js/pages/perfil/historico-pedidos/pedidos-service.js -->
               </div>
 
-            <!-- Estado vazio -->
-            <div class="empty-state hidden">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
-              </svg>
-              <h3>Nenhum pedido realizado</h3>
-              <p>Seus pedidos aparecerão aqui quando você fizer compras em nossa loja.</p>
-              <a href="home.html" class="btn">Explorar Livros</a>
+              <!-- Estado vazio -->
+              <div class="empty-state hidden">
+                <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                <h3>Nenhum pedido realizado</h3>
+                <p>
+                Seus pedidos aparecerão aqui quando você fizer compras em nossa
+                loja.
+              </p>
+                <a href="home.html" class="btn">Explorar Livros</a>
+              </div>
             </div>
           </div>
-        </div>
-                  
-        <!-- Seção de Endereços -->
+
         <div class="profile-content hidden" id="section-enderecos">
             <h2 class="heading-admin">Meus Endereços</h2>
             <div class="profile-card">
@@ -361,28 +373,51 @@
                   <input type="checkbox" id="is_principal" name="is_principal" />
                   <label for="is_principal">Definir como endereço principal</label>
                 </div>
-              </div>
+
+                <div class="form-actions">
+                  <button type="button" id="btn-cancelar-form" class="btn btn-secondary">
+                    Cancelar
+                  </button>
+                  <button type="submit" id="btn-salvar-endereco" class="btn btn-primary btn-loading">
+                    Salvar Endereço
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        <!-- Seção de Lista de Desejos -->
+        <div class="profile-content hidden" id="section-favoritos">
+          <h2 class="heading-admin">Lista de Desejos</h2>
+          <div class="profile-card">
+            <!-- Lista de livros da wishlist (JS insere aqui) -->
+            <div class="wishlist-list"></div>
+
+            <!-- Estado vazio (visível só se lista estiver vazia) -->
+            <div class="empty-state hidden">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"
+                ></path>
+              </svg>
+              <h3>Sua lista de desejos está vazia</h3>
+              <p>
+                Adicione livros à sua lista para encontrá-los facilmente mais
+                tarde.
+              </p>
+              <a href="home.html" class="btn">Explorar Livros</a>
             </div>
           </div>
         </div>
-          <!-- Seção de Lista de Desejos -->
-          <div class="profile-content hidden" id="section-favoritos">
-            <h2 class="heading-admin">Lista de Desejos</h2>
-            <div class="profile-card">
-              <!-- Lista de livros da wishlist (JS insere aqui) -->
-              <div class="wishlist-list"></div>
-                
-              <!-- Estado vazio (visível só se lista estiver vazia) -->
-              <div class="empty-state hidden">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"></path>
-                </svg>
-                <h3>Sua lista de desejos está vazia</h3>
-                <p>Adicione livros à sua lista para encontrá-los facilmente mais tarde.</p>
-                <a href="home.html" class="btn">Explorar Livros</a>
-              </div>
-            </div>
-          </div>
 
         <!-- Seção de Segurança -->
         <div class="profile-content hidden" id="section-seguranca">
