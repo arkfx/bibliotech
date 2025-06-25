@@ -90,7 +90,13 @@
   margin-bottom: 1rem;
   border-radius: 6px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s cubic-bezier(0.4, 0.2, 0.2, 1);
 }
+
+.book-sidebar img:hover {
+  transform: scale(1.05);
+}
+
 
 .book-sidebar h2,
 .book-sidebar p {
@@ -107,17 +113,24 @@
 }
 
 .progress-bar {
-  width: 100%;
-  height: 8px;
+  width: 200%;
+  height: 10px;
   background-color: #e9ecef;
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 0.5rem;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: transform 0.25s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.progress-bar:hover {
+  transform: translateX(-50%) scale(1.05);
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0066cc, #004a99);
+  background: linear-gradient(90deg, #00e1ff, #002aff);
   border-radius: 4px;
   transition: width 0.3s ease;
   width: 0%;

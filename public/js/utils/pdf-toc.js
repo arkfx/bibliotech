@@ -17,7 +17,8 @@ export class PDFTableOfContents {
     this.pageJumpInput = null;
     this.toggleButton = null;
     
-    this.init();
+    // this.init();
+    //INITIALIZE TOC AFTER PDF IS LOADED
   }
 
   async init() {
