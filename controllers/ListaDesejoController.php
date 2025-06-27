@@ -44,22 +44,18 @@ class ListaDesejoController extends BaseController
         }
     }
 
-    #[Route('/desejos', 'DELETE')]
-    public function remover()
+    #[Route('/desejos/{id}', 'DELETE')]
+    public function remover(int $id)
     {
         if (!$this->isAuthenticated()) {
             return $this->response(401, ['status' => 'error', 'message' => 'Usuário não autenticado.']);
         }
 
-        $data = $this->getJsonInput();
         $usuarioId = $_SESSION['userId'];
 
         try {
-            $removido = $this->service->remover($usuarioId, (int)($data['livro_id'] ?? 0));
-            if ($removido) {
-                return $this->response(200, ['status' => 'success', 'message' => 'Livro removido com sucesso!']);
-            }
-            return $this->response(404, ['status' => 'error', 'message' => 'Livro não encontrado na lista de desejos.']);
+            $this->service->remover($usuarioId, $id);
+            return $this->response(200, ['status' => 'success', 'message' => 'Livro removido com sucesso!']);
         } catch (InvalidArgumentException $e) {
             return $this->response(400, ['status' => 'error', 'message' => $e->getMessage()]);
         } catch (Exception $e) {

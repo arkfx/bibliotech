@@ -91,7 +91,7 @@ class PedidoController extends BaseController
 
         return $this->response(200, [
             'status' => 'success',
-            'data' => array_map(fn($p) => $p->toArray(), $pedidos)
+            'data' => $pedidos 
         ]);
     }
 
