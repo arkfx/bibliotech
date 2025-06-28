@@ -20,6 +20,7 @@
 - [📚 Requisitos Funcionais](#requisitos-funcionais)
 - [🎭 User Stories](#user-stories)
 - [🔁 Iterações](#iterações)
+- [🚀 Executar o Projeto](#-como-executar-o-projeto)
 
 
 ## 📖 Sobre o Projeto
@@ -337,3 +338,98 @@ _Objetivo_: Como equipe de desenvolvimento, desejamos refinar a plataforma Bibli
 [Acesse o relatório](relatorios/iteracao-5.md)
 
 ---
+
+
+## Como Executar o Projeto
+
+Siga os passos abaixo para configurar e executar o projeto **BiblioTech** em seu ambiente de desenvolvimento local.
+
+### 🔹 Pré-requisitos
+
+Certifique-se de que você tem os seguintes softwares instalados e configurados em sua máquina:
+
+-   **Git** para clonar o repositório.
+    
+-   **XAMPP** com o módulo **Apache** e **PHP**.
+    
+-   **Docker Desktop** para executar o banco de dados.
+    
+-   **DBeaver** (ou qualquer outro cliente SQL de sua preferência) para gerenciar o banco de dados.
+    
+
+### 🔹 1. Clonando o Repositório
+
+
+```
+# Clone o repositório do projeto para a sua máquina
+git clone https://github.com/thomazllr/bibliotech.git
+```
+
+### 🔹 2. Configuração do Ambiente
+
+#### Backend (PHP + Apache)
+
+1.  Abra o arquivo de configuração do PHP, `php.ini`, geralmente localizado em `C:\xampp\php\php.ini`.
+    
+2.  Procure e descomente (remova o `;` do início) as seguintes extensões para permitir a comunicação com o PostgreSQL:
+        
+    ```
+    extension=pgsql
+    extension=pdo_pgsql
+    ```
+    
+3.  Reinicie o serviço do **Apache** no painel de controle do XAMPP para que as alterações tenham efeito.
+    
+4.  Mova a pasta do projeto `bibliotech` que você clonou para dentro do diretório `htdocs` do XAMPP (geralmente `C:\xampp\htdocs`).
+    
+
+#### Banco de Dados (PostgreSQL com Docker)
+
+1.  Certifique-se de que o **Docker Desktop** está em execução.
+    
+2.  No seu terminal (Prompt de Comando, PowerShell, etc.), execute o comando abaixo para criar e rodar um container Docker com o PostgreSQL.
+    
+    ```
+    docker run --name postgres-bibliotech -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=bibliotech_db -p 5432:5432 -d postgres
+    ```
+    
+    -   Este comando irá criar um container chamado `postgres-bibliotech`.
+        
+    -   Um banco de dados chamado `bibliotech_db` será criado automaticamente.
+        
+    -   O banco ficará acessível na porta `5432` da sua máquina.
+        
+
+#### Populando o Banco de Dados (DBeaver)
+
+1.  Abra o **DBeaver** e crie uma nova conexão com o banco de dados utilizando os seguintes dados:
+    
+    -   **Tipo de Conexão:** PostgreSQL
+        
+    -   **Host:** `localhost`
+        
+    -   **Porta:** `5432`
+        
+    -   **Banco de Dados:** `bibliotech_db`
+        
+    -   **Usuário:** `postgres`
+        
+    -   **Senha:** `postgres`
+        
+2.  Teste a conexão para garantir que tudo está funcionando.
+    
+3.  Após conectar, abra um Editor SQL e execute os scripts para criar a estrutura do banco e popular os dados. Os scripts devem estar em uma pasta 
+    
+    -   **Execute o script de criação das tabelas e inserção de dados** (`db/data.sql`).
+     
+### 🔹 3. Executando o Projeto
+
+1.  Garanta que os serviços **Apache** (pelo XAMPP) e **Docker Desktop** (com o container `postgres-bibliotech`) estão em execução.
+    
+2.  Abra seu navegador de internet e acesse a URL do projeto:
+    
+    ```
+    http://localhost/bibliotech/view
+    ```
+
+Pronto! Agora o sistema **BiblioTech** deve estar funcionando em seu ambiente local.
