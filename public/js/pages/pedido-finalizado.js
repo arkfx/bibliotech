@@ -112,13 +112,18 @@ function preencherInformacoesPedido(pedidoInfo) {
 
 function processarItensPedido(dadosApiItens) {
   return dadosApiItens.map((apiItem) => {
+    const tipoNormalizado =
+      apiItem.tipo && typeof apiItem.tipo === "string"
+        ? apiItem.tipo.toLowerCase()
+        : "fisico";
+
     return {
       livro_id: apiItem.livro_id,
       titulo: apiItem.titulo,
       imagem_url: apiItem.imagem_url,
       quantidade: apiItem.quantidade,
       preco_unitario: parseFloat(apiItem.preco_unitario),
-      tipo: apiItem.item_tipo,
+      tipo: tipoNormalizado, // Usar o tipo correto e já normalizado
       total: parseFloat(apiItem.preco_unitario) * apiItem.quantidade,
     };
   });
@@ -139,8 +144,8 @@ function criarElementoItem(item) {
 
   const imagemUrl = item.imagem_url;
 
-  const tipoFormatado = item.tipo === "ebook" ? "E-book" : "Físico";
-
+  const tipoFormatado =
+    item.tipo && item.tipo.toLowerCase() === "ebook" ? "E-book" : "Físico";
   div.innerHTML = `
         <div class="order-item-image">
             ${

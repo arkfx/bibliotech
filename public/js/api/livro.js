@@ -42,7 +42,7 @@ export async function updateBook(livro) {
   return response.json();
 }
 
-export async function getBooks({ pagina = 1, limite = 6 } = {}) {
+export async function getBooks({ pagina = 1, limite = 1000 } = {}) {
   const url = new URL(API_BASE + "/livros");
   url.searchParams.append("pagina", pagina);
   url.searchParams.append("limite", limite);

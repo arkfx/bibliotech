@@ -221,7 +221,7 @@
   font-size: 1.4rem;
 }
 
-.form-group input {
+#formulario-endereco .form-group input {
   padding: 1.2rem;
   border: 2px solid #e3e8ff;
   border-radius: 8px;
@@ -230,7 +230,7 @@
   background: white;
 }
 
-.form-group input:focus {
+#formulario-endereco .form-group input:focus {
   outline: none;
   border-color: #004d88;
   box-shadow: 0 0 0 3px rgba(0, 77, 136, 0.1);
