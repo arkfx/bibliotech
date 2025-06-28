@@ -369,18 +369,25 @@ git clone https://github.com/thomazllr/bibliotech.git
 
 #### Backend (PHP + Apache)
 
-1.  Abra o arquivo de configuração do PHP, `php.ini`, geralmente localizado em `C:\xampp\php\php.ini`.
+1.  Mova a pasta do projeto `bibliotech` que você clonou para dentro do diretório `htdocs` do XAMPP (geralmente `C:\xampp\htdocs`).
+
+2.  Navegue até o diretório do projeto e instale as dependências do PHP usando o Composer. Se você não tiver o Composer instalado, [siga as instruções de instalação aqui](https://getcomposer.org/download/).
     
-2.  Procure e descomente (remova o `;` do início) as seguintes extensões para permitir a comunicação com o PostgreSQL:
+    ```
+    cd C:\xampp\htdocs\bibliotech
+    composer install
+    ```
+
+3.  Abra o arquivo de configuração do PHP, `php.ini`, geralmente localizado em `C:\xampp\php\php.ini`.
+    
+4.  Procure e descomente (remova o `;` do início) as seguintes extensões para permitir a comunicação com o PostgreSQL:
         
     ```
     extension=pgsql
     extension=pdo_pgsql
     ```
     
-3.  Reinicie o serviço do **Apache** no painel de controle do XAMPP para que as alterações tenham efeito.
-    
-4.  Mova a pasta do projeto `bibliotech` que você clonou para dentro do diretório `htdocs` do XAMPP (geralmente `C:\xampp\htdocs`).
+5.  Reinicie o serviço do **Apache** no painel de controle do XAMPP para que as alterações tenham efeito.
     
 
 #### Banco de Dados (PostgreSQL com Docker)
