@@ -20,7 +20,7 @@
 - [📚 Requisitos Funcionais](#requisitos-funcionais)
 - [🎭 User Stories](#user-stories)
 - [🔁 Iterações](#iterações)
-- [🚀 Executar o Projeto](#-como-executar-o-projeto)
+- [🚀 Executar o Projeto](#como-executar-o-projeto)
 
 
 ## 📖 Sobre o Projeto
@@ -425,9 +425,9 @@ git clone https://github.com/thomazllr/bibliotech.git
         
 2.  Teste a conexão para garantir que tudo está funcionando.
     
-3.  Após conectar, abra um Editor SQL e execute os scripts para criar a estrutura do banco e popular os dados. Os scripts devem estar em uma pasta 
+3.  Após conectar, abra um Editor SQL e execute os scripts para criar a estrutura do banco e popular os dados. Os scripts estão na raiz do projeto `data.sql`.
     
-    -   **Execute o script de criação das tabelas e inserção de dados** (`db/data.sql`).
+    -   **Execute o script de criação das tabelas e inserção de dados** (`data.sql`).
      
 ### 🔹 3. Executando o Projeto
 
