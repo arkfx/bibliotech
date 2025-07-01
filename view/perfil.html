@@ -25,7 +25,7 @@
         <ul class="main-nav-list">
           <!-- Select para filtrar por gêneros -->
           <li>
-            <select id="filter-genres" class="filter-genres">
+            <select id="filter-genres" class="filter-genres genero">
               <option value="">Todos os Gêneros</option>
             </select>
           </li>
@@ -35,7 +35,6 @@
           <li>
             <a href="generos.html" class="main-nav-link navegacao">Gêneros</a>
           </li>
-          <li><a href="#" class="main-nav-link navegacao">Catálogo</a></li>
 
           <li>
             <a href="carrinho.html" id="icart" class="main-nav-link cart-icon">
@@ -57,6 +56,11 @@
                 ></path>
               </svg>
             </a>
+          </li>
+
+          <!-- Botões visíveis apenas se o admin estiver logado -->
+          <li id="btnPainelAdmin" style="display: none">
+            <a href="admin.html" class="main-nav-link">Painel Admin.</a>
           </li>
 
           <!-- Botão de perfil com dropdown -->
@@ -505,6 +509,7 @@
     ></script>
     <script type="module" src="../public/js/pages/perfil/main.js"></script>
     <script type="module" src="../public/js/pages/carrinho.js"></script>
+    <script type="module" src="../public/js/pages/genero.js"></script>
 
   </body>
 </html>

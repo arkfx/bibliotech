@@ -1,4 +1,4 @@
-export function renderBooks(container, livros) {
+export function renderBooks(container, livros, favoritos = null) {
   container.innerHTML = "";
 
   if (livros.length === 0) {
@@ -7,11 +7,17 @@ export function renderBooks(container, livros) {
   }
 
   livros.forEach((livro) => {
+    // Determina se o livro está na lista de favoritos
+    const estaNaLista = favoritos && favoritos.has(livro.id);
+    const btnFavoritoClass = estaNaLista ? "btn-favorito salvo" : "btn-favorito";
+    const btnFavoritoText = estaNaLista ? "❌" : "💙";
+    const btnFavoritoTitle = estaNaLista ? "Remover da Lista de Desejos" : "Salvar na Lista de Desejos";
+
     const bookCard = `
       <div class="book-card">
         <div class="book-cover">
           <a href="detalhes-livro.html?id=${livro.id}" class="book-cover-link">
-            <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" class="book-cover-image" />
+            <img src="${livro.imagem_url}" alt="Capa do livro ${livro.titulo}" class="book-cover-image" loading="lazy" />
           </a>
         </div>
         <div class="book-info">
@@ -28,8 +34,8 @@ export function renderBooks(container, livros) {
             </svg>
             Comprar
           </button>
-          <button class="btn-favorito" data-id="${livro.id}" title="Salvar na Lista de Desejos">
-            💙
+          <button class="${btnFavoritoClass}" data-id="${livro.id}" title="${btnFavoritoTitle}">
+            ${btnFavoritoText}
           </button>
         </div>
       </div>

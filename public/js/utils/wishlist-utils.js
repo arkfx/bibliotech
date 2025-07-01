@@ -37,15 +37,18 @@ export async function carregarListaDesejos() {
 
 /**
  * Atualiza visualmente os botões já presentes no DOM
+ * @param {Set} favoritos - Conjunto de IDs dos livros na lista de desejos
+ * @param {string} botaoSelector - Seletor CSS para os botões
+ * @param {boolean} atualizarVisual - Se deve atualizar a aparência dos botões
  */
 export function configurarBotoesFavoritos(
   favoritos,
-  botaoSelector = ".btn-favorito"
+  botaoSelector = ".btn-favorito",
+  atualizarVisual = true
 ) {
   favoritosGlobais = favoritos;
 
   const botoes = document.querySelectorAll(botaoSelector);
-  console.log("🛠 Configurando botões favoritos:", botoes);
 
   botoes.forEach((btn) => {
     const livroId = parseInt(btn.dataset.id);
@@ -54,14 +57,17 @@ export function configurarBotoesFavoritos(
       return;
     }
 
-    if (favoritosGlobais.has(livroId)) {
-      btn.classList.add("salvo");
-      btn.textContent = "❌";
-      btn.title = "Remover da Lista de Desejos";
-    } else {
-      btn.classList.remove("salvo");
-      btn.textContent = "💙";
-      btn.title = "Salvar na Lista de Desejos";
+    // Só atualiza o visual se for explicitamente solicitado
+    if (atualizarVisual) {
+      if (favoritosGlobais.has(livroId)) {
+        btn.classList.add("salvo");
+        btn.textContent = "❌";
+        btn.title = "Remover da Lista de Desejos";
+      } else {
+        btn.classList.remove("salvo");
+        btn.textContent = "💙";
+        btn.title = "Salvar na Lista de Desejos";
+      }
     }
   });
 }

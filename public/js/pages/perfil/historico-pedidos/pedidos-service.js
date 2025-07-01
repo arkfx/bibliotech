@@ -47,24 +47,13 @@ export async function carregarHistoricoPedidos() {
   renderSkeletonPedidos();
 
   try {
-    const pedidos = await buscarPedidosDoUsuario();
-
     // Aguarda pelo menos 600ms para o skeleton aparecer
     await new Promise((resolve) => setTimeout(resolve, 600));
 
-    if (pedidos.status === "success") {
-      // Enriquece cada pedido com os detalhes dos livros
-      const pedidosComDetalhes = [];
+    const response = await buscarPedidosDoUsuario();
 
-      for (const pedido of pedidos.data) {
-        // Se o pedido tem itens, enriquece cada item
-        if (pedido.itens && pedido.itens.length > 0) {
-          pedido.itens = await enriquecerItensPedido(pedido.itens);
-        }
-        pedidosComDetalhes.push(pedido);
-      }
-
-      preencherTabela(pedidosComDetalhes);
+    if (response.status === "success" && response.data) {
+      preencherTabela(response.data);
     } else {
       preencherTabela([]);
     }
@@ -138,7 +127,6 @@ function preencherTabela(pedidos) {
               </div>
             `;
           } else if (pedido.endereco_id) {
-            // Se tem endereco_id mas não carregou os dados
             enderecoHtml = `
               <div class="order-address">
                 <strong>Endereço:</strong> Informações não disponíveis
@@ -259,29 +247,4 @@ async function obterDetalhesLivro(livroId) {
     console.error(`Erro ao buscar detalhes do livro ${livroId}:`, error);
     return null;
   }
-}
-
-// Função para enriquecer os itens do pedido com detalhes dos livros
-async function enriquecerItensPedido(itens) {
-  if (!itens || !itens.length) return [];
-
-  const itensEnriquecidos = [];
-
-  for (const item of itens) {
-    const livroId = item.livro_id;
-    let i = 0;
-    console.log("passei por aqui", i++);
-    const detalhesLivro = await obterDetalhesLivro(livroId);
-
-    itensEnriquecidos.push({
-      ...item,
-      titulo: detalhesLivro?.titulo || "Título não disponível",
-      autor: detalhesLivro?.autor || "Autor não disponível",
-      imagem_url:
-        detalhesLivro?.imagem_url ||
-        "/bibliotech/public/images/placeholder-book.png",
-    });
-  }
-
-  return itensEnriquecidos;
 }

@@ -137,20 +137,7 @@ class PedidoService
 
     public function listarPedidosDoUsuario(int $usuarioId): array
     {
-        $pedidos = $this->pedidoRepository->buscarPorUsuario($usuarioId);
-
-        foreach ($pedidos as &$pedido) {
-            $pedidoId = is_object($pedido) ? $pedido->id : $pedido['id'];
-            $itens = $this->itemRepository->buscarPorPedido($pedidoId);
-
-            if (is_object($pedido)) {
-                $pedido->itens = $itens;
-            } else {
-                $pedido['itens'] = $itens;
-            }
-        }
-
-        return $pedidos;
+        return $this->pedidoRepository->buscarPorUsuario($usuarioId);
     }
 
     public function buscarPedidoCompleto(int $pedidoId): ?array

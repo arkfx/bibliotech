@@ -18,13 +18,8 @@ export async function adicionarLivroListaDesejos(livroId) {
 }
 
 export async function removerLivroListaDesejos(livroId) {
-  const usuarioId = await obterUserId();
-  if (!usuarioId) throw new Error("Usuário não está logado");
-
-  const response = await fetch(`${API_BASE}/desejos`, {
+  const response = await fetch(`${API_BASE}/desejos/${livroId}`, {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ usuario_id: usuarioId, livro_id: livroId }),
     credentials: "include",
   });
 

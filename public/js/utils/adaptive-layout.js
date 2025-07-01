@@ -227,14 +227,12 @@ export class AdaptiveLayout {
   }
   
   applyMobileLayout() {
-    // Mobile-specific layout adjustments
     const sidebar = document.querySelector('.book-sidebar');
     const pdfReader = document.querySelector('.pdf-reader');
     const controls = document.querySelector('.reader-controls');
     
     if (sidebar) {
-      sidebar.style.transform = 'translateX(-100%)';
-      sidebar.style.transition = 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
+      sidebar.style.transform = 'none';
     }
     
     if (pdfReader) {
