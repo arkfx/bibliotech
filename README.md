@@ -22,12 +22,11 @@
 - [🔁 Iterações](#iterações)
 - [🚀 Executar o Projeto](#como-executar-o-projeto)
 
-
 ## 📖 Sobre o Projeto
 
 O **BiblioTech** é uma livraria digital que permite a venda de livros digitais (ebooks) e livros físicos de forma acessível e organizada. Os usuários poderão explorar um catálogo de livros, realizar compras e acessar sua biblioteca digital para leitura dos ebooks adquiridos.
 
-## Requisitos Funcionais 
+## Requisitos Funcionais
 
 ### RF01: Cadastro do Usuário
 
@@ -255,7 +254,6 @@ Assim, posso acessar uma página dedicada onde todos os livros salvos são exibi
 Assim, ao adicionar ou remover livros, o sistema deve refletir imediatamente as alterações na interface.
 
 ## Iterações
----
 
 ### Iteração 1 - Cadastro e Visualização de livros
 
@@ -302,7 +300,6 @@ _Valor_: Proporcionar uma experiência completa de compra, permitindo que os usu
 
 _Objetivo_: Implementar as funcionalidades de finalização de pedidos e gerenciamento de perfil, incluindo o histórico de pedidos e a exibição dos livros salvos na lista de desejos. Isso melhora a experiência do usuário, garantindo que ele tenha acesso às informações de suas compras, dados pessoais e livros de interesse.
 
-
 _Requisitos_:
 
 - RF07 - Finalização do Pedido
@@ -334,11 +331,9 @@ _Valor_: Aprimorar a experiência do usuário e a robustez do sistema através d
 
 _Objetivo_: Como equipe de desenvolvimento, desejamos refinar a plataforma BiblioTech implementando paginação em listagens extensas, melhorando o gerenciamento de endereços para pedidos, criando uma tela de catálogo mais interativa com opções de ordenação, adicionando o gerenciamento de gêneros no painel administrativo, aprimorando o leitor de eBooks e iniciando a cobertura de testes unitários para aumentar a confiabilidade e a manutenibilidade do sistema.
 
-
 [Acesse o relatório](relatorios/iteracao-5.md)
 
 ---
-
 
 ## Como Executar o Projeto
 
@@ -348,17 +343,12 @@ Siga os passos abaixo para configurar e executar o projeto **BiblioTech** em seu
 
 Certifique-se de que você tem os seguintes softwares instalados e configurados em sua máquina:
 
--   **Git** para clonar o repositório.
-    
--   **XAMPP** com o módulo **Apache** e **PHP**.
-    
--   **Docker Desktop** para executar o banco de dados.
-    
--   **DBeaver** (ou qualquer outro cliente SQL de sua preferência) para gerenciar o banco de dados.
-    
+- **Git** para clonar o repositório.
+- **XAMPP** com o módulo **Apache** e **PHP**.
+- **Docker Desktop** para executar o banco de dados.
+- **DBeaver** (ou qualquer outro cliente SQL de sua preferência) para gerenciar o banco de dados.
 
 ### 🔹 1. Clonando o Repositório
-
 
 ```
 # Clone o repositório do projeto para a sua máquina
@@ -372,69 +362,67 @@ git clone https://github.com/thomazllr/bibliotech.git
 1.  Mova a pasta do projeto `bibliotech` que você clonou para dentro do diretório `htdocs` do XAMPP (geralmente `C:\xampp\htdocs`).
 
 2.  Navegue até o diretório do projeto e instale as dependências do PHP usando o Composer. Se você não tiver o Composer instalado, [siga as instruções de instalação aqui](https://getcomposer.org/download/).
-    
+
     ```
     cd C:\xampp\htdocs\bibliotech
     composer install
     ```
 
-3.  Abra o arquivo de configuração do PHP, `php.ini`, geralmente localizado em `C:\xampp\php\php.ini`.
-    
-4.  Procure e descomente (remova o `;` do início) as seguintes extensões para permitir a comunicação com o PostgreSQL:
-        
+3.  Configure as variáveis de ambiente:
+
+    - Crie um arquivo chamado `.env` na raiz do projeto, caso ainda não exista.
+    - Edite o arquivo `.env` com as informações do seu banco de dados e outras configurações necessárias, por exemplo:
+
+    ```env
+    DB_HOST=localhost
+    DB_PORT=5432
+    DB_DATABASE=bibliotech_db
+    DB_USERNAME=postgres
+    DB_PASSWORD=postgres
+    ```
+
+4.  Abra o arquivo de configuração do PHP, `php.ini`, geralmente localizado em `C:\xampp\php\php.ini`.
+5.  Procure e descomente (remova o `;` do início) as seguintes extensões para permitir a comunicação com o PostgreSQL:
     ```
     extension=pgsql
     extension=pdo_pgsql
     ```
-    
-5.  Reinicie o serviço do **Apache** no painel de controle do XAMPP para que as alterações tenham efeito.
-    
+6.  Reinicie o serviço do **Apache** no painel de controle do XAMPP para que as alterações tenham efeito.
 
 #### Banco de Dados (PostgreSQL com Docker)
 
 1.  Certifique-se de que o **Docker Desktop** está em execução.
-    
 2.  No seu terminal (Prompt de Comando, PowerShell, etc.), execute o comando abaixo para criar e rodar um container Docker com o PostgreSQL.
-    
+
     ```
     docker run --name postgres-bibliotech -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=bibliotech_db -p 5432:5432 -d postgres
     ```
-    
-    -   Este comando irá criar um container chamado `postgres-bibliotech`.
-        
-    -   Um banco de dados chamado `bibliotech_db` será criado automaticamente.
-        
-    -   O banco ficará acessível na porta `5432` da sua máquina.
-        
+
+    - Este comando irá criar um container chamado `postgres-bibliotech`.
+    - Um banco de dados chamado `bibliotech_db` será criado automaticamente.
+    - O banco ficará acessível na porta `5432` da sua máquina.
 
 #### Populando o Banco de Dados (DBeaver)
 
 1.  Abra o **DBeaver** e crie uma nova conexão com o banco de dados utilizando os seguintes dados:
-    
-    -   **Tipo de Conexão:** PostgreSQL
-        
-    -   **Host:** `localhost`
-        
-    -   **Porta:** `5432`
-        
-    -   **Banco de Dados:** `bibliotech_db`
-        
-    -   **Usuário:** `postgres`
-        
-    -   **Senha:** `postgres`
-        
+
+    - **Tipo de Conexão:** PostgreSQL
+    - **Host:** `localhost`
+    - **Porta:** `5432`
+    - **Banco de Dados:** `bibliotech_db`
+    - **Usuário:** `postgres`
+    - **Senha:** `postgres`
+
 2.  Teste a conexão para garantir que tudo está funcionando.
-    
 3.  Após conectar, abra um Editor SQL e execute os scripts para criar a estrutura do banco e popular os dados. Os scripts estão na raiz do projeto `data.sql`.
-    
-    -   **Execute o script de criação das tabelas e inserção de dados** (`data.sql`).
-     
+
+    - **Execute o script de criação das tabelas e inserção de dados** (`data.sql`).
+
 ### 🔹 3. Executando o Projeto
 
 1.  Garanta que os serviços **Apache** (pelo XAMPP) e **Docker Desktop** (com o container `postgres-bibliotech`) estão em execução.
-    
 2.  Abra seu navegador de internet e acesse a URL do projeto:
-    
+
     ```
     http://localhost/bibliotech/view
     ```
